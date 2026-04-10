@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "VoidZero.vite-plus-extension-pack",
+    "humao.rest-client",
+    "antfu.iconify",
+    "lokalise.i18n-ally",
+    "cweijan.dbclient-jdbc"
+  ]
+}
