@@ -1,88 +1,64 @@
-<!--VITE PLUS START-->
+# CLAUDE.md
 
-# Using Vite+, the Unified Toolchain for the Web
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-This project is using Vite+, a unified toolchain built on top of Vite, Rolldown, Vitest, tsdown, Oxlint, Oxfmt, and Vite Task. Vite+ wraps runtime management, package management, and frontend tooling in a single global CLI called `vp`. Vite+ is distinct from Vite, but it invokes Vite through `vp dev` and `vp build`.
+## Project Overview
 
-## Vite+ Workflow
+A Bun-based monorepo with three workspaces:
 
-`vp` is a global binary that handles the full development lifecycle. Run `vp help` to print a list of commands and `vp <command> --help` for information about a specific command.
+- **`apps/api`** — NestJS backend (port 3000 by default)
+- **`apps/web`** — Nuxt 4 frontend (port 4000, configured in `nuxt.config.ts`)
+- **`packages/utils`** — Shared TypeScript utilities package (`@aio/utils`)
 
-### Start
+## Common Commands
 
-- create - Create a new project from a template
-- migrate - Migrate an existing project to Vite+
-- config - Configure hooks and agent integration
-- staged - Run linters on staged files
-- install (`i`) - Install dependencies
-- env - Manage Node.js versions
+```bash
+# Install dependencies
+bun install
 
-### Develop
+# Run all projects concurrently (api on 3000, web on 4000, utils in watch mode)
+bun run dev
 
-- dev - Run the development server
-- check - Run format, lint, and TypeScript type checks
-- lint - Lint code
-- fmt - Format code
-- test - Run tests
+# Run individual projects
+bun run dev:api      # NestJS API on port 3000
+bun run dev:web      # Nuxt web on port 4000
+bun run dev:utils    # Utils package in watch mode
 
-### Execute
+# Build
+bun run build:api
+bun run build:web
 
-- run - Run monorepo tasks
-- exec - Execute a command from local `node_modules/.bin`
-- dlx - Execute a package binary without installing it as a dependency
-- cache - Manage the task cache
+# Test
+bun run test:api
 
-### Build
-
-- build - Build for production
-- pack - Build libraries
-- preview - Preview production build
-
-### Manage Dependencies
-
-Vite+ automatically detects and wraps the underlying package manager such as pnpm, npm, or Yarn through the `packageManager` field in `package.json` or package manager-specific lockfiles.
-
-- add - Add packages to dependencies
-- remove (`rm`, `un`, `uninstall`) - Remove packages from dependencies
-- update (`up`) - Update packages to latest versions
-- dedupe - Deduplicate dependencies
-- outdated - Check for outdated packages
-- list (`ls`) - List installed packages
-- why (`explain`) - Show why a package is installed
-- info (`view`, `show`) - View package information from the registry
-- link (`ln`) / unlink - Manage local package links
-- pm - Forward a command to the package manager
-
-### Maintain
-
-- upgrade - Update `vp` itself to the latest version
-
-These commands map to their corresponding tools. For example, `vp dev --port 3000` runs Vite's dev server and works the same as Vite. `vp test` runs JavaScript tests through the bundled Vitest. The version of all tools can be checked using `vp --version`. This is useful when researching documentation, features, and bugs.
-
-## Common Pitfalls
-
-- **Using the package manager directly:** Do not use pnpm, npm, or Yarn directly. Vite+ can handle all package manager operations.
-- **Always use Vite commands to run tools:** Don't attempt to run `vp vitest` or `vp oxlint`. They do not exist. Use `vp test` and `vp lint` instead.
-- **Running scripts:** Vite+ built-in commands (`vp dev`, `vp build`, `vp test`, etc.) always run the Vite+ built-in tool, not any `package.json` script of the same name. To run a custom script that shares a name with a built-in command, use `vp run <script>`. For example, if you have a custom `dev` script that runs multiple services concurrently, run it with `vp run dev`, not `vp dev` (which always starts Vite's dev server).
-- **Do not install Vitest, Oxlint, Oxfmt, or tsdown directly:** Vite+ wraps these tools. They must not be installed directly. You cannot upgrade these tools by installing their latest versions. Always use Vite+ commands.
-- **Use Vite+ wrappers for one-off binaries:** Use `vp dlx` instead of package-manager-specific `dlx`/`npx` commands.
-- **Import JavaScript modules from `vite-plus`:** Instead of importing from `vite` or `vitest`, all modules should be imported from the project's `vite-plus` dependency. For example, `import { defineConfig } from 'vite-plus';` or `import { expect, test, vi } from 'vite-plus/test';`. You must not install `vitest` to import test utilities.
-- **Type-Aware Linting:** There is no need to install `oxlint-tsgolint`, `vp lint --type-aware` works out of the box.
-
-## CI Integration
-
-For GitHub Actions, consider using [`voidzero-dev/setup-vp`](https://github.com/voidzero-dev/setup-vp) to replace separate `actions/setup-node`, package-manager setup, cache, and install steps with a single action.
-
-```yaml
-- uses: voidzero-dev/setup-vp@v1
-  with:
-    cache: true
-- run: vp check
-- run: vp test
+# Lint/format
+bun run check        # Type-check all projects
 ```
 
-## Review Checklist for Agents
+## Architecture
 
-- [ ] Run `vp install` after pulling remote changes and before getting started.
-- [ ] Run `vp check` and `vp test` to validate changes.
-<!--VITE PLUS END-->
+### API (NestJS)
+
+- Entry: `apps/api/src/main.ts`
+- CORS is enabled for `http://localhost:4000` and `http://127.0.0.1:4000`
+- Uses `@aio/utils` via workspace dependency
+- Listens on port 3000
+
+### Web (Nuxt 4)
+
+- Entry: `apps/web/app/app.vue`
+- API base URL configured via `runtimeConfig.public.apiBase` (defaults to `http://localhost:3000`)
+- Web port is 4000 (configured in `nuxt.config.ts`)
+- Imports and uses `@aio/utils` directly
+
+### Utils Package
+
+- Entry: `packages/utils/src/index.ts`
+- Exported as `@aio/utils`
+- Build output goes to `dist/` directory
+
+## Tooling
+
+- **vp** (voidplate/vite-plus) — used for running scripts, building, and type-checking
+- **Bun** — package manager
+- **mise.toml** — specifies `bun` and `vp` as tools
