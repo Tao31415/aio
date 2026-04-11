@@ -1,12 +1,12 @@
 {
-  "name": "nuxt-app",
+  "name": "web",
   "private": true,
   "type": "module",
   "scripts": {
+    "dev": "nuxt dev --dotenv .env.local",
     "build": "nuxt build",
-    "dev": "nuxt dev",
     "generate": "nuxt generate",
-    "preview": "nuxt preview",
+    "preview": "nuxt preview --dotenv .env.production",
     "fmt": "vp fmt --write",
     "lint": "vp lint --fix",
     "postinstall": "nuxt prepare"

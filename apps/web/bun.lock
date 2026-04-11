@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "nuxt-app",
+      "name": "web",
       "dependencies": {
         "nuxt": "^4.4.2",
         "vue": "^3.5.32",

@@ -19,11 +19,13 @@ ENV NODE_ENV=production
 FROM runner AS api
 COPY --from=builder /app/apps/api/dist ./dist
 COPY --from=builder /app/apps/api/node_modules ./node_modules
+COPY --from=builder /app/apps/api/.env.production .env
 EXPOSE 3000
-CMD ["bun", "dist/main.js"]
+CMD ["bun", "--env-file=.env", "dist/main.js"]
 
 # Web
 FROM runner AS web
 COPY --from=builder /app/apps/web/.output ./output
+COPY --from=builder /app/apps/web/.env.production .env
 EXPOSE 3001
-CMD ["bun", ".output/server/index.mjs"]
+CMD ["bun", "--env-file=.env", ".output/server/index.mjs"]

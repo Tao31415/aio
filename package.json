@@ -9,10 +9,14 @@
   ],
   "type": "module",
   "scripts": {
-    "ready": "vp fmt && vp lint && vp run -r test && vp run -r build",
     "dev": "vp run -r dev",
     "dev:api": "vp run api#dev",
     "dev:web": "vp run web#dev",
+    "dev:api:debug": "vp run api#dev:debug",
+    "build:api": "vp run api#build",
+    "build:web": "vp run web#build",
+    "test:api": "vp run api#test",
+    "preview:web": "vp run web#preview",
     "prepare": "vp config"
   },
   "devDependencies": {
