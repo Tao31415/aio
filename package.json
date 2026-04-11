@@ -17,7 +17,8 @@
     "build:web": "vp run web#build",
     "test:api": "vp run api#test",
     "preview:web": "vp run web#preview",
-    "prepare": "vp config"
+    "prepare": "vp config",
+    "check": "vp check"
   },
   "devDependencies": {
     "@typescript/native-preview": "^7.0.0-dev.20260409.1",
@@ -34,6 +35,6 @@
   "catalog": {
     "vite": "npm:@voidzero-dev/vite-plus-core@latest",
     "vitest": "npm:@voidzero-dev/vite-plus-test@latest",
-    "vite-plus": "latest"
+    "vite-plus": "0.1.16"
   }
 }

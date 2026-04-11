@@ -1,6 +1,7 @@
 {
-  "name": "@aiao/utils",
+  "name": "@aio/utils",
   "version": "0.0.0",
+  "private": true,
   "description": "A starter for creating a TypeScript package.",
   "homepage": "https://github.com/author/library#readme",
   "bugs": {
@@ -13,9 +14,11 @@
     "url": "git+https://github.com/author/library.git"
   },
   "files": [
+    "*.d.ts",
     "dist"
   ],
   "type": "module",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": "./dist/index.mjs",
     "./package.json": "./package.json"
@@ -35,6 +38,6 @@
     "@typescript/native-preview": "^7.0.0-dev.20260409.1",
     "bumpp": "^11.0.1",
     "typescript": "^6.0.2",
-    "vite-plus": "^0.1.14"
+    "vite-plus": "^0.1.16"
   }
 }
