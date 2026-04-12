@@ -1,8 +1,19 @@
 import { NestFactory } from '@nestjs/core'
+import { Transport } from '@nestjs/microservices'
 import { AppModule } from './app.module'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
+
+  // 连接 MQTT 微服务
+  app.connectMicroservice({
+    transport: Transport.MQTT,
+    options: {
+      url: process.env.MQTT_BROKER_URL || 'mqtt://localhost:1883',
+    },
+  })
+
+  await app.startAllMicroservices()
 
   app.enableCors({
     origin: ['http://localhost:4000', 'http://127.0.0.1:4000'],

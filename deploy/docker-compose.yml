@@ -5,6 +5,7 @@ services:
     image: timescale/timescaledb:latest-pg17
     environment:
       - TZ=Asia/Shanghai
+      - LANG=C.UTF-8
       - POSTGRES_USER=${DB_USER:-postgres}
       - POSTGRES_PASSWORD=${DB_PASSWORD:-postgres}
       - POSTGRES_DB=${DB_NAME:-aio}
@@ -23,6 +24,7 @@ services:
     image: redis:latest
     environment:
       - TZ=Asia/Shanghai
+      - LANG=C.UTF-8
     command: redis-server --appendonly yes
     ports:
       - '${REDIS_PORT:-6379}:6379'
@@ -39,6 +41,7 @@ services:
     image: minio/minio:latest
     environment:
       - TZ=Asia/Shanghai
+      - LANG=C.UTF-8
       - MINIO_ROOT_USER=${MINIO_ROOT_USER:-minioadmin}
       - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-minioadmin}
     ports:
@@ -65,6 +68,7 @@ services:
     image: eclipse-mosquitto:latest
     environment:
       - TZ=Asia/Shanghai
+      - LANG=C.UTF-8
     ports:
       - '${MOSQUITTO_PORT:-1883}:1883'
       - '${MOSQUITTO_WS_PORT:-1884}:1884'
@@ -93,6 +97,8 @@ services:
       - ../apps/api/.env.production
     environment:
       - TZ=Asia/Shanghai
+      - LANG=C.UTF-8
+      - LC_ALL=C.UTF-8
       - NODE_ENV=production
       - DB_HOST=timescale
       - DB_PORT=5432
@@ -112,6 +118,11 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://localhost:3000/health || exit 1']
+      interval: 30s
+      timeout: 10s
+      retries: 3
     restart: unless-stopped
 
   web:
@@ -123,6 +134,7 @@ services:
       - ../apps/web/.env.production
     environment:
       - TZ=Asia/Shanghai
+      - LANG=C.UTF-8
       - NODE_ENV=production
       - NUXT_PUBLIC_API_BASE=http://api:3000
       - PORT=4000
@@ -136,6 +148,7 @@ services:
     image: nginx:latest
     environment:
       - TZ=Asia/Shanghai
+      - LANG=C.UTF-8
     ports:
       - '${NGINX_PORT:-80}:80'
       - '${NGINX_SSL_PORT:-443}:443'
@@ -151,6 +164,7 @@ services:
     image: amir20/dozzle:latest
     environment:
       - TZ=Asia/Shanghai
+      - LANG=C.UTF-8
       - DOZZLE_NO_ANALYTICS=true
     ports:
       - '${DOZZLE_PORT:-8080}:8080'
