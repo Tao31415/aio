@@ -82,3 +82,13 @@ bun run lint        # Lint code
 - **Bun** — package manager
 - **mise.toml** — specifies pinned versions of `bun` (1.3.12) and `vp` (0.1.16)
 - **Makefile** — deployment automation (`make init`, `make build`, `make deploy`)
+
+## Docker Build
+
+```bash
+make build        # Sequential build (api then web)
+make -j4 build    # Parallel Docker builds (recommended)
+make -j build     # Unlimited parallelism
+```
+
+The `make -j4` flag enables parallel execution of `build-api` and `build-web`. Increasing to `-j10` has no additional benefit since only 2 Docker targets run in parallel.

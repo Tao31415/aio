@@ -116,6 +116,17 @@ make build   # 编译 + Docker 镜像构建
 make deploy  # 启动 Docker 服务
 ```
 
+### 并行构建
+
+`make build` 会先编译项目，再打包 Docker 镜像。Docker 镜像构建阶段（build-api 和 build-web）可以并行执行，通过 `-j` 参数控制并行任务数：
+
+```bash
+make -j4 build   # 最多同时运行 4 个任务（推荐）
+make -j build     # 不限制并行任务数
+```
+
+**注意**：由于 Makefile 中只有 2 个 Docker 构建任务（api 和 web），`-j4` 和 `-j10` 的效果相同，因为瓶颈不在并行任务数，而在 Docker 构建本身的速度。
+
 ## 推荐 VSCode 插件
 
 项目已在 `.vscode/extensions.json` 中配置了推荐插件，首次打开时 VSCode 会提示安装：

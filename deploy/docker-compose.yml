@@ -89,9 +89,10 @@ services:
     restart: unless-stopped
 
   api:
+    image: aio/api:latest
     build:
       context: ..
-      dockerfile: deploy/Dockerfile
+      dockerfile: deploy/Dockerfile.api
       target: api
     env_file:
       - ../apps/api/.env.production
@@ -126,9 +127,10 @@ services:
     restart: unless-stopped
 
   web:
+    image: aio/web:latest
     build:
       context: ..
-      dockerfile: deploy/Dockerfile
+      dockerfile: deploy/Dockerfile.web
       target: web
     env_file:
       - ../apps/web/.env.production

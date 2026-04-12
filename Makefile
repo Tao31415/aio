@@ -102,7 +102,7 @@ build-api:
 	@docker build \
 		--target api \
 		--tag aio/api:latest \
-		--file deploy/Dockerfile .
+		--file deploy/Dockerfile.api .
 	@echo "✓ API 镜像: aio/api:latest"
 
 build-web:
@@ -111,7 +111,7 @@ build-web:
 	@docker build \
 		--target web \
 		--tag aio/web:latest \
-		--file deploy/Dockerfile .
+		--file deploy/Dockerfile.web .
 	@echo "✓ Web 镜像: aio/web:latest"
 
 # ================================
@@ -144,7 +144,7 @@ deploy-check:
 
 deploy-compose:
 	@echo "==> 启动 Docker 服务..."
-	@docker compose -f deploy/docker-compose.yml up -d
+	@docker compose -f deploy/docker-compose.yml up -d --no-build
 
 # ================================
 # 4. 停止/重启容器
