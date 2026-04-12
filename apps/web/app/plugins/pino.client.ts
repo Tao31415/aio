@@ -1,18 +1,14 @@
 import pino from 'pino'
 
 export default defineNuxtPlugin(() => {
+  const config = useRuntimeConfig()
+
   const logger = pino({
-    level: process.env.LOG_LEVEL || 'info',
-    transport:
-      process.env.NODE_ENV === 'development'
-        ? {
-            target: 'pino-pretty',
-            options: {
-              colorize: true,
-              translateTime: 'SYS:standard',
-            },
-          }
-        : undefined,
+    level: config.public.LOG_LEVEL,
+    browser: {
+      // 浏览器中以 JSON 形式输出，便于调试
+      asObject: true,
+    },
   })
 
   return {

@@ -4,8 +4,16 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   runtimeConfig: {
     public: {
+      LOG_LEVEL: process.env.NUXT_PUBLIC_LOG_LEVEL ?? 'info',
       apiBase: process.env.NUXT_PUBLIC_API_BASE ?? 'http://localhost:3000',
-      env: process.env.NUXT_PUBLIC_ENV ?? 'unknown',
+      env: process.env.NUXT_PUBLIC_ENV ?? 'local',
+    },
+  },
+  vite: {
+    optimizeDeps: {
+      include: [
+        'pino', // CJS
+      ],
     },
   },
 })
