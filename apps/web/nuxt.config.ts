@@ -8,20 +8,4 @@ export default defineNuxtConfig({
       env: process.env.NUXT_PUBLIC_ENV ?? 'unknown',
     },
   },
-  // build: {
-  //   transpile: ['@aio/utils'],
-  // },
-  // // vite: {
-  // //   resolve: {
-  // //     alias: {
-  // //       '@aio/utils': path.resolve(
-  // //         __dirname,
-  // //         '../../packages/utils/src/index.ts'
-  // //       ),
-  // //     },
-  // //   },
-  // //   optimizeDeps: {
-  // //     exclude: ['@aio/utils'],
-  // //   },
-  // // },
 })

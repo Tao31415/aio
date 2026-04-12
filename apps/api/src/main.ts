@@ -1,9 +1,13 @@
 import { NestFactory } from '@nestjs/core'
 import { Transport } from '@nestjs/microservices'
 import { AppModule } from './app.module'
+import { Logger } from 'nestjs-pino'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
+
+  // 使用 pino logger
+  app.useLogger(app.get(Logger))
 
   // 连接 MQTT 微服务
   app.connectMicroservice({
