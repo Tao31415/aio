@@ -1,16 +1,17 @@
 version: '3.8'
 
 services:
-  postgres:
-    image: postgres:16-alpine
+  timescale:
+    image: timescale/timescaledb:latest-pg17
     environment:
+      - TZ=Asia/Shanghai
       - POSTGRES_USER=${DB_USER:-postgres}
       - POSTGRES_PASSWORD=${DB_PASSWORD:-postgres}
       - POSTGRES_DB=${DB_NAME:-aio}
     ports:
       - '${DB_PORT:-5432}:5432'
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - timescale_data:/var/lib/postgresql/data
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U ${DB_USER:-postgres}']
       interval: 5s
@@ -18,26 +19,26 @@ services:
       retries: 5
     restart: unless-stopped
 
-  timescale:
-    image: timescale/timescaledb:latest-pg16
+  redis:
+    image: redis:latest
     environment:
-      - POSTGRES_USER=${TS_DB_USER:-postgres}
-      - POSTGRES_PASSWORD=${TS_DB_PASSWORD:-postgres}
-      - POSTGRES_DB=${TS_DB_NAME:-timeseries}
+      - TZ=Asia/Shanghai
+    command: redis-server --appendonly yes
     ports:
-      - '${TS_DB_PORT:-5433}:5432'
+      - '${REDIS_PORT:-6379}:6379'
     volumes:
-      - timescale_data:/var/lib/postgresql/data
+      - redis_data:/data
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U ${TS_DB_USER:-postgres} -p 5432']
-      interval: 5s
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 3
     restart: unless-stopped
 
   minio:
     image: minio/minio:latest
     environment:
+      - TZ=Asia/Shanghai
       - MINIO_ROOT_USER=${MINIO_ROOT_USER:-minioadmin}
       - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-minioadmin}
     ports:
@@ -62,6 +63,8 @@ services:
 
   mosquitto:
     image: eclipse-mosquitto:latest
+    environment:
+      - TZ=Asia/Shanghai
     ports:
       - '${MOSQUITTO_PORT:-1883}:1883'
       - '${MOSQUITTO_WS_PORT:-1884}:1884'
@@ -89,17 +92,15 @@ services:
     env_file:
       - ../apps/api/.env.production
     environment:
+      - TZ=Asia/Shanghai
       - NODE_ENV=production
-      - DB_HOST=postgres
+      - DB_HOST=timescale
       - DB_PORT=5432
       - DB_USER=${DB_USER:-postgres}
       - DB_PASSWORD=${DB_PASSWORD:-postgres}
       - DB_NAME=${DB_NAME:-aio}
-      - TS_DB_HOST=timescale
-      - TS_DB_PORT=5432
-      - TS_DB_USER=${TS_DB_USER:-postgres}
-      - TS_DB_PASSWORD=${TS_DB_PASSWORD:-postgres}
-      - TS_DB_NAME=${TS_DB_NAME:-timeseries}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
       - MINIO_ENDPOINT=minio:9000
       - MINIO_ACCESS_KEY=${MINIO_ROOT_USER:-minioadmin}
       - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD:-minioadmin}
@@ -107,9 +108,9 @@ services:
     ports:
       - '${API_PORT:-3000}:3000'
     depends_on:
-      postgres:
-        condition: service_healthy
       timescale:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     restart: unless-stopped
 
@@ -121,24 +122,26 @@ services:
     env_file:
       - ../apps/web/.env.production
     environment:
+      - TZ=Asia/Shanghai
       - NODE_ENV=production
       - NUXT_PUBLIC_API_BASE=http://api:3000
-      - PORT=3000
+      - PORT=4000
     expose:
-      - '3000'
+      - '4000'
     depends_on:
       - api
     restart: unless-stopped
 
   nginx:
     image: nginx:latest
+    environment:
+      - TZ=Asia/Shanghai
     ports:
       - '${NGINX_PORT:-80}:80'
       - '${NGINX_SSL_PORT:-443}:443'
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
-      - nginx_logs:/var/log/nginx
     depends_on:
       - api
       - web
@@ -147,6 +150,7 @@ services:
   dozzle:
     image: amir20/dozzle:latest
     environment:
+      - TZ=Asia/Shanghai
       - DOZZLE_NO_ANALYTICS=true
     ports:
       - '${DOZZLE_PORT:-8080}:8080'
@@ -155,9 +159,8 @@ services:
     restart: unless-stopped
 
 volumes:
-  postgres_data:
   timescale_data:
+  redis_data:
   minio_data:
   mosquitto_data:
   mosquitto_log:
-  nginx_logs:
