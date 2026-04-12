@@ -88,7 +88,7 @@ build-check:
 build-project:
 	@echo ""
 	@echo "==> 编译项目 (bun run build)..."
-	@./$$HOME/.local/share/mise/bin/bun run build || (echo "项目编译失败，请检查代码错误" && exit 1)
+	@$(shell which bun) run build || (echo "项目编译失败，请检查代码错误" && exit 1)
 	@echo "✓ 项目编译成功"
 
 build-docker: build-api build-web

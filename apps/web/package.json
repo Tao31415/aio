@@ -9,12 +9,16 @@
     "preview": "nuxt preview --dotenv .env.production",
     "fmt": "vp fmt --write",
     "lint": "vp lint --fix",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "clean": "rm -rf node_modules .output"
   },
   "dependencies": {
     "@aio/utils": "workspace:*",
     "nuxt": "^4.4.2",
     "vue": "^3.5.32",
     "vue-router": "^5.0.4"
+  },
+  "devDependencies": {
+    "vite": "^8.0.8"
   }
 }

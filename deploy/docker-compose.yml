@@ -144,6 +144,16 @@ services:
       - web
     restart: unless-stopped
 
+  dozzle:
+    image: amir20/dozzle:latest
+    environment:
+      - DOZZLE_NO_ANALYTICS=true
+    ports:
+      - '${DOZZLE_PORT:-8080}:8080'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    restart: unless-stopped
+
 volumes:
   postgres_data:
   timescale_data:

@@ -1,8 +1,9 @@
 # ===== 依赖阶段 =====
 FROM oven/bun:alpine AS deps
 WORKDIR /app
+ENV BUN_INSTALL_REGISTRY='https://registry.npmmirror.com'
 COPY package.json bun.lock ./
-RUN bun install --frozen-lockfile
+RUN bun install --ignore-scripts
 
 # ===== 构建阶段 =====
 FROM oven/bun:alpine AS builder

@@ -60,6 +60,7 @@ cp deploy/.env.example deploy/.env
 | `MOSQUITTO_PORT`      | MQTT 端口                  | 1883          |
 | `API_PORT`            | API 外部端口               | 3000          |
 | `NGINX_PORT`          | HTTP 端口                  | 80            |
+| `DOZZLE_PORT`         | Dozzle 日志端口            | 8080          |
 
 ## 构建
 
@@ -94,12 +95,21 @@ docker compose -f deploy/docker-compose.yml down
 | timescale | 5432           | 5433           | 时序数据库           |
 | minio     | 9000/9001      | 9000/9001      | 对象存储/API+Console |
 | mosquitto | 1883/1884/8883 | 1883/1884/8883 | MQTT Broker          |
+| dozzle    | 8080           | 8080           | Docker 日志查看      |
 
 ## MinIO
 
 - API 地址: `http://localhost:9000`
 - Console 地址: `http://localhost:9001`
 - 默认用户/密码: `minioadmin` / `minioadmin`
+
+## Dozzle
+
+实时查看所有 Docker 容器日志的 Web 界面：
+
+- 地址: `http://localhost:8080`
+- 无需配置，直接连接 Docker Socket
+- 支持搜索、过滤、下载日志
 
 ## Mosquitto
 

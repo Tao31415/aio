@@ -25,15 +25,31 @@ bun run dev:web      # Nuxt web on port 4000
 bun run dev:utils    # Utils package in watch mode
 
 # Build
-bun run build:api
-bun run build:web
+bun run build        # Build all (utils + api + web)
+bun run build:utils  # Build @aio/utils package
+bun run build:api    # Build NestJS API
+bun run build:web    # Build Nuxt Web
+
+# Clean & Reinstall
+bun run cleanAll     # Remove node_modules and build outputs
+bun run reinstall    # cleanAll + bun install
 
 # Test
 bun run test:api
 
-# Lint/format
+# Lint/format/check
 bun run check        # Type-check all projects
+bun run fmt         # Format code
+bun run lint        # Lint code
 ```
+
+## Build Outputs
+
+| Project | Output Path            |
+| ------- | ---------------------- |
+| `api`   | `apps/api/dist/`       |
+| `web`   | `apps/web/.output/`    |
+| `utils` | `packages/utils/dist/` |
 
 ## Architecture
 
@@ -61,4 +77,5 @@ bun run check        # Type-check all projects
 
 - **vp** (voidplate/vite-plus) — used for running scripts, building, and type-checking
 - **Bun** — package manager
-- **mise.toml** — specifies `bun` and `vp` as tools
+- **mise.toml** — specifies pinned versions of `bun` (1.3.12) and `vp` (0.1.16)
+- **Makefile** — deployment automation (`make init`, `make build`, `make deploy`)

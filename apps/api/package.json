@@ -17,7 +17,8 @@
     "test:e2e": "jest  --env-file=.env.test --config ./test/jest-e2e.json",
     "check": "vp check",
     "fmt": "vp fmt --write",
-    "lint": "vp lint --fix"
+    "lint": "vp lint --fix",
+    "clean": "rm -rf node_modules dist"
   },
   "dependencies": {
     "@aio/utils": "workspace:*",

@@ -41,7 +41,9 @@ aio/
 ├── packages/
 │   └── utils/        # 共享工具包 (@aio/utils)
 ├── deploy/           # Docker 部署配置
-└── scripts/          # 辅助脚本
+├── scripts/          # 辅助脚本
+├── Makefile         # 部署自动化脚本
+└── .bunfig.toml     # Bun 配置（镜像源、链接器）
 ```
 
 ### 目录功能说明
@@ -78,12 +80,15 @@ Web 前端通过 `useFetch` 访问 `http://localhost:3000` 的 API 接口。API 
 
 在根目录执行以下命令：
 
-| 命令            | 说明               |
-| --------------- | ------------------ |
-| `bun run dev`   | 启动所有服务热更新 |
-| `bun run check` | 类型检查           |
-| `bun run fmt`   | 代码格式化         |
-| `bun run lint`  | 代码检查           |
+| 命令                | 说明                   |
+| ------------------- | ---------------------- |
+| `bun run dev`       | 启动所有服务热更新     |
+| `bun run check`     | 类型检查               |
+| `bun run fmt`       | 代码格式化             |
+| `bun run lint`      | 代码检查               |
+| `bun run build`     | 编译所有项目           |
+| `bun run cleanAll`  | 清理所有构建产物和依赖 |
+| `bun run reinstall` | 清理后重新安装依赖     |
 
 单独运行某个服务：
 
@@ -91,6 +96,22 @@ Web 前端通过 `useFetch` 访问 `http://localhost:3000` 的 API 接口。API 
 bun run dev:api      # 仅启动 API (port 3000)
 bun run dev:web      # 仅启动 Web (port 4000)
 bun run dev:utils    # 仅启动 Utils 构建监听
+```
+
+## Makefile 命令
+
+项目提供 Makefile 简化常见操作：
+
+| 命令          | 说明                             |
+| ------------- | -------------------------------- |
+| `make init`   | 初始化项目（安装 mise/bun/依赖） |
+| `make build`  | 编译项目并打包 Docker 镜像       |
+| `make deploy` | 部署项目到 Docker                |
+
+```bash
+make init    # 首次使用，安装所有工具和依赖
+make build   # 编译 + Docker 镜像构建
+make deploy  # 启动 Docker 服务
 ```
 
 ## 推荐 VSCode 插件
@@ -144,6 +165,44 @@ VSCode 中配合 `oxc.oxc-vscode` 插件，保存文件时自动格式化（`edi
 
 项目配置了 pre-commit hook（`.vite-hooks/pre-commit`），在 `git commit` 时自动对暂存区文件执行 `vp check --fix`，确保提交的代码符合规范。
 
-## 打包与 Docker
+## Docker 部署
 
-打包与 Docker 部署方案待定。
+项目使用 Docker 多阶段构建：
+
+### 构建产物
+
+| 服务  | 构建产物路径        | 运行时入口                      |
+| ----- | ------------------- | ------------------------------- |
+| `api` | `apps/api/dist/`    | `node dist/main.js`             |
+| `web` | `apps/web/.output/` | `node .output/server/index.mjs` |
+
+### 构建与部署
+
+```bash
+# 1. 安装 mise（如未安装）
+curl https://mise.run/zsh | sh
+
+# 2. 初始化项目
+make init
+
+# 3. 编译并打包 Docker 镜像
+make build
+
+# 4. 部署到 Docker
+make deploy
+```
+
+### Docker 服务
+
+项目 docker-compose 包含以下服务：
+
+- **nginx** — 反向代理（端口 80）
+- **api** — NestJS API（端口 3000）
+- **web** — Nuxt Web（端口 3000）
+- **postgres** — PostgreSQL 主数据库（端口 5432）
+- **timescale** — TimescaleDB 时序数据库（端口 5433）
+- **minio** — 对象存储（端口 9000/9001）
+- **mosquitto** — MQTT Broker（端口 1883/1884/8883）
+- **dozzle** — Docker 日志查看（端口 8080）
+
+详细配置见 `deploy/` 目录。
