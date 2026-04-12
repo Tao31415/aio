@@ -1,7 +1,6 @@
 import { Module, Global } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import * as Minio from 'minio'
-import { MinioInitService } from '../minio-init.service'
 
 export const MINIO_CLIENT = 'MINIO_CLIENT'
 
@@ -25,8 +24,7 @@ export const MINIO_CLIENT = 'MINIO_CLIENT'
         })
       },
     },
-    MinioInitService,
   ],
-  exports: [MINIO_CLIENT, MinioInitService],
+  exports: [MINIO_CLIENT],
 })
 export class StorageModule {}

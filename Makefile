@@ -1,4 +1,4 @@
-.PHONY: init build deploy help
+.PHONY: init build deploy stop restart help
 
 SHELL_TYPE := $(shell basename $(SHELL))
 
@@ -16,6 +16,8 @@ help:
 	@echo "其他命令："
 	@echo "  make build-api   # 仅构建 API Docker 镜像"
 	@echo "  make build-web   # 仅构建 Web Docker 镜像"
+	@echo "  make stop        # 停止 Docker 容器"
+	@echo "  make restart     # 重启 Docker 容器"
 
 # ================================
 # 1. 初始化项目
@@ -143,3 +145,14 @@ deploy-check:
 deploy-compose:
 	@echo "==> 启动 Docker 服务..."
 	@docker compose -f deploy/docker-compose.yml up -d
+
+# ================================
+# 4. 停止/重启容器
+# ================================
+stop:
+	@echo "==> 停止 Docker 容器..."
+	@docker compose -f deploy/docker-compose.yml stop
+	@echo "✓ 容器已停止"
+
+restart: stop deploy
+	@echo "✓ 容器已重启"

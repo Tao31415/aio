@@ -26,7 +26,7 @@
     "check": "vp check",
     "cleanAll": "vp run api#clean & vp run web#clean & vp run @aio/utils#clean && rm -rf node_modules",
     "reinstall": "bun run cleanAll && bun install",
-    "kill": "lsof -ti:3000 -ti:4000 2>/dev/null | xargs kill -9 2>/dev/null || true"
+    "kill": "bun run script/kill-ports.sh"
   },
   "devDependencies": {
     "@types/minio": "^7.1.1",
