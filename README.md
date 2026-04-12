@@ -43,7 +43,8 @@ aio/
 ├── deploy/           # Docker 部署配置
 ├── scripts/          # 辅助脚本
 ├── Makefile         # 部署自动化脚本
-└── .bunfig.toml     # Bun 配置（镜像源、链接器）
+├── .bunfig.toml     # Bun 配置（镜像源、链接器）
+└── .dockerignore    # Docker 构建排除文件
 ```
 
 ### 目录功能说明
@@ -80,15 +81,16 @@ Web 前端通过 `useFetch` 访问 `http://localhost:3000` 的 API 接口。API 
 
 在根目录执行以下命令：
 
-| 命令                | 说明                   |
-| ------------------- | ---------------------- |
-| `bun run dev`       | 启动所有服务热更新     |
-| `bun run check`     | 类型检查               |
-| `bun run fmt`       | 代码格式化             |
-| `bun run lint`      | 代码检查               |
-| `bun run build`     | 编译所有项目           |
-| `bun run cleanAll`  | 清理所有构建产物和依赖 |
-| `bun run reinstall` | 清理后重新安装依赖     |
+| 命令                | 说明                    |
+| ------------------- | ----------------------- |
+| `bun run dev`       | 启动所有服务热更新      |
+| `bun run check`     | 类型检查                |
+| `bun run fmt`       | 代码格式化              |
+| `bun run lint`      | 代码检查                |
+| `bun run build`     | 编译所有项目（并行）    |
+| `bun run cleanAll`  | 清理所有构建产物和依赖  |
+| `bun run reinstall` | 清理后重新安装依赖      |
+| `bun run kill`      | 终止 3000/4000 端口进程 |
 
 单独运行某个服务：
 
@@ -198,7 +200,7 @@ make deploy
 
 - **nginx** — 反向代理（端口 80）
 - **api** — NestJS API（端口 3000）
-- **web** — Nuxt Web（端口 3000）
+- **web** — Nuxt Web（端口 4000）
 - **postgres** — PostgreSQL 主数据库（端口 5432）
 - **timescale** — TimescaleDB 时序数据库（端口 5433）
 - **minio** — 对象存储（端口 9000/9001）

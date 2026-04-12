@@ -1,0 +1,42 @@
+# Dependencies
+node_modules
+apps/api/node_modules
+apps/web/node_modules
+packages/utils/node_modules
+
+# Build outputs
+apps/api/dist
+apps/web/.output
+packages/utils/dist
+
+# IDE
+.vscode
+.idea
+*.swp
+
+# Git
+.git
+.gitignore
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+deploy/docker-compose.yml
+deploy/Dockerfile
+.dockerignore
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment (包含敏感信息)
+*.env.local
+*.env.*.local
+
+# Misc
+*.tgz
+.cache
+.temp
+.tmp

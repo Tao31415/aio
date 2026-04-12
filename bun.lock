@@ -5,7 +5,6 @@
     "": {
       "name": "aio",
       "devDependencies": {
-        "@typescript/native-preview": "^7.0.0-dev.20260409.1",
         "rolldown": "^1.0.0-rc.15",
         "vite-plus": "catalog:",
       },

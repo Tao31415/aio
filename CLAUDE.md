@@ -25,10 +25,13 @@ bun run dev:web      # Nuxt web on port 4000
 bun run dev:utils    # Utils package in watch mode
 
 # Build
-bun run build        # Build all (utils + api + web)
+bun run build        # Build all (utils + api + web in parallel)
 bun run build:utils  # Build @aio/utils package
 bun run build:api    # Build NestJS API
 bun run build:web    # Build Nuxt Web
+
+# Kill dev servers
+bun run kill        # Kill processes on ports 3000/4000
 
 # Clean & Reinstall
 bun run cleanAll     # Remove node_modules and build outputs
