@@ -104,28 +104,37 @@ bun run dev:utils    # 仅启动 Utils 构建监听
 
 项目提供 Makefile 简化常见操作：
 
-| 命令          | 说明                             |
-| ------------- | -------------------------------- |
-| `make init`   | 初始化项目（安装 mise/bun/依赖） |
-| `make build`  | 编译项目并打包 Docker 镜像       |
-| `make deploy` | 部署项目到 Docker                |
-
 ```bash
-make init    # 首次使用，安装所有工具和依赖
-make build   # 编译 + Docker 镜像构建
-make deploy  # 启动 Docker 服务
+make init                  # 初始化项目（安装 mise/bun/依赖）
+make build                 # 编译项目
+make dev                   # 启动开发环境
+make check                 # 类型检查
+make fix                   # 自动修复类型问题
+make kill                  # 停止开发服务器
+make clean                 # 清理构建产物
+make reinstall             # 清理并重新安装依赖
+
+make deploy                # 部署到 Docker (build + start)
+make deploy-build          # 并行构建 Docker 镜像
+make deploy-build-api      # 构建 API Docker 镜像
+make deploy-build-web      # 构建 Web Docker 镜像
+make deploy-pull           # 下载 Docker 镜像
+make deploy-start          # 启动 Docker 服务
+make deploy-stop           # 停止 Docker 容器
+make deploy-restart        # 重启 Docker 容器
+make deploy-down           # 删除 Docker 容器
 ```
 
 ### 并行构建
 
-`make build` 会先编译项目，再打包 Docker 镜像。Docker 镜像构建阶段（build-api 和 build-web）可以并行执行，通过 `-j` 参数控制并行任务数：
+`make deploy-build` 会并行构建 API 和 Web Docker 镜像，通过 `-j` 参数控制并行任务数：
 
 ```bash
-make -j4 build   # 最多同时运行 4 个任务（推荐）
-make -j build     # 不限制并行任务数
+make -j4 deploy-build   # 最多同时运行 4 个任务（推荐）
+make -j deploy-build     # 不限制并行任务数
 ```
 
-**注意**：由于 Makefile 中只有 2 个 Docker 构建任务（api 和 web），`-j4` 和 `-j10` 的效果相同，因为瓶颈不在并行任务数，而在 Docker 构建本身的速度。
+**注意**：由于只有 2 个 Docker 构建任务（api 和 web），`-j4` 和 `-j10` 的效果相同，因为瓶颈不在并行任务数，而在 Docker 构建本身的速度。
 
 ## 推荐 VSCode 插件
 
@@ -198,11 +207,15 @@ curl https://mise.run/zsh | sh
 # 2. 初始化项目
 make init
 
-# 3. 编译并打包 Docker 镜像
+# 3. 编译项目
 make build
 
-# 4. 部署到 Docker
-make deploy
+# 4. 构建 Docker 镜像
+make deploy-build
+
+# 5. 部署到 Docker
+make deploy-start
+# 或者一步完成：make deploy
 ```
 
 ### Docker 服务

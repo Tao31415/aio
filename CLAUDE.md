@@ -78,17 +78,72 @@ bun run lint        # Lint code
 
 ## Tooling
 
-- **vp** (voidplate/vite-plus) — used for running scripts, building, and type-checking
+- **mise** — task orchestrator (推荐)
+- **vp** (voidplate/vite-plus) — scripts, building, type-checking
 - **Bun** — package manager
-- **mise.toml** — specifies pinned versions of `bun` (1.3.12) and `vp` (0.1.16)
-- **Makefile** — deployment automation (`make init`, `make build`, `make deploy`)
+- **mise.toml** — pinned tool versions + task definitions
+- **Makefile** — 独立于 mise，完全等价的功能
 
-## Docker Build
+## Mise Tasks
+
+**mise 和 Makefile 完全独立，可单独使用。**
 
 ```bash
-make build        # Sequential build (api then web)
-make -j4 build    # Parallel Docker builds (recommended)
-make -j build     # Unlimited parallelism
+# 初始化
+mise run init         # 初始化项目（安装依赖 + 配置环境变量）
+
+# 开发
+mise run dev          # 启动所有项目 (api + web + utils watch)
+mise run dev:api      # 启动 API only
+mise run dev:web      # 启动 Web only
+mise run kill         # 停止开发服务器
+
+# 代码质量
+mise run check        # 类型检查
+mise run fix          # 自动修复类型问题
+
+# 清理与重装
+mise run clean        # 清理构建产物
+mise run reinstall    # 清理并重新安装依赖
+
+# 构建
+mise run build        # 编译项目
+
+# Docker 镜像构建
+mise run deploy-build       # 并行构建 Docker 镜像（api + web）
+mise run deploy-build-api   # 构建 API Docker 镜像
+mise run deploy-build-web   # 构建 Web Docker 镜像
+mise run deploy-pull        # 下载 Docker 镜像
+
+# Docker 部署
+mise run deploy            # 部署到 Docker (build + start)
+mise run deploy-start      # 启动 Docker 服务（不重建）
+mise run deploy-stop       # 停止 Docker 容器
+mise run deploy-restart    # 重启 Docker 容器
+mise run deploy-down       # 删除 Docker 容器
 ```
 
-The `make -j4` flag enables parallel execution of `build-api` and `build-web`. Increasing to `-j10` has no additional benefit since only 2 Docker targets run in parallel.
+## Makefile
+
+Makefile 与 mise 完全独立，功能对等：
+
+```bash
+make init                  # 初始化项目
+make build                 # 编译项目
+make dev                   # 启动开发环境
+make check                 # 类型检查
+make fix                   # 自动修复类型问题
+make kill                  # 停止开发服务器
+make clean                 # 清理构建产物
+make reinstall             # 清理并重新安装依赖
+
+make deploy                # 部署到 Docker (build + start)
+make deploy-build          # 并行构建 Docker 镜像
+make deploy-build-api      # 构建 API Docker 镜像
+make deploy-build-web      # 构建 Web Docker 镜像
+make deploy-pull           # 下载 Docker 镜像
+make deploy-start          # 启动 Docker 服务
+make deploy-stop           # 停止 Docker 容器
+make deploy-restart        # 重启 Docker 容器
+make deploy-down           # 删除 Docker 容器
+```

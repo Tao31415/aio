@@ -18,7 +18,8 @@
     "check": "vp check",
     "fmt": "vp fmt --write",
     "lint": "vp lint --fix",
-    "clean": "rm -rf node_modules dist"
+    "clean": "rm -rf dist",
+    "cleanAll": "rm -rf node_modules dist"
   },
   "dependencies": {
     "@aio/utils": "workspace:*",

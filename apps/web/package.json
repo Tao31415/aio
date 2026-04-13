@@ -10,7 +10,8 @@
     "fmt": "vp fmt --write",
     "lint": "vp lint --fix",
     "postinstall": "nuxt prepare",
-    "clean": "rm -rf node_modules .output"
+    "clean": "rm -rf node_modules .output",
+    "cleanAll": "rm -rf .output"
   },
   "dependencies": {
     "@aio/utils": "workspace:*",
@@ -20,6 +21,6 @@
     "vue-router": "^5.0.4"
   },
   "devDependencies": {
-    "vite": "^8.0.8"
+    "vite": "npm:@voidzero-dev/vite-plus-core@0.1.16"
   }
 }
