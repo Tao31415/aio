@@ -31,8 +31,8 @@
     "dev": "vp pack --watch",
     "test": "vp test",
     "check": "vp check",
-    "clean": "rm -rf dist",
-    "cleanAll": "rm -rf dist node_modules",
+    "clean": "shx rm -rf dist",
+    "cleanAll": "shx rm -rf dist node_modules",
     "prepublishOnly": "vp run build"
   },
   "dependencies": {

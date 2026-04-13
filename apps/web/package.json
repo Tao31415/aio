@@ -10,8 +10,8 @@
     "fmt": "vp fmt --write",
     "lint": "vp lint --fix",
     "postinstall": "nuxt prepare",
-    "clean": "rm -rf node_modules .output",
-    "cleanAll": "rm -rf .output"
+    "clean": "shx rm -rf .output",
+    "cleanAll": "shx rm -rf node_modules .output"
   },
   "dependencies": {
     "@aio/utils": "workspace:*",
