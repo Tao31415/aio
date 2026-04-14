@@ -18,8 +18,8 @@ import {
 import { Session } from '@thallesp/nestjs-better-auth'
 import type { UserSession } from '@thallesp/nestjs-better-auth'
 import { AdminService } from './admin.service'
-import { UserRole } from '../auth/entities/user.entity'
-import { Roles, RolesGuard } from '../common'
+import { UserRole } from '@auth/entities/user.entity'
+import { Roles, RolesGuard } from '@/common'
 import {
   UpdateUserByAdminDto,
   UpdateUserRoleDto,

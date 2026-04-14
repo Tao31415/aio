@@ -3,9 +3,9 @@ import { ConfigService } from '@nestjs/config'
 import * as Minio from 'minio'
 
 @Injectable()
-export class MinioService implements OnModuleInit {
+export class StorageService implements OnModuleInit {
   private client: Minio.Client
-  private readonly logger = new Logger(MinioService.name)
+  private readonly logger = new Logger(StorageService.name)
   private readonly bucket: string
 
   constructor(

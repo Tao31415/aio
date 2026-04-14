@@ -1,13 +1,10 @@
 import { Module } from '@nestjs/common'
-import { ConfigModule, ConfigService } from '@nestjs/config'
-import { TypeOrmModule } from '@nestjs/typeorm'
+import { ConfigModule } from '@nestjs/config'
 import { LoggerModule } from 'nestjs-pino'
-import { AppController } from '@/app.controller'
-import { AppService } from '@/app.service'
-import { HealthController } from '@/health.controller'
-import { AuthModule } from '@/auth/auth.module'
-import { AdminModule } from '@/admin/admin.module'
-import { User, Account, Session, Verification } from '@/auth/entities'
+import { HealthController } from '@system/health.controller'
+import { AuthModule } from '@auth/auth.module'
+import { AdminModule } from '@user/admin.module'
+import { DatabaseModule } from '@database/database.module'
 import { databaseConfig, redisConfig, mqttConfig, minioConfig } from '@/config'
 
 @Module({
@@ -25,29 +22,16 @@ import { databaseConfig, redisConfig, mqttConfig, minioConfig } from '@/config'
             : undefined,
       },
     }),
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        host: configService.get('DATABASE_HOST', 'localhost'),
-        port: configService.get('DATABASE_PORT', 5432),
-        username: configService.get('DATABASE_USERNAME', 'postgres'),
-        password: configService.get('DATABASE_PASSWORD', 'postgres'),
-        database: configService.get('DATABASE_NAME', 'nest_better_auth'),
-        entities: [User, Account, Session, Verification],
-        synchronize: true, // Set to false in production
-      }),
-    }),
+
     AuthModule,
     AdminModule,
-    // DatabaseModule,
+    DatabaseModule,
     // CacheModule,
     // RedisModule,
     // MqttModule,
     // StorageModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [HealthController],
+  providers: [],
 })
 export class AppModule {}
