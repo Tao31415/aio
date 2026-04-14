@@ -1,4 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing'
+
+jest.mock('@thallesp/nestjs-better-auth', () => ({
+  AllowAnonymous: () => () => undefined,
+}))
+
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 
@@ -16,7 +21,7 @@ describe('AppController', () => {
 
   describe('root', () => {
     it('should return "Environment: test"', () => {
-      expect(appController.getHello()).toBe('Environment: test')
+      expect(appController.getHello()).toBe('Environment: test Hello, tsdown!)')
     })
   })
 })

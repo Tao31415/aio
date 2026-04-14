@@ -1,4 +1,4 @@
-.PHONY: help init build dev check fix kill clean reinstall deploy deploy-build deploy-build-api deploy-build-web deploy-pull deploy-start deploy-stop deploy-restart deploy-down
+.PHONY: help init build dev check fix kill clean cleanAll reinstall deploy deploy-build deploy-build-api deploy-build deploy-build-web deploy-pull deploy-start deploy-stop deploy-restart deploy-down
 
 # ================================
 # 变量
@@ -24,6 +24,7 @@ help:
 	@echo "  make fix       # 自动修复类型问题"
 	@echo "  make kill      # 停止开发服务器"
 	@echo "  make clean     # 清理构建产物"
+	@echo "  make cleanAll  # 深度清理（包含 node_modules）"
 	@echo "  make reinstall  # 清理并重新安装依赖"
 	@echo ""
 	@echo "Docker 命令："
@@ -124,6 +125,12 @@ clean:
 	@echo "==> 清理构建产物..."
 	@$(BUN) run clean
 	@echo "✓ 清理完成"
+
+cleanAll:
+	@echo "==> 深度清理..."
+	@$(BUN) run cleanAll
+	@rm -rf node_modules
+	@echo "✓ 深度清理完成"
 
 reinstall:
 	@echo "==> 清理并重新安装依赖..."

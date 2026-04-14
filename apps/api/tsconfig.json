@@ -20,6 +20,19 @@
     "noImplicitAny": true,
     "strictBindCallApply": true,
     "noFallthroughCasesInSwitch": true,
-    "types": ["node", "jest"]
+    "types": ["node", "jest"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@auth/*": ["src/module/auth/*"],
+      "@config/*": ["src/module/config/*"],
+      "@log/*": ["src/module/log/*"],
+      "@main/*": ["src/module/main/*"],
+      "@mqtt/*": ["src/module/mqtt/*"],
+      "@redis/*": ["src/module/redis/*"],
+      "@storage/*": ["src/module/storage/*"],
+      "@user/*": ["src/module/user/*"],
+      "@common/*": ["src/common/*"]
+    }
   }
 }

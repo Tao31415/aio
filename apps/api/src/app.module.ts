@@ -2,14 +2,13 @@ import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { LoggerModule } from 'nestjs-pino'
-import { AppController } from './app.controller'
-import { AppService } from './app.service'
-import { HealthController } from './health.controller'
-import { AuthModule } from './auth/auth.module'
-import { AdminModule } from './admin/admin.module'
-import { User, Account, Session, Verification } from './auth/entities'
-import { databaseConfig, redisConfig, mqttConfig, minioConfig } from './config'
-
+import { AppController } from '@/app.controller'
+import { AppService } from '@/app.service'
+import { HealthController } from '@/health.controller'
+import { AuthModule } from '@/auth/auth.module'
+import { AdminModule } from '@/admin/admin.module'
+import { User, Account, Session, Verification } from '@/auth/entities'
+import { databaseConfig, redisConfig, mqttConfig, minioConfig } from '@/config'
 
 @Module({
   imports: [

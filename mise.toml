@@ -102,6 +102,14 @@ exit 0
 description = "清理构建产物"
 run = "bun run clean"
 
+[tasks.cleanAll]
+description = "深度清理（包含 node_modules）"
+run = ["bun run cleanAll", "rm -rf node_modules"]
+run_windows = [
+  "bun run cleanAll",
+  "if (Test-Path node_modules) { Remove-Item node_modules -Recurse -Force }",
+]
+
 [tasks.reinstall]
 description = "清理并重新安装依赖"
 depends = ["clean"]
