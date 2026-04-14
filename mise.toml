@@ -1,5 +1,9 @@
+[env]
+npm_config_registry = "https://registry.npmmirror.com/"
+
 [tools]
 bun = "1.3.12"
+node = "25.9.0"
 vp = "0.1.16"
 
 # ================================
@@ -8,26 +12,19 @@ vp = "0.1.16"
 [tasks.init]
 description = "初始化项目"
 run = [
-  "echo '==> 检测 Docker 安装状态...'",
-  "docker -v && echo '  ✓ Docker 已安装' || echo '  ⚠ Docker 未安装（容器操作不可用）'",
-  "echo ''",
-  "echo '==> 执行 mise install...'",
+  "echo --- 检测 Docker 安装状态 ---",
+  "docker -v",
+  "echo --- 执行 mise install ---",
   "mise install",
-  "echo ''",
-  "echo '==> 安装项目依赖...'",
+  "echo --- 安装项目依赖 ---",
   "bun install",
-  "echo '✓ 依赖安装成功'",
-  "echo ''",
-  "echo '==> 编译 Utils 包...'",
+  "echo --- 编译 Utils 包 ---",
   "bun run build:utils",
-  "echo '✓ Utils 编译完成'",
-  "echo ''",
-  "echo '==> 初始化环境变量文件...'",
-  "bun x shx cp -n apps/api/.env.example apps/api/.env.local && echo '  - apps/api/.env.local 已创建'",
-  "bun x shx cp -n apps/web/.env.example apps/web/.env.local && echo '  - apps/web/.env.local 已创建'",
-  "bun x shx cp -n deploy/.env.example deploy/.env && echo '  - deploy/.env 已创建'",
-  "echo ''",
-  "echo '✓ 项目初始化成功！可以执行 ''mise run dev'' 启动开发环境'",
+  "echo --- 初始化环境变量文件 ---",
+  "bun x shx cp -n apps/api/.env.example apps/api/.env.local",
+  "bun x shx cp -n apps/web/.env.example apps/web/.env.local",
+  "bun x shx cp -n deploy/.env.example deploy/.env",
+  "echo --- 项目初始化成功！可以执行 mise run dev 启动开发环境 ---",
 ]
 
 # ================================
@@ -35,7 +32,7 @@ run = [
 # ================================
 [tasks.build]
 description = "编译项目"
-run = ["echo '==> 编译项目...'", "bun run build"]
+run = ["echo --- 编译项目 ---", "bun run build"]
 
 # ================================
 # 开发环境
@@ -43,11 +40,9 @@ run = ["echo '==> 编译项目...'", "bun run build"]
 [tasks.dev]
 description = "启动开发环境 (kill + dev)"
 run = [
-  "echo '==> 停止现有开发服务器...'",
+  "echo --- 停止现有开发服务器 ---",
   "bun run kill",
-  "echo '✓ 已停止'",
-  "echo ''",
-  "echo '==> 启动开发服务器...'",
+  "echo --- 启动开发服务器 ---",
   "bun run dev",
 ]
 
@@ -122,25 +117,22 @@ depends = ["deploy-build-api", "deploy-build-web"]
 [tasks.deploy-build-api]
 description = "构建 API Docker 镜像"
 run = [
-  "echo '==> 构建 API Docker 镜像...'",
+  "echo --- 构建 API Docker 镜像 ---",
   "docker build --target api --tag aio/api:latest --file deploy/Dockerfile.api .",
-  "echo '✓ API 镜像: aio/api:latest'",
 ]
 
 [tasks.deploy-build-web]
 description = "构建 Web Docker 镜像"
 run = [
-  "echo '==> 构建 Web Docker 镜像...'",
+  "echo --- 构建 Web Docker 镜像 ---",
   "docker build --target web --tag aio/web:latest --file deploy/Dockerfile.web .",
-  "echo '✓ Web 镜像: aio/web:latest'",
 ]
 
 [tasks.deploy-pull]
 description = "下载 Docker 镜像"
 run = [
-  "echo '==> 下载 Docker 镜像...'",
+  "echo --- 下载 Docker 镜像 ---",
   "docker compose -f deploy/docker-compose.yml pull --ignore-pull-failures",
-  "echo '✓ 镜像下载完成'",
 ]
 
 # ================================
@@ -151,37 +143,33 @@ description = "部署到 Docker (build + start)"
 run = [
   "mise run deploy-build",
   "mise run deploy-start",
-  "echo '✓ 部署成功！查看服务状态: docker compose -f deploy/docker-compose.yml ps'",
+  "echo --- 部署成功！查看服务状态: docker compose -f deploy/docker-compose.yml ps ---",
 ]
 
 [tasks.deploy-start]
 description = "启动 Docker 服务 (不重建)"
 run = [
-  "echo '==> 启动 Docker 服务...'",
+  "echo --- 启动 Docker 服务 ---",
   "docker compose -f deploy/docker-compose.yml up -d --no-build",
-  "echo '✓ 服务启动成功'",
 ]
 
 [tasks.deploy-stop]
 description = "停止 Docker 容器"
 run = [
-  "echo '==> 停止 Docker 容器...'",
+  "echo --- 停止 Docker 容器 ---",
   "docker compose -f deploy/docker-compose.yml stop",
-  "echo '✓ 容器已停止'",
 ]
 
 [tasks.deploy-restart]
 description = "重启 Docker 容器"
 run = [
-  "echo '==> 重启 Docker 容器...'",
+  "echo --- 重启 Docker 容器 ---",
   "docker compose -f deploy/docker-compose.yml restart",
-  "echo '✓ 容器已重启'",
 ]
 
 [tasks.deploy-down]
 description = "删除 Docker 容器"
 run = [
-  "echo '==> 删除 Docker 容器...'",
+  "echo --- 删除 Docker 容器 ---",
   "docker compose -f deploy/docker-compose.yml down",
-  "echo '✓ 容器已删除'",
 ]
