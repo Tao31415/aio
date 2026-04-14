@@ -28,14 +28,14 @@ async function bootstrap() {
   })
 
   // 连接 MQTT 微服务
-  app.connectMicroservice({
-    transport: Transport.MQTT,
-    options: {
-      url: process.env.MQTT_BROKER_URL || 'mqtt://localhost:1883',
-    },
-  })
+  // app.connectMicroservice({
+  //   transport: Transport.MQTT,
+  //   options: {
+  //     url: process.env.MQTT_BROKER_URL || 'mqtt://localhost:1883',
+  //   },
+  // })
 
-  await app.startAllMicroservices()
+  // await app.startAllMicroservices()
 
   app.enableCors({
     origin: ['http://localhost:40000', 'http://127.0.0.1:4000'],

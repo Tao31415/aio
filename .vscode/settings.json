@@ -1,7 +1,7 @@
 {
   "editor.defaultFormatter": "oxc.oxc-vscode",
   "oxc.fmt.configPath": "./vite.config.ts",
-  "editor.formatOnSave": true,
+  "editor.formatOnSave": false,
   "editor.insertSpaces": true,
   "editor.tabSize": 2,
   "editor.renderWhitespace": "boundary",
