@@ -1,39 +1,35 @@
-<script setup lang="ts">
-  import { fn } from '@aio/utils'
-
-  const config = useRuntimeConfig()
-  const { data, pending, error } = await useFetch(`${config.public.apiBase}`)
-
-  const logger = useLogger()
-
-  onMounted(() => {
-    logger.info({ user: 'tester' }, '组件已挂载')
-  })
-
-  const handleClick = () => {
-    try {
-      // 模拟错误
-      throw new Error('Oops!')
-    } catch (err) {
-      logger.error(err, '点击事件发生错误')
-    }
-  }
-</script>
-
 <template>
   <div>
-    <NuxtRouteAnnouncer />
-    <button @click="handleClick">打个日志</button>
-    <p>WEB_ENV: {{ config.public.env }}</p>
-    <p>API 响应:</p>
-    <pre>{{
-      pending
-        ? '加载中...'
-        : error
-          ? error.message
-          : JSON.stringify(data, null, 2)
-    }}</pre>
-    <p>Utils fn(): {{ fn() }}</p>
-    <NuxtWelcome />
+    <NuxtLayout>
+      <NuxtPage v-slot="{ Component }">
+        <KeepAlive :include="keepAlive.includeKeys.value">
+          <component
+            :is="Component"
+            :key="keepAlive.currentKey.value"
+          />
+        </KeepAlive>
+      </NuxtPage>
+    </NuxtLayout>
   </div>
 </template>
+
+<script setup lang="ts">
+  import { setupMock } from '~/utils/mock'
+
+  // 全局初始化
+  const config = useRuntimeConfig()
+
+  // 初始化主题
+  const { initTheme } = useTheme()
+
+  // 初始化 KeepAlive
+  const keepAlive = useKeepAlive()
+
+  // 初始化 Mock 数据（客户端）
+  onMounted(() => {
+    initTheme()
+    if (config.public.mock) {
+      setupMock()
+    }
+  })
+</script>
