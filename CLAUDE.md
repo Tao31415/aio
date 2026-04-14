@@ -6,8 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A Bun-based monorepo with three workspaces:
 
-- **`apps/api`** — NestJS backend (port 3000 by default)
-- **`apps/web`** — Nuxt 4 frontend (port 4000, configured in `nuxt.config.ts`)
+- **`apps/api`** — NestJS backend (port 30000 by default)
+- **`apps/web`** — Nuxt 4 frontend (port 40000, configured in `nuxt.config.ts`)
 - **`packages/utils`** — Shared TypeScript utilities package (`@aio/utils`)
 
 ## Common Commands
@@ -16,12 +16,12 @@ A Bun-based monorepo with three workspaces:
 # Install dependencies
 bun install
 
-# Run all projects concurrently (api on 3000, web on 4000, utils in watch mode)
+# Run all projects concurrently (api on 30000, web on 40000, utils in watch mode)
 bun run dev
 
 # Run individual projects
-bun run dev:api      # NestJS API on port 3000
-bun run dev:web      # Nuxt web on port 4000
+bun run dev:api      # NestJS API on port 30000
+bun run dev:web      # Nuxt web on port 40000
 bun run dev:utils    # Utils package in watch mode
 
 # Build
@@ -31,7 +31,7 @@ bun run build:api    # Build NestJS API
 bun run build:web    # Build Nuxt Web
 
 # Kill dev servers
-bun run kill        # Kill processes on ports 3000/4000
+bun run kill        # Kill processes on ports 30000/40000
 
 # Clean & Reinstall
 bun run cleanAll     # Remove node_modules and build outputs
@@ -59,15 +59,15 @@ bun run lint        # Lint code
 ### API (NestJS)
 
 - Entry: `apps/api/src/main.ts`
-- CORS is enabled for `http://localhost:4000` and `http://127.0.0.1:4000`
+- CORS is enabled for `http://localhost:40000` and `http://127.0.0.1:40000`
 - Uses `@aio/utils` via workspace dependency
-- Listens on port 3000
+- Listens on port 30000
 
 ### Web (Nuxt 4)
 
 - Entry: `apps/web/app/app.vue`
-- API base URL configured via `runtimeConfig.public.apiBase` (defaults to `http://localhost:3000`)
-- Web port is 4000 (configured in `nuxt.config.ts`)
+- API base URL configured via `runtimeConfig.public.apiBase` (defaults to `http://localhost:30000`)
+- Web port is 40000 (configured in `nuxt.config.ts`)
 - Imports and uses `@aio/utils` directly
 
 ### Utils Package
@@ -96,7 +96,7 @@ mise run init         # 初始化项目（安装依赖 + 配置环境变量）
 mise run dev          # 启动所有项目 (api + web + utils watch)
 mise run dev:api      # 启动 API only
 mise run dev:web      # 启动 Web only
-mise run kill         # 停止开发服务器
+mise run kill         # 停止开发服务器 (默认 30000/40000，支持额外端口)
 
 # 代码质量
 mise run check        # 类型检查

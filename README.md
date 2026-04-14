@@ -36,8 +36,8 @@ mv apps/web/.env.example apps/web/.env.local
 ```
 aio/
 ├── apps/
-│   ├── api/          # NestJS 后端服务 (端口 3000)
-│   └── web/          # Nuxt 4 前端应用 (端口 4000)
+│   ├── api/          # NestJS 后端服务 (端口 30000)
+│   └── web/          # Nuxt 4 前端应用 (端口 40000)
 ├── packages/
 │   └── utils/        # 共享工具包 (@aio/utils)
 ├── deploy/           # Docker 部署配置
@@ -49,11 +49,11 @@ aio/
 
 ### 目录功能说明
 
-| 目录             | 功能                           | 技术栈                        | 端口 |
-| ---------------- | ------------------------------ | ----------------------------- | ---- |
-| `apps/api`       | RESTful API 服务，提供数据接口 | NestJS + TypeORM + PostgreSQL | 3000 |
-| `apps/web`       | 前端 Web 应用，用户界面        | Nuxt 4 (Vue 3)                | 4000 |
-| `packages/utils` | 跨项目共享的工具函数           | TypeScript                    | —    |
+| 目录             | 功能                           | 技术栈                        | 端口  |
+| ---------------- | ------------------------------ | ----------------------------- | ----- |
+| `apps/api`       | RESTful API 服务，提供数据接口 | NestJS + TypeORM + PostgreSQL | 30000 |
+| `apps/web`       | 前端 Web 应用，用户界面        | Nuxt 4 (Vue 3)                | 40000 |
+| `packages/utils` | 跨项目共享的工具函数           | TypeScript                    | —     |
 
 ### 依赖关系
 
@@ -71,32 +71,32 @@ bun run dev
 
 这会同时启动三个服务的热更新：
 
-- **API** (NestJS) — 端口 3000
-- **Web** (Nuxt) — 端口 4000
+- **API** (NestJS) — 端口 30000
+- **Web** (Nuxt) — 端口 40000
 - **Utils** — 包构建监听模式
 
-Web 前端通过 `useFetch` 访问 `http://localhost:3000` 的 API 接口。API 已配置 CORS，允许 `http://localhost:4000` 和 `http://127.0.0.1:4000` 跨域请求。
+Web 前端通过 `useFetch` 访问 `http://localhost:30000` 的 API 接口。API 已配置 CORS，允许 `http://localhost:40000` 和 `http://127.0.0.1:40000` 跨域请求。
 
 ## 命令
 
 在根目录执行以下命令：
 
-| 命令                | 说明                    |
-| ------------------- | ----------------------- |
-| `bun run dev`       | 启动所有服务热更新      |
-| `bun run check`     | 类型检查                |
-| `bun run fmt`       | 代码格式化              |
-| `bun run lint`      | 代码检查                |
-| `bun run build`     | 编译所有项目（并行）    |
-| `bun run cleanAll`  | 清理所有构建产物和依赖  |
-| `bun run reinstall` | 清理后重新安装依赖      |
-| `bun run kill`      | 终止 3000/4000 端口进程 |
+| 命令                | 说明                      |
+| ------------------- | ------------------------- |
+| `bun run dev`       | 启动所有服务热更新        |
+| `bun run check`     | 类型检查                  |
+| `bun run fmt`       | 代码格式化                |
+| `bun run lint`      | 代码检查                  |
+| `bun run build`     | 编译所有项目（并行）      |
+| `bun run cleanAll`  | 清理所有构建产物和依赖    |
+| `bun run reinstall` | 清理后重新安装依赖        |
+| `bun run kill`      | 终止 30000/40000 端口进程 |
 
 单独运行某个服务：
 
 ```bash
-bun run dev:api      # 仅启动 API (port 3000)
-bun run dev:web      # 仅启动 Web (port 4000)
+bun run dev:api      # 仅启动 API (port 30000)
+bun run dev:web      # 仅启动 Web (port 40000)
 bun run dev:utils    # 仅启动 Utils 构建监听
 ```
 

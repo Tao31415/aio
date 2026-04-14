@@ -7,52 +7,49 @@ vp = "0.1.16"
 # ================================
 [tasks.init]
 description = "初始化项目"
-run = '''
-echo "==> 检测 Docker 安装状态..."
-if command -v docker >/dev/null 2>&1; then echo "  ✓ Docker 已安装"; else echo "  ⚠ Docker 未安装（容器操作不可用）"; fi
-echo ""
-echo "==> 执行 mise install..."
-mise install
-echo ""
-echo "==> 安装项目依赖..."
-bun install
-echo "✓ 依赖安装成功"
-echo ""
-echo "==> 编译 Utils 包..."
-bun run build:utils
-echo "✓ Utils 编译完成"
-echo ""
-echo "==> 初始化环境变量文件..."
-[ -f apps/api/.env.local ] || { cp apps/api/.env.example apps/api/.env.local; echo "  - apps/api/.env.local 已创建"; }
-[ -f apps/web/.env.local ] || { cp apps/web/.env.example apps/web/.env.local; echo "  - apps/web/.env.local 已创建"; }
-[ -f deploy/.env ] || { cp deploy/.env.example deploy/.env; echo "  - deploy/.env 已创建"; }
-echo ""
-echo "✓ 项目初始化成功！可以执行 'mise run dev' 启动开发环境"
-'''
+run = [
+  "echo '==> 检测 Docker 安装状态...'",
+  "docker -v && echo '  ✓ Docker 已安装' || echo '  ⚠ Docker 未安装（容器操作不可用）'",
+  "echo ''",
+  "echo '==> 执行 mise install...'",
+  "mise install",
+  "echo ''",
+  "echo '==> 安装项目依赖...'",
+  "bun install",
+  "echo '✓ 依赖安装成功'",
+  "echo ''",
+  "echo '==> 编译 Utils 包...'",
+  "bun run build:utils",
+  "echo '✓ Utils 编译完成'",
+  "echo ''",
+  "echo '==> 初始化环境变量文件...'",
+  "bun x shx cp -n apps/api/.env.example apps/api/.env.local && echo '  - apps/api/.env.local 已创建'",
+  "bun x shx cp -n apps/web/.env.example apps/web/.env.local && echo '  - apps/web/.env.local 已创建'",
+  "bun x shx cp -n deploy/.env.example deploy/.env && echo '  - deploy/.env 已创建'",
+  "echo ''",
+  "echo '✓ 项目初始化成功！可以执行 ''mise run dev'' 启动开发环境'",
+]
 
 # ================================
 # 构建项目
 # ================================
 [tasks.build]
 description = "编译项目"
-run = '''
-echo "==> 编译项目..."
-bun run build
-'''
+run = ["echo '==> 编译项目...'", "bun run build"]
 
 # ================================
 # 开发环境
 # ================================
 [tasks.dev]
 description = "启动开发环境 (kill + dev)"
-run = '''
-echo "==> 停止现有开发服务器..."
-bun run kill
-echo "✓ 已停止"
-echo ""
-echo "==> 启动开发服务器..."
-bun run dev
-'''
+run = [
+  "echo '==> 停止现有开发服务器...'",
+  "bun run kill",
+  "echo '✓ 已停止'",
+  "echo ''",
+  "echo '==> 启动开发服务器...'",
+  "bun run dev",
+]
 
 [tasks.dev-api]
 description = "仅启动 API 开发服务器"
@@ -74,17 +71,33 @@ description = "自动修复类型问题"
 run = "bun run check --fix"
 
 [tasks.kill]
-description = "停止开发服务器"
-run = "bun run kill"
+description = "跨平台强杀指定端口的进程 (默认清理 30000 和 40000 端口)"
+usage = """
+arg "[port1]" help="要终止的首个端口号 (如 API 服务)" default="30000"
+arg "[port2]" help="要终止的第二个端口号 (如 Web 服务)" default="40000"
+arg "[extra_ports]..." help="其他需要一并终止的端口列表，使用空格分隔 (可选)"
+"""
+shell = "{% if os() == 'windows' %}powershell{% elif os() == 'macos' %}zsh{% else %}bash{% endif %}"
 
-[tasks.kill-win]
-description = "windows停止开发服务器"
-# 使用 Shell 的变量默认值语法 ${1:-默认值}
 run = """
-PORT1=${1:-30000}
-PORT2=${2:-40000}
-echo "正在清理端口: $PORT1 和 $PORT2"
-powershell -Command "$PORT1, $PORT2 | % { Stop-Process -Id (Get-NetTCPConnection -LocalPort $_).OwningProcess -Force -EA 0 }"
+#!/usr/bin/env bash
+for p in $usage_port1 $usage_port2 $usage_extra_ports; do
+    if [ -n "$p" ]; then
+        echo "Killing port: $p"
+        lsof -ti:$p | xargs kill -9 2>/dev/null || true
+    fi
+done
+"""
+
+run_windows = """
+$ports = "$env:usage_port1 $env:usage_port2 $env:usage_extra_ports" -split '\\s+'
+foreach ($p in $ports) {
+    if (-not [string]::IsNullOrWhiteSpace($p)) {
+        Write-Output "Killing port: $p"
+        Get-NetTCPConnection -LocalPort $p -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }
+    }
+}
+exit 0
 """
 
 # ================================
@@ -97,9 +110,7 @@ run = "bun run clean"
 [tasks.reinstall]
 description = "清理并重新安装依赖"
 depends = ["clean"]
-run = '''
-bun run reinstall && bun run build:utils
-'''
+run = ["bun run reinstall", "bun run build:utils"]
 
 # ================================
 # Docker 构建
@@ -110,27 +121,27 @@ depends = ["deploy-build-api", "deploy-build-web"]
 
 [tasks.deploy-build-api]
 description = "构建 API Docker 镜像"
-run = '''
-echo "==> 构建 API Docker 镜像..." && \
-docker build --target api --tag aio/api:latest --file deploy/Dockerfile.api . && \
-echo "✓ API 镜像: aio/api:latest"
-'''
+run = [
+  "echo '==> 构建 API Docker 镜像...'",
+  "docker build --target api --tag aio/api:latest --file deploy/Dockerfile.api .",
+  "echo '✓ API 镜像: aio/api:latest'",
+]
 
 [tasks.deploy-build-web]
 description = "构建 Web Docker 镜像"
-run = '''
-echo "==> 构建 Web Docker 镜像..." && \
-docker build --target web --tag aio/web:latest --file deploy/Dockerfile.web . && \
-echo "✓ Web 镜像: aio/web:latest"
-'''
+run = [
+  "echo '==> 构建 Web Docker 镜像...'",
+  "docker build --target web --tag aio/web:latest --file deploy/Dockerfile.web .",
+  "echo '✓ Web 镜像: aio/web:latest'",
+]
 
 [tasks.deploy-pull]
 description = "下载 Docker 镜像"
-run = '''
-echo "==> 下载 Docker 镜像..." && \
-docker compose -f deploy/docker-compose.yml pull --ignore-pull-failures || true && \
-echo "✓ 镜像下载完成"
-'''
+run = [
+  "echo '==> 下载 Docker 镜像...'",
+  "docker compose -f deploy/docker-compose.yml pull --ignore-pull-failures",
+  "echo '✓ 镜像下载完成'",
+]
 
 # ================================
 # 部署
@@ -140,37 +151,37 @@ description = "部署到 Docker (build + start)"
 run = [
   "mise run deploy-build",
   "mise run deploy-start",
-  "echo \"✓ 部署成功！查看服务状态: docker compose -f deploy/docker-compose.yml ps\"",
+  "echo '✓ 部署成功！查看服务状态: docker compose -f deploy/docker-compose.yml ps'",
 ]
 
 [tasks.deploy-start]
 description = "启动 Docker 服务 (不重建)"
-run = '''
-echo "==> 启动 Docker 服务..." && \
-docker compose -f deploy/docker-compose.yml up -d --no-build && \
-echo "✓ 服务启动成功"
-'''
+run = [
+  "echo '==> 启动 Docker 服务...'",
+  "docker compose -f deploy/docker-compose.yml up -d --no-build",
+  "echo '✓ 服务启动成功'",
+]
 
 [tasks.deploy-stop]
 description = "停止 Docker 容器"
-run = '''
-echo "==> 停止 Docker 容器..." && \
-docker compose -f deploy/docker-compose.yml stop && \
-echo "✓ 容器已停止"
-'''
+run = [
+  "echo '==> 停止 Docker 容器...'",
+  "docker compose -f deploy/docker-compose.yml stop",
+  "echo '✓ 容器已停止'",
+]
 
 [tasks.deploy-restart]
 description = "重启 Docker 容器"
-run = '''
-echo "==> 重启 Docker 容器..." && \
-docker compose -f deploy/docker-compose.yml restart && \
-echo "✓ 容器已重启"
-'''
+run = [
+  "echo '==> 重启 Docker 容器...'",
+  "docker compose -f deploy/docker-compose.yml restart",
+  "echo '✓ 容器已重启'",
+]
 
 [tasks.deploy-down]
 description = "删除 Docker 容器"
-run = '''
-echo "==> 删除 Docker 容器..." && \
-docker compose -f deploy/docker-compose.yml down && \
-echo "✓ 容器已删除"
-'''
+run = [
+  "echo '==> 删除 Docker 容器...'",
+  "docker compose -f deploy/docker-compose.yml down",
+  "echo '✓ 容器已删除'",
+]
