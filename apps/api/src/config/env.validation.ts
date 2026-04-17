@@ -36,7 +36,7 @@ const envSchema = z.object({
   UI_URL: z.url().default('http://localhost:40000'),
 })
 
-export const validationEnv = (): Record<string, unknown> => {
+export const validationEnv = (): Env => {
   const parsed = envSchema.safeParse(process.env)
 
   if (!parsed.success) {

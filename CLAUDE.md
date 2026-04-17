@@ -76,6 +76,50 @@ bun run lint        # Lint code
 - Exported as `@aio/utils`
 - Build output goes to `dist/` directory
 
+## API Development
+
+API 项目位于 `apps/api/` 目录下，使用 `.env.local` 作为开发环境配置文件。
+
+### Scripts (apps/api/package.json)
+
+```bash
+# 开发
+bun run dev             # 启动开发服务器 (--watch, 读取 .env.local)
+bun run dev:debug        # 启动调试模式 (--debug --watch)
+bun run preview          # 预览生产构建 (bun --env-file=.env.local dist/main)
+
+# 构建
+bun run build            # NestJS 生产构建 (nest build)
+
+# 数据库
+bun run db:migrate       # 运行 Better Auth 数据库迁移
+bun run db:secret        # 生成 Better Auth 密钥
+
+# 测试
+bun run test             # 运行单元测试 (Jest, 读取 .env.test)
+bun run test:watch       # 监听模式运行测试
+bun run test:cov         # 运行测试并生成覆盖率报告
+bun run test:debug      # 使用 Node inspect-brk 断点调试
+bun run test:e2e         # 运行 E2E 测试
+
+# 代码质量
+bun run check            # 类型检查 (vp check)
+bun run fmt              # 代码格式化 (vp fmt --write)
+bun run lint             # Lint 并自动修复 (vp lint --fix)
+
+# 清理
+bun run clean            # 删除 dist/ 构建产物
+bun run cleanAll         # 删除 node_modules/ 和 dist/
+```
+
+### 环境变量
+
+- **开发环境**: `.env.local` (被 `dev`/`dev:debug` 脚本读取)
+- **测试环境**: `.env.test` (被 `test*` 脚本读取)
+- **生产环境**: 通过 Docker 或 CI/CD 在运行时注入
+
+.env.example 中定义了所有可用的环境变量，包含必填项校验（通过 Zod）。
+
 ## Tooling
 
 - **mise** — task orchestrator (推荐)
