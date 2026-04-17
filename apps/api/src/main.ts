@@ -3,12 +3,20 @@ import { Transport } from '@nestjs/microservices'
 import { AppModule } from '@/app.module'
 import { Logger } from 'nestjs-pino'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
+import { VersioningType } from '@nestjs/common'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     bodyParser: false, // Required for Better Auth
   })
-
+  app.setGlobalPrefix('api', {
+    exclude: ['api/docs'],
+  })
+  // 启用版本控制
+  app.enableVersioning({
+    type: VersioningType.URI, // 基于 URI 版本控制，例如 /v1/xxx
+    defaultVersion: '1', // 默认版本号
+  })
   // 使用 pino logger
   app.useLogger(app.get(Logger))
 
@@ -17,7 +25,7 @@ async function bootstrap() {
     .setTitle('AIO API')
     .setDescription('API documentation for AIO')
     .setVersion('1.0')
-    .addCookieAuth('nest-auth.session_token')
+    .addCookieAuth('aio.session_token')
     .build()
 
   const document = SwaggerModule.createDocument(app, config)
@@ -38,7 +46,7 @@ async function bootstrap() {
   await app.startAllMicroservices()
 
   app.enableCors({
-    origin: ['http://localhost:40000', 'http://127.0.0.1:4000'],
+    origin: ['http://localhost:40000', 'http://127.0.0.1:40000'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'Cookie'],

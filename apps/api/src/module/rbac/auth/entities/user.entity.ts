@@ -7,7 +7,6 @@ import {
   OneToMany,
 } from 'typeorm'
 import { Account } from './account.entity'
-import { Session } from './session.entity'
 
 export enum UserRole {
   USER = 'user',
@@ -31,11 +30,23 @@ export class User {
   @Column('text', { nullable: true })
   image: string | null
 
-  @Column({
-    type: 'text',
-    default: UserRole.USER,
-  })
+  @Column({ type: 'text', default: UserRole.USER })
   role: UserRole
+
+  @Column('boolean', { default: false })
+  banned: boolean
+
+  @Column('text', { nullable: true })
+  banReason: string | null
+
+  @Column('timestamptz', { nullable: true })
+  banExpires: Date | null
+
+  @Column('text', { unique: true })
+  username: string
+
+  @Column('text', { nullable: true })
+  displayUsername: string | null
 
   @CreateDateColumn()
   createdAt: Date
@@ -45,7 +56,4 @@ export class User {
 
   @OneToMany(() => Account, (account) => account.user)
   accounts: Account[]
-
-  @OneToMany(() => Session, (session) => session.user)
-  sessions: Session[]
 }

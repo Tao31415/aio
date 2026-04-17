@@ -24,16 +24,17 @@
     "strict": false,
     "paths": {
       "@/*": ["./src/*"],
-      "@auth/*": ["./src/module/auth/*"],
+      "@auth/*": ["./src/module/rbac/auth/*"],
       "@config/*": ["./src/module/config/*"],
-      "@database/*": ["./src/module/database/*"],
+      "@database/*": ["./src/module/middleware/database/*"],
       "@log/*": ["./src/module/log/*"],
       "@main/*": ["./src/module/main/*"],
-      "@mqtt/*": ["./src/module/mqtt/*"],
-      "@redis/*": ["./src/module/redis/*"],
-      "@storage/*": ["./src/module/storage/*"],
-      "@user/*": ["./src/module/user/*"],
+      "@mqtt/*": ["./src/module/middleware/mqtt/*"],
+      "@redis/*": ["./src/module/middleware/redis/*"],
+      "@storage/*": ["./src/module/middleware/storage/*"],
+      "@user/*": ["./src/module/rbac/user/*"],
       "@system/*": ["./src/module/system/*"],
+      "@rbac/*": ["./src/module/rbac/*"],
       "@guard/*": ["./src/common/guards/*"],
       "@common/*": ["./src/common/*"]
     }
