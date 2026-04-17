@@ -1,0 +1,211 @@
+### 基础变量
+@hostname = localhost
+@port = 30000
+@url = http://{{hostname}}:{{port}}
+@baseUrl = {{url}}/api/v1/auth
+
+@admin_email = admin@example.com
+@admin_password = password123
+@admin_username = admin
+@auth_token = {{adminLogin.response.headers.set-auth-token}}
+
+@target_user_id = t6DysfKDglInuMuFRfAKIdDfN55gE78I
+@target_session_token = session-token
+
+###
+### 0. Admin 登录（拿到 set-auth-token）
+# @name adminLogin
+POST {{baseUrl}}/sign-in/email
+Content-Type: application/json
+
+{
+  "email": "{{admin_email}}",
+  "password": "{{admin_password}}"
+}
+
+###
+### 1. Create User
+# @name createUser
+POST {{baseUrl}}/admin/create-user
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "email": "user+{{$randomInt 100000 999999}}@example.com",
+  "password": "password123",
+  "name": "James Smith",
+  "role": "user",
+  "data": {
+    "username": "user_{{$randomInt 100000 999999}}",
+    "displayUsername": "Test User{{$randomInt 100 999}}"
+  }
+}
+
+###
+@target_user_id = {{createUser.response.body.id}}
+
+###
+### 2. List Users（支持 search / filter / 分页）
+# @name listUsers
+GET {{baseUrl}}/admin/list-users?searchField=name&searchOperator=contains&searchValue=James&limit=10&offset=0&sortBy=name&sortDirection=desc
+Authorization: Bearer {{auth_token}}
+
+###
+### 2.1 List Users（Filter by email）
+# @name listUsersByEmail
+GET {{baseUrl}}/admin/list-users?filterField=email&filterOperator=contains&filterValue=%40example.com&limit=10&offset=0
+Authorization: Bearer {{auth_token}}
+
+###
+### 3. Get User
+# @name getUser
+GET {{baseUrl}}/admin/get-user?id={{target_user_id}}
+Authorization: Bearer {{auth_token}}
+
+###
+### 3.1 User Has Permission
+# @name userHasPermission
+POST {{baseUrl}}/admin/has-permission
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "userId": "{{target_user_id}}",
+  "permissions": {
+    "user": ["create", "list"],
+    "session": ["list"]
+  }
+}
+
+###
+### 4. Set User Role
+# @name setRole
+POST {{baseUrl}}/admin/set-role
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "userId": "{{target_user_id}}",
+  "role": "admin"
+}
+
+###
+### 5. Set User Password
+# @name setUserPassword
+POST {{baseUrl}}/admin/set-user-password
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "userId": "{{target_user_id}}",
+  "newPassword": "new-password-123"
+}
+
+###
+### 6. Update User（adminUpdateUser）
+# @name adminUpdateUser
+POST {{baseUrl}}/admin/update-user
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "userId": "{{target_user_id}}",
+  "data": {
+    "name": "John Doe {{$randomInt 100 999}}"
+  }
+}
+
+###
+### 7. Ban User
+# @name banUser
+POST {{baseUrl}}/admin/ban-user
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "userId": "{{target_user_id}}",
+  "banReason": "Spamming",
+  "banExpiresIn": 3600
+}
+
+###
+### 8. Unban User
+# @name unbanUser
+POST {{baseUrl}}/admin/unban-user
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "userId": "{{target_user_id}}"
+}
+
+###
+### 9. List User Sessions
+# @name listUserSessions
+POST {{baseUrl}}/admin/list-user-sessions
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "userId": "{{target_user_id}}"
+}
+
+###
+@target_session_token = {{listUserSessions.response.body.0.token}}
+
+###
+### 10. Revoke User Session
+# @name revokeUserSession
+POST {{baseUrl}}/admin/revoke-user-session
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "sessionToken": "{{target_session_token}}"
+}
+
+###
+### 11. Revoke All Sessions For User
+# @name revokeUserSessions
+POST {{baseUrl}}/admin/revoke-user-sessions
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "userId": "{{target_user_id}}"
+}
+
+###
+### 12. Impersonate User
+# @name impersonateUser
+POST {{baseUrl}}/admin/impersonate-user
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "userId": "{{target_user_id}}"
+}
+
+###
+### 13. Stop Impersonating
+# @name stopImpersonating
+POST {{baseUrl}}/admin/stop-impersonating
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{}
+
+###
+### 14. Remove User（Hard delete）
+# @name removeUser
+POST {{baseUrl}}/admin/remove-user
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "userId": "{{target_user_id}}"
+}
+
+###
+
+

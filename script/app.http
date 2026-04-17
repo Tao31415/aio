@@ -1,0 +1,8 @@
+### 基础变量
+@hostname = localhost
+@port = 30000
+@url = http://{{hostname}}:{{port}}
+@baseUrl = {{url}}/api
+
+### 0.1 Swagger Docs
+GET {{baseUrl}}/docs

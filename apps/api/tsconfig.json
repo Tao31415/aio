@@ -5,7 +5,7 @@
     "resolvePackageJsonExports": true,
     "esModuleInterop": true,
     "isolatedModules": true,
-    "declaration": true,
+    "declaration": false,
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
@@ -21,20 +21,21 @@
     "strictBindCallApply": true,
     "noFallthroughCasesInSwitch": true,
     "types": ["node", "jest"],
-    "baseUrl": ".",
+    "strict": false,
     "paths": {
-      "@/*": ["src/*"],
-      "@auth/*": ["src/module/auth/*"],
-      "@config/*": ["src/module/config/*"],
-      "@database/*": ["src/module/database/*"],
-      "@log/*": ["src/module/log/*"],
-      "@main/*": ["src/module/main/*"],
-      "@mqtt/*": ["src/module/mqtt/*"],
-      "@redis/*": ["src/module/redis/*"],
-      "@storage/*": ["src/module/storage/*"],
-      "@user/*": ["src/module/user/*"],
-      "@system/*": ["src/module/system/*"],
-      "@common/*": ["src/common/*"]
+      "@/*": ["./src/*"],
+      "@auth/*": ["./src/module/auth/*"],
+      "@config/*": ["./src/module/config/*"],
+      "@database/*": ["./src/module/database/*"],
+      "@log/*": ["./src/module/log/*"],
+      "@main/*": ["./src/module/main/*"],
+      "@mqtt/*": ["./src/module/mqtt/*"],
+      "@redis/*": ["./src/module/redis/*"],
+      "@storage/*": ["./src/module/storage/*"],
+      "@user/*": ["./src/module/user/*"],
+      "@system/*": ["./src/module/system/*"],
+      "@guard/*": ["./src/common/guards/*"],
+      "@common/*": ["./src/common/*"]
     }
   }
 }

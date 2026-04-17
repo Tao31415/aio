@@ -129,7 +129,7 @@ clean:
 cleanAll:
 	@echo "==> 深度清理..."
 	@$(BUN) run cleanAll
-	@rm -rf node_modules
+	@rm -rf node_modules bun.lock
 	@echo "✓ 深度清理完成"
 
 reinstall:

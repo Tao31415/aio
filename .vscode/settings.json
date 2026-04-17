@@ -11,5 +11,8 @@
   "files.eol": "\n",
   "editor.codeActionsOnSave": {
     "source.fixAll.oxc": "explicit"
+  },
+  "rest-client.defaultHeaders": {
+    "Origin": "http://localhost:40000"
   }
 }

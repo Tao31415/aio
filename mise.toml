@@ -104,10 +104,11 @@ run = "bun run clean"
 
 [tasks.cleanAll]
 description = "深度清理（包含 node_modules）"
-run = ["bun run cleanAll", "rm -rf node_modules"]
+run = ["bun run cleanAll", "rm -rf node_modules bun.lock"]
 run_windows = [
   "bun run cleanAll",
   "if (Test-Path node_modules) { Remove-Item node_modules -Recurse -Force }",
+  "if (Test-Path bun.lock) { Remove-Item bun.lock -Force }",
 ]
 
 [tasks.reinstall]
