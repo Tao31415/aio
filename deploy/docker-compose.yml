@@ -175,8 +175,7 @@ services:
       - TZ=Asia/Shanghai
       - LANG=C.UTF-8
       - DOZZLE_NO_ANALYTICS=true
-    ports:
-      - '${DOZZLE_PORT:-8080}:8080'
+    ports: []
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     restart: unless-stopped
