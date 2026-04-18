@@ -9,10 +9,47 @@ apps/api/dist
 apps/web/.output
 packages/utils/dist
 
+apps/api/*
+!apps/api/src/*
+!apps/api/.env.production
+!apps/api/.env.example
+!apps/api/package.json
+!apps/api/tsconfig.json
+!apps/api/tsconfig.build.json
+
+packages/utils/*
+!packages/utils/src/*
+!packages/utils/package.json
+!packages/utils/tsconfig.json
+!packages/utils/vite.config.ts
+
+apps/web/*
+!apps/web/app/*
+!apps/web/public/*
+!apps/web/.env.production
+!apps/web/.env.example
+!apps/web/.env.local
+!apps/web/package.json
+!apps/web/tsconfig.json
+!apps/web/app.config.ts
+!apps/web/env.validation.ts
+
 # IDE
 .vscode
 .idea
 *.swp
+.claude
+.vite-hooks
+docs
+script
+
+.bunfig.toml
+.editorconfig
+.gitattributes
+CLAUDE.md
+
+mise.toml
+README.md
 
 # Git
 .git

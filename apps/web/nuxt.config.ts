@@ -1,7 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 
 // 导入环境变量校验（必须在最前面，在任何配置使用环境变量之前）
-import { validateEnv } from './utils/env.validation'
+import { validateEnv } from './env.validation'
 // 在模块加载时自动校验（构建时和运行时）
 const env = validateEnv()
 

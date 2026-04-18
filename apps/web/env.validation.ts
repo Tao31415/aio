@@ -88,14 +88,10 @@ export function validateEnv(): EnvSchema {
 
   if (!result.success) {
     const errors = z.treeifyError(result.error)
-    console.error('='.repeat(60))
     console.error('环境变量校验失败 / Environment Validation Failed')
-    console.error('='.repeat(60))
     console.error(errors)
-    console.error('='.repeat(60))
     throw new Error(`Environment validation failed:\n${result.error}`)
   }
-
   console.info('[Env] Environment validation passed')
   return result.data
 }
