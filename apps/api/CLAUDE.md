@@ -60,7 +60,20 @@ Uses `@thallesp/nestjs-better-auth` wrapping `better-auth` with:
 
 **Auth Base Path**: `/api/v1/auth` (configurable via `BETTER_AUTH_BASE_PATH`)
 
-Auth routes are **whitelist-restricted** — only `sign-in`, `sign-out`, `get-session` are accessible. All other auth routes return `403`.
+Auth routes are **whitelist-restricted** — only these routes are accessible, all others return `403`:
+
+```typescript
+const authRouteWhitelist = [
+  'sign-in',
+  'sign-out',
+  'get-session',
+  'ok', // Health check
+  'is-username-available', // Username availability check
+  'sign-up/email', // Email registration
+  'update-user', // Update user
+  'admin', // Admin endpoints
+]
+```
 
 ### RBAC (Roles & Permissions)
 
@@ -94,6 +107,14 @@ Columns: `id`, `name`, `email`, `emailVerified`, `image`, `role` (UserRole enum)
 
 Related entities: `Account` (OAuth linking), `Verification` (email verification)
 
+### UserController Routes (`/users`)
+
+| Route             | Method | Auth     | Description             |
+| ----------------- | ------ | -------- | ----------------------- |
+| `/users/me`       | GET    | Required | Returns current session |
+| `/users/public`   | GET    | None     | Public route            |
+| `/users/optional` | GET    | Optional | Returns auth status     |
+
 ### Middleware Modules
 
 | Module           | Token          | Purpose                                                                  |
@@ -101,8 +122,71 @@ Related entities: `Account` (OAuth linking), `Verification` (email verification)
 | `DatabaseModule` | -              | TypeORM PostgreSQL, auto-loads entities, `synchronize` in non-production |
 | `RedisModule`    | `REDIS_CLIENT` | Raw ioredis client, exponential backoff retry                            |
 | `CacheModule`    | -              | `@keyv/redis`, global cache                                              |
-| `MqttModule`     | `MQTT_SERVICE` | MQTT microservice client                                                 |
-| `StorageModule`  | `MINIO_CLIENT` | MinIO/S3 operations (upload, download, presigned URLs)                   |
+| `MqttModule`     | `MQTT_SERVICE` | MQTT microservice client + HTTP REST controller                          |
+| `StorageModule`  | `MINIO_CLIENT` | MinIO/S3 operations (currently disabled/commented out)                   |
+
+### MQTT Dual-Mode Architecture
+
+`MqttModule` operates in two modes simultaneously:
+
+1. **NestJS Microservice** — EventPattern handlers via `@nestjs/microservices`
+2. **HTTP REST Controller** (`MqttHttpController`):
+
+| Route            | Method | Description                                    |
+| ---------------- | ------ | ---------------------------------------------- |
+| `/mqtt/publish`  | POST   | Publish MQTT message to a topic                |
+| `/mqtt/messages` | GET    | Query historical messages (topic + time range) |
+
+Messages are persisted to PostgreSQL via `MqttMessageEntity`.
+
+### Path Aliases
+
+Available for imports throughout the codebase:
+
+| Alias         | Maps to                              |
+| ------------- | ------------------------------------ |
+| `@src/*`      | `./src/*`                            |
+| `@auth/*`     | `./src/module/rbac/auth/*`           |
+| `@database/*` | `./src/module/middleware/database/*` |
+| `@log/*`      | `./src/module/log/*`                 |
+| `@mqtt/*`     | `./src/module/middleware/mqtt/*`     |
+| `@redis/*`    | `./src/module/middleware/redis/*`    |
+| `@storage/*`  | `./src/module/middleware/storage/*`  |
+| `@user/*`     | `./src/module/rbac/user/*`           |
+
+### Security Configuration
+
+**CORS** (`main.ts`):
+
+```typescript
+app.enableCors({
+  origin: [
+    'http://localhost:40000',
+    'http://127.0.0.1:40000',
+    'http://web:4000',
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'Cookie'],
+})
+```
+
+**Secure Cookies**:
+
+- Only enabled in production (`useSecureCookies: isProduction`)
+- Cookie prefix: `aio`
+- IPv6 subnet limiting: `/64`
+
+**Rate Limiting**:
+
+- 100 requests per 60-second window
+- Stored in Redis via `secondary-storage`
+- Supports `x-forwarded-for` and `x-real-ip` headers
+
+**Body Parser Limits**:
+
+- JSON: 10mb
+- URL-encoded: 10mb
 
 ### Logging
 
@@ -111,39 +195,68 @@ Uses `nestjs-pino`:
 - **Production**: log level `info`, no transport (structured JSON)
 - **Development**: log level `debug`, `pino-pretty` with colors
 
+### Logger Injection (Pino)
+
+**直接注入 `PinoLogger` 并手动设置 context**（推荐方式）：
+
+```typescript
+import { PinoLogger } from 'nestjs-pino'
+
+@Injectable()
+export class MyService {
+  constructor(private readonly logger: PinoLogger) {
+    this.logger.setContext(MyService.name)
+    // 使用方式：
+    this.logger.info('message') // info 级别
+    this.logger.error('message') // error 级别
+    this.logger.warn('message') // warn 级别
+    this.logger.debug('message') // debug 级别
+
+    // 创建带 context 的子 logger
+    const childLogger = this.logger.child({ context: 'MyService' })
+  }
+}
+```
+
+**注意**：
+
+- 直接注入 `PinoLogger`，不要使用 `@InjectPinoLogger` 装饰器（v4 有模块依赖问题）
+- 必须在构造函数中调用 `this.logger.setContext(Class.name)` 设置上下文
+- pino 没有 `log()` 方法，使用 `info()` 替代
+- 推荐使用 `.child()` 创建带 context 的 logger 方便追踪
+
 ## Environment Variables
 
 Validated by **Zod** at startup via `env.validation.ts`. Invalid env vars cause immediate startup failure.
 
-### Required
+### Required (no defaults — startup fails if missing)
 
-| Variable             | Type             | Description                                        |
-| -------------------- | ---------------- | -------------------------------------------------- |
-| `BETTER_AUTH_SECRET` | `string` (min 1) | Auth secret key. Generate with `bun run db:secret` |
+| Variable             | Type              | Description                                        |
+| -------------------- | ----------------- | -------------------------------------------------- |
+| `DB_HOST`            | `string`          | PostgreSQL host                                    |
+| `DB_PORT`            | `number`          | PostgreSQL port                                    |
+| `DB_USER`            | `string`          | PostgreSQL username                                |
+| `DB_PASSWORD`        | `string`          | PostgreSQL password                                |
+| `DB_NAME`            | `string`          | PostgreSQL database name                           |
+| `REDIS_HOST`         | `string`          | Redis host                                         |
+| `REDIS_PORT`         | `number`          | Redis port                                         |
+| `REDIS_PASSWORD`     | `string`          | Redis password                                     |
+| `MINIO_ENDPOINT`     | `string`          | MinIO endpoint (host:port format)                  |
+| `MQTT_BROKER_URL`    | `string`          | MQTT broker URL                                    |
+| `BETTER_AUTH_SECRET` | `string` (min 32) | Auth secret key. Generate with `bun run db:secret` |
 
-### Optional (with defaults)
+### Optional (has defaults)
 
 | Variable                | Default                  | Description                                               |
 | ----------------------- | ------------------------ | --------------------------------------------------------- |
 | `NODE_ENV`              | `local`                  | Environment: `local`, `development`, `production`, `test` |
 | `PORT`                  | `30000`                  | Server port (1-65535)                                     |
-| `DB_HOST`               | `localhost`              | PostgreSQL host                                           |
-| `DB_PORT`               | `5432`                   | PostgreSQL port                                           |
-| `DB_USER`               | `postgres`               | PostgreSQL username                                       |
-| `DB_PASSWORD`           | `postgres`               | PostgreSQL password                                       |
-| `DB_NAME`               | `aio`                    | PostgreSQL database name                                  |
-| `REDIS_HOST`            | `localhost`              | Redis host                                                |
-| `REDIS_PORT`            | `6379`                   | Redis port                                                |
-| `REDIS_PASSWORD`        | —                        | Redis password (optional)                                 |
-| `MINIO_ENDPOINT`        | `localhost:9000`         | MinIO endpoint                                            |
 | `MINIO_ACCESS_KEY`      | `minioadmin`             | MinIO access key                                          |
 | `MINIO_SECRET_KEY`      | `minioadmin`             | MinIO secret key                                          |
 | `MINIO_BUCKET`          | `default`                | MinIO bucket name                                         |
-| `MQTT_BROKER_URL`       | `mqtt://localhost:1883`  | MQTT broker URL                                           |
 | `CORS_ORIGIN`           | `http://localhost:40000` | CORS allowed origin                                       |
 | `BETTER_AUTH_URL`       | `http://localhost:30000` | Better Auth base URL                                      |
 | `BETTER_AUTH_BASE_PATH` | `/api/v1/auth`           | Auth routes base path                                     |
-| `UI_URL`                | `http://localhost:40000` | Frontend URL for redirects                                |
 
 ### Environment Files
 
@@ -216,10 +329,19 @@ someAdminRoute() { ... }
 
 ### Configure open routes
 
-Modify `authRouteWhitelist` in `auth.module.ts`:
+Modify `authRouteWhitelist` in `auth.module.ts` (whitelist-restricted — only listed routes are accessible):
 
 ```typescript
-const authRouteWhitelist = ['sign-in', 'sign-out', 'get-session', 'sign-up']
+const authRouteWhitelist = [
+  'sign-in',
+  'sign-out',
+  'get-session',
+  'ok',
+  'is-username-available',
+  'sign-up/email',
+  'update-user',
+  'admin',
+]
 ```
 
 ### Access Redis in a service

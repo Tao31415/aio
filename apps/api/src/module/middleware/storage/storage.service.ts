@@ -1,19 +1,21 @@
-import { Injectable, Inject, OnModuleInit, Logger } from '@nestjs/common'
+import { Injectable, Inject, OnModuleInit } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import { PinoLogger } from 'nestjs-pino'
 import * as Minio from 'minio'
 
 @Injectable()
 export class StorageService implements OnModuleInit {
   private client: Minio.Client
-  private readonly logger = new Logger(StorageService.name)
   private readonly bucket: string
 
   constructor(
     @Inject('MINIO_CLIENT') private readonly minioClient: Minio.Client,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
+    private readonly logger: PinoLogger
   ) {
     this.client = minioClient
     this.bucket = this.configService.get<string>('minio.bucket') || 'default'
+    this.logger.setContext(StorageService.name)
   }
 
   async onModuleInit() {
@@ -23,7 +25,7 @@ export class StorageService implements OnModuleInit {
   private async testConnection() {
     try {
       const buckets = await this.client.listBuckets()
-      this.logger.log(`MinIO 连接成功，已连接 ${buckets.length} 个 buckets`)
+      this.logger.info(`MinIO 连接成功，已连接 ${buckets.length} 个 buckets`)
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error)
       this.logger.error(`MinIO 连接失败: ${message}`)
@@ -36,7 +38,7 @@ export class StorageService implements OnModuleInit {
       const exists = await this.client.bucketExists(this.bucket)
       if (!exists) {
         await this.client.makeBucket(this.bucket)
-        this.logger.log(`Bucket "${this.bucket}" 已创建`)
+        this.logger.info(`Bucket "${this.bucket}" 已创建`)
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error)

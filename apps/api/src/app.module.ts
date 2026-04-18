@@ -12,6 +12,7 @@ import { validationEnv } from '@src/config/env.validation'
 import { AuthModule } from '@auth/auth.module'
 import { LogModule } from '@log/log.module'
 import { RedisModule } from '@redis/redis.module'
+import { MqttModule } from '@mqtt/mqtt.module'
 
 @Module({
   imports: [
@@ -24,8 +25,8 @@ import { RedisModule } from '@redis/redis.module'
     DatabaseModule,
     RedisModule,
     AuthModule,
-    // MqttModule,
     // StorageModule,
+    MqttModule,
   ],
   controllers: [],
   providers: [],
