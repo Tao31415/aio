@@ -126,7 +126,7 @@ depends = ["deploy-build-api", "deploy-build-web"]
 description = "构建 API Docker 镜像"
 run = [
   "echo --- 构建 API Docker 镜像 ---",
-  "docker build --target api --tag aio/api:latest --file deploy/Dockerfile.api .",
+  "docker build --target release --tag aio/api:latest --file deploy/Dockerfile.api .",
 ]
 
 [tasks.deploy-build-web]
