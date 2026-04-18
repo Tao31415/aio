@@ -111,10 +111,10 @@
           class="space-y-4"
         >
           <div
-            v-if="auth.error || localError"
+            v-if="auth.globalError || localError"
             class="p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm"
           >
-            {{ auth.error || localError }}
+            {{ auth.globalError || localError }}
           </div>
 
           <div class="space-y-2">
@@ -216,7 +216,7 @@
   definePageMeta({ layout: 'auth' })
 
   const auth = useAuthStore()
-  const toast = useToast()
+  const toast = useMyToast()
 
   const email = ref('')
   const isSubmitted = ref(false)

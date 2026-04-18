@@ -315,7 +315,7 @@
   })
 
   const authStore = useAuthStore()
-  const { showToast } = useToast()
+  const { showToast } = useMyToast()
 
   const currentUser = computed(() => authStore.user)
   const isRefreshing = ref(false)

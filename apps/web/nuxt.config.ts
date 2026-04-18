@@ -1,37 +1,47 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+
+// 导入环境变量校验（必须在最前面，在任何配置使用环境变量之前）
+import { validateEnv } from './utils/env.validation'
+// 在模块加载时自动校验（构建时和运行时）
+const env = validateEnv()
+
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   ssr: false,
-  modules: ['@pinia/nuxt', '@vueuse/nuxt'],
+  modules: [
+    '@pinia/nuxt',
+    '@vueuse/nuxt',
+    '@nuxtjs/i18n',
+    '@nuxt/ui',
+    '@nuxt/fonts',
+    '@nuxt/image',
+  ],
   devtools: { enabled: true },
 
   runtimeConfig: {
-    // 服务端私有配置
-    apiSecret: process.env.API_SECRET,
-    // 客户端公开配置
     public: {
-      LOG_LEVEL: process.env.NUXT_PUBLIC_LOG_LEVEL ?? 'info',
-      env: process.env.NUXT_PUBLIC_ENV ?? 'local',
+      logLevel: env.NUXT_PUBLIC_LOG_LEVEL,
+      env: env.NUXT_PUBLIC_ENV,
       // API 配置
-      apiBase: process.env.NUXT_PUBLIC_API_BASE || '/api',
-      mock: process.env.NUXT_PUBLIC_MOCK === 'true',
+      apiBase: env.NUXT_PUBLIC_API_BASE,
+      // Better Auth 基础路径
+      authBasePath: env.BETTER_AUTH_BASE_PATH,
+      mock: env.NUXT_PUBLIC_MOCK,
 
       // 演示账号配置
-      demoEmail:
-        process.env.NUXT_PUBLIC_DEMO_EMAIL || 'admin@halolight.h7ml.cn',
-      demoPassword: process.env.NUXT_PUBLIC_DEMO_PASSWORD || '123456',
-      showDemoHint: process.env.NUXT_PUBLIC_SHOW_DEMO_HINT !== 'false',
+      demoUsername: env.NUXT_PUBLIC_DEMO_USERNAME,
+      demoPassword: env.NUXT_PUBLIC_DEMO_PASSWORD,
+      showDemoHint: env.NUXT_PUBLIC_SHOW_DEMO_HINT,
 
       // 注册开关配置（默认关闭）
-      ENABLE_REGISTRATION:
-        process.env.NUXT_PUBLIC_ENABLE_REGISTRATION || 'false',
+      ENABLE_REGISTRATION: env.NUXT_PUBLIC_ENABLE_REGISTRATION,
 
       // 应用配置
-      appTitle: process.env.NUXT_PUBLIC_APP_TITLE || 'Admin Pro',
-      brandName: process.env.NUXT_PUBLIC_BRAND_NAME || 'Halolight',
+      appTitle: env.NUXT_PUBLIC_APP_TITLE,
+      brandName: env.NUXT_PUBLIC_BRAND_NAME,
 
       // 分析配置
-      gaId: process.env.NUXT_PUBLIC_GA_ID || '',
+      gaId: env.NUXT_PUBLIC_GA_ID,
     },
   },
   // 自动导入配置
@@ -52,12 +62,15 @@ export default defineNuxtConfig({
         'pino', // CJS
         'pinia-plugin-persistedstate',
         'mockjs', // CJS
+        'better-auth/client',
+        'better-auth/client/plugins',
+        'zod',
       ],
     },
     server: {
       proxy: {
         '/api': {
-          target: process.env.NUXT_API_BACKEND_URL || 'http://localhost:3000',
+          target: env.NUXT_PUBLIC_API_BASE,
           changeOrigin: true,
           secure: false,
         },
@@ -76,6 +89,10 @@ export default defineNuxtConfig({
         { name: 'keywords', content: 'admin, dashboard, management' },
       ],
       link: [
+        {
+          rel: 'stylesheet',
+          href: 'https://font.webcache.cn/google/css2?family=Noto+Sans+SC:wght@100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap',
+        },
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         {
@@ -115,16 +132,6 @@ export default defineNuxtConfig({
               },
             },
           }`,
-        },
-        // 51.la 统计
-        {
-          id: 'LA_COLLECT',
-          src: '//sdk.51.la/js-sdk-pro.min.js?id=L1NaKSoU1jvMh9mE&ck=L1NaKSoU1jvMh9mE&autoTrack=true&hashMode=true&screenRecord=true',
-        },
-        // Google Analytics
-        {
-          async: true,
-          src: 'https://www.googletagmanager.com/gtag/js?id=G-XMS590XWNN',
         },
         {
           innerHTML: `window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-XMS590XWNN');`,
@@ -186,5 +193,42 @@ export default defineNuxtConfig({
         },
       ],
     },
+  },
+
+  // ==================== Nuxt Modules 配置 ====================
+
+  // i18n 配置
+  // i18n: {
+  //   defaultLocale: 'en',
+  //   locales: [
+  //     { code: 'en', language: 'en-US', name: 'English', file: 'en.json' },
+  //     {
+  //       code: 'zh-CN',
+  //       language: 'zh-CN',
+  //       name: '简体中文',
+  //       file: 'zh-CN.json',
+  //     },
+  //     { code: 'ja', language: 'ja-JP', name: '日本語', file: 'ja.json' },
+  //     { code: 'fr', language: 'fr-FR', name: 'Français', file: 'fr.json' },
+  //   ],
+  // },
+
+  // Nuxt UI 配置
+  ui: {
+    experimental: {
+      componentDetection: true,
+    },
+  },
+
+  // Nuxt Fonts 配置
+  fonts: {
+    provider: 'local',
+  },
+
+  // Nuxt Image 配置
+  image: {
+    provider: 'ipx',
+    quality: 80,
+    format: ['webp', 'avif', 'jpeg'],
   },
 })

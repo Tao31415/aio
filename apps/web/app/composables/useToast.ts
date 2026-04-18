@@ -15,7 +15,7 @@ export interface Toast {
 // 全局 toast 状态
 const toasts = ref<Toast[]>([])
 
-export function useToast() {
+export function useMyToast() {
   // 添加 toast
   function addToast(toast: Omit<Toast, 'id'>) {
     const id = generateId()

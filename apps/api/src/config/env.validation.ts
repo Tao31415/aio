@@ -15,7 +15,7 @@ const envSchema = z.object({
   // Redis
   REDIS_HOST: z.string(),
   REDIS_PORT: z.coerce.number().int(),
-  REDIS_PASSWORD: z.string().optional(),
+  REDIS_PASSWORD: z.string(),
 
   // MinIO (S3 Compatible)
   MINIO_ENDPOINT: z.string(),
@@ -30,10 +30,11 @@ const envSchema = z.object({
   CORS_ORIGIN: z.string().default('http://localhost:40000'),
 
   // Better Auth
+  BETTER_AUTH_SECRET: z
+    .string()
+    .min(32, 'Secret must be at least 32 characters'),
   BETTER_AUTH_BASE_PATH: z.string().default('/api/v1/auth'),
-
-  // Frontend
-  UI_URL: z.url().default('http://localhost:40000'),
+  BETTER_AUTH_URL: z.string().default('http://localhost:30000'),
 })
 
 export const validationEnv = (): Env => {

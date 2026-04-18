@@ -11,6 +11,7 @@ import {
 import { validationEnv } from '@/config/env.validation'
 import { AuthModule } from '@auth/auth.module'
 import { LogModule } from '@log/log.module'
+import { RedisModule } from '@redis/redis.module'
 
 @Module({
   imports: [
@@ -20,10 +21,9 @@ import { LogModule } from '@log/log.module'
       load: [appConfig, databaseConfig, redisConfig, mqttConfig, minioConfig],
     }),
     LogModule,
-    AuthModule,
     DatabaseModule,
-    // CacheModule,
-    // RedisModule,
+    RedisModule,
+    AuthModule,
     // MqttModule,
     // StorageModule,
   ],

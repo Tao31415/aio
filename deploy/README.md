@@ -83,6 +83,9 @@ docker compose -f deploy/docker-compose.yml logs -f
 
 # 停止所有服务
 docker compose -f deploy/docker-compose.yml down
+
+# 清空 Docker 构建缓存
+docker builder prune -af
 ```
 
 ## 端口映射

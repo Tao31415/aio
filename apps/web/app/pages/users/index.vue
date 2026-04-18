@@ -335,7 +335,7 @@
     layout: 'default',
   })
 
-  const { showToast } = useToast()
+  const { showToast } = useMyToast()
 
   interface User {
     id: number

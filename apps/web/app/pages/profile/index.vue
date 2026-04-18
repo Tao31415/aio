@@ -206,7 +206,7 @@
   })
 
   const authStore = useAuthStore()
-  const { showToast } = useToast()
+  const { showToast } = useMyToast()
 
   const user = computed(() => authStore.user)
 

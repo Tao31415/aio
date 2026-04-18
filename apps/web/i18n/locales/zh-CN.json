@@ -1,0 +1,383 @@
+{
+  "global": {
+    "appName": "NuxSaaS",
+    "nav": {
+      "admin": "管理后台",
+      "features": "功能特性",
+      "pricing": "定价方案",
+      "docs": "文档"
+    },
+    "auth": {
+      "signIn": "登录",
+      "signOut": "退出",
+      "profile": "个人资料"
+    },
+    "page": {
+      "actions": "操作",
+      "create": "创建",
+      "edit": "编辑",
+      "save": "保存",
+      "delete": "删除",
+      "cancel": "取消",
+      "name": "名称",
+      "status": "状态",
+      "createdAt": "创建时间",
+      "all": "全部"
+    }
+  },
+  "colorModeToggler": {
+    "ariaLabel": "切换颜色模式"
+  },
+  "localeToggler": {
+    "ariaLabel": "切换语言"
+  },
+  "checkboxFilter": {
+    "nSelected": "{n} 个已选择"
+  },
+  "pagination": {
+    "rowsPerPage": "每页行数",
+    "pageOf": "第 {page} 页，共 {totalPage} 页",
+    "selectedRows": "已选择 {selected} / {total} 行",
+    "totalRows": "共 {total} 行"
+  },
+  "sortControl": {
+    "sort": "排序",
+    "addSort": "添加排序",
+    "resetSorting": "重置排序",
+    "asc": "升序",
+    "desc": "降序",
+    "sortBy": "排序方式",
+    "noSorting": "未应用排序",
+    "addSortingHint": "添加排序以组织您的行。"
+  },
+  "menu": {
+    "navigation": "导航",
+    "search": "搜索",
+    "dashboard": "仪表板",
+    "users": "用户",
+    "subscriptions": "订阅管理",
+    "maintenance": "系统维护",
+    "dbStats": "数据库状态",
+    "home": "首页",
+    "auditLog": "审计日志",
+    "migration": "数据迁移",
+    "files": "文件管理"
+  },
+  "signUp": {
+    "pageTitle": "注册账号",
+    "title": "创建账号",
+    "or": "或者",
+    "form": {
+      "name": {
+        "label": "姓名",
+        "placeholder": "请输入姓名",
+        "error": "姓名至少需要{min}个字符"
+      },
+      "email": {
+        "label": "邮箱",
+        "placeholder": "请输入邮箱地址",
+        "error": "无效的邮箱地址"
+      },
+      "password": {
+        "label": "密码",
+        "placeholder": "请输入密码",
+        "error": "密码至少需要{min}个字符"
+      },
+      "confirmPassword": {
+        "label": "确认密码",
+        "placeholder": "请再次输入密码",
+        "error": "两次输入的密码不一致"
+      }
+    },
+    "submit": "创建账号",
+    "haveAccount": "已有账号？",
+    "signIn": "此处登录",
+    "sendEmailSuccess": "验证邮件已发送，请验证您的邮箱地址以继续。"
+  },
+  "fileManager": {
+    "filename": "文件名",
+    "size": "大小",
+    "type": "类型",
+    "uploadedBy": "上传者",
+    "uploadedAt": "上传时间",
+    "preview": "预览",
+    "images": "图片",
+    "videos": "视频",
+    "audios": "音频",
+    "applications": "应用程序",
+    "texts": "文本",
+    "documents": "文档",
+    "others": "其他",
+    "upload": "上传文件",
+    "uploading": "上传中...",
+    "download": "下载",
+    "deleteSuccess": "文件删除成功",
+    "deleteError": "删除文件失败",
+    "selectedFiles": "已选择文件",
+    "uploadedFiles": "已上传文件",
+    "uploadSuccess": "文件上传成功"
+  },
+  "user": {
+    "title": "用户管理",
+    "columns": {
+      "avatar": "头像",
+      "email": "邮箱",
+      "role": "角色"
+    },
+    "status": {
+      "banned": "已封禁",
+      "verified": "已验证",
+      "unverified": "未验证"
+    },
+    "actions": {
+      "createUser": "创建用户",
+      "ban": "封禁",
+      "unban": "解封"
+    },
+    "form": {
+      "email": "邮箱",
+      "password": "密码",
+      "role": "角色"
+    },
+    "validation": {
+      "nameMin": "名称至少需要 {n} 个字符",
+      "emailInvalid": "无效的邮箱地址",
+      "passwordMin": "密码至少需要 {n} 个字符"
+    },
+    "roles": {
+      "user": "普通用户",
+      "admin": "管理员"
+    },
+    "modals": {
+      "createUser": "创建新用户",
+      "ban": {
+        "title": "封禁用户",
+        "reason": "封禁原因",
+        "reasonPlaceholder": "请输入封禁用户的原因",
+        "period": "封禁期限",
+        "periods": {
+          "permanent": "永久",
+          "1_day": "1天",
+          "7_days": "7天",
+          "30_days": "30天"
+        },
+        "submit": "封禁用户"
+      }
+    }
+  },
+  "subscription": {
+    "title": "订阅管理",
+    "plan": "套餐",
+    "stripeCustomerId": "客户 ID",
+    "status": {
+      "incomplete": "未完成",
+      "incomplete_expired": "未完成已过期",
+      "trialing": "试用中",
+      "active": "有效",
+      "paused": "已暂停",
+      "canceled": "已取消",
+      "pastDue": "已逾期",
+      "unpaid": "未支付"
+    },
+    "period": "计费周期",
+    "seats": "席位数"
+  },
+  "dashboard": {
+    "stats": {
+      "activeUsers": "活跃用户",
+      "totalRevenue": "总收入",
+      "activeProjects": "活跃项目",
+      "customerSatisfaction": "客户满意度"
+    },
+    "revenueChart": {
+      "title": "收入增长"
+    },
+    "userDistribution": {
+      "title": "用户方案分布"
+    }
+  },
+  "dbStats": {
+    "performance": "性能统计",
+    "activeBackends": "活动后端",
+    "transactions": "事务",
+    "commits": "提交数",
+    "rollbacks": "回滚数",
+    "tuples": "元组",
+    "inserted": "插入",
+    "updated": "更新",
+    "deleted": "删除",
+    "cacheHitRatio": "缓存命中率",
+    "conflicts": "冲突数",
+    "deadlocks": "死锁数",
+    "tempFiles": "临时文件",
+    "tempBytes": "临时文件大小"
+  },
+  "auditLog": {
+    "title": "审计日志",
+    "category": "分类",
+    "categories": {
+      "auth": "认证",
+      "email": "邮件",
+      "payment": "支付"
+    },
+    "action": "操作",
+    "targetType": "目标类型",
+    "targetId": "目标ID",
+    "ipAddress": "IP地址",
+    "userAgent": "用户代理",
+    "status": {
+      "success": "成功",
+      "failure": "失败",
+      "pending": "处理中"
+    },
+    "details": "详情",
+    "createdAt": "创建时间"
+  },
+  "migration": {
+    "title": "数据迁移",
+    "description": "管理各种数据迁移操作，用于系统维护和数据完整性。",
+    "operations": "可用操作",
+    "paymentCustomers": {
+      "title": "支付客户管理",
+      "description": "确保所有用户都有对应的支付提供商客户记录。此操作将为现有用户创建缺失的 Stripe 和 Polar 客户记录。",
+      "execute": "执行确保支付客户",
+      "summary": "执行摘要",
+      "totalUsers": "总用户数",
+      "stripeSuccess": "Stripe 成功",
+      "stripeError": "Stripe 错误",
+      "polarSuccess": "Polar 成功",
+      "polarError": "Polar 错误",
+      "stripeResults": "Stripe 结果",
+      "polarResults": "Polar 结果",
+      "status": {
+        "success": "成功",
+        "error": "错误"
+      }
+    },
+    "common": {
+      "execute": "执行",
+      "executing": "执行中...",
+      "completed": "已完成",
+      "failed": "失败",
+      "noResults": "无结果显示",
+      "backToOperations": "返回操作列表"
+    }
+  },
+  "signIn": {
+    "welcome": "欢迎使用 {name}",
+    "email": "邮箱",
+    "password": "密码",
+    "emailPlaceholder": "邮箱地址",
+    "passwordPlaceholder": "密码",
+    "rememberMe": "记住我",
+    "forgotPassword": "忘记密码？",
+    "signIn": "登录",
+    "noAccount": "还没有账号？",
+    "createAccount": "立即注册！",
+    "or": "或者",
+    "signInSuccess": "登录成功",
+    "errors": {
+      "invalidEmail": "无效的邮箱地址",
+      "passwordLength": "密码长度至少为{min}个字符"
+    },
+    "emailNotVerified": "邮箱未验证",
+    "emailNotVerifiedDesc": "请验证您的邮箱地址以继续。",
+    "resendEmail": "重新发送验证邮件",
+    "resendEmailSuccess": "验证邮件已发送",
+    "resendEmailError": "发送验证邮件失败",
+    "sendEmail": "发送验证邮件",
+    "sendEmailSuccess": "验证邮件已发送",
+    "sendEmailError": "发送验证邮件失败"
+  },
+  "profile": {
+    "back": "返回",
+    "anonymousUser": "匿名用户",
+    "role": "角色",
+    "emailVerified": "邮箱验证",
+    "verified": "已验证",
+    "notVerified": "未验证",
+    "created": "创建时间",
+    "lastUpdated": "更新时间",
+    "sessionInfo": "会话信息",
+    "ipAddress": "IP地址",
+    "expires": "过期时间",
+    "userAgent": "用户代理",
+    "connectedAccounts": "关联账号",
+    "linkedGithub": "已关联 GitHub",
+    "linkGithub": "关联 GitHub 账号"
+  },
+  "forgotPassword": {
+    "title": "重置密码",
+    "description": "请输入您的邮箱地址，我们将向您发送重置密码的说明。",
+    "email": "邮箱",
+    "emailPlaceholder": "请输入邮箱地址",
+    "submit": "发送说明",
+    "backToSignIn": "返回登录",
+    "success": "重置说明已发送至您的邮箱",
+    "errors": {
+      "invalidEmail": "无效的邮箱地址"
+    }
+  },
+  "resetPassword": {
+    "title": "重置您的密码",
+    "description": "在下面输入您的新密码。",
+    "password": "新密码",
+    "passwordPlaceholder": "输入您的新密码",
+    "confirmPassword": "确认密码",
+    "confirmPasswordPlaceholder": "重新输入您的新密码",
+    "submit": "重置密码",
+    "success": "您的密码已成功重置。",
+    "errors": {
+      "minLength": "密码必须至少为 {min} 个字符。",
+      "passwordMismatch": "两次输入的密码不一致。"
+    },
+    "backToSignIn": "返回登录"
+  },
+  "403": {
+    "title": "访问被拒绝",
+    "message": "抱歉，您没有权限访问此页面。",
+    "back": "返回首页"
+  },
+  "pricing": {
+    "title": "简单透明的定价",
+    "subtitle": "选择最适合您需求的方案",
+    "monthly": "按月付费",
+    "yearly": "按年付费",
+    "savePercent": "节省 {percent}%",
+    "popular": "热门",
+    "free": {
+      "name": "免费版",
+      "description": "完美的入门选择",
+      "price": "免费",
+      "period": "永久",
+      "feature1": "基础功能",
+      "feature2": "社区支持"
+    },
+    "pro": {
+      "name": "专业版",
+      "description": "适合成长中的企业",
+      "price": "${price}",
+      "period": "每月",
+      "yearPeriod": "每年",
+      "feature1": "所有功能",
+      "feature2": "优先支持"
+    },
+    "enterprise": {
+      "name": "企业版",
+      "description": "适合大型组织",
+      "price": "定制",
+      "period": "联系我们",
+      "feature1": "包含专业版所有功能",
+      "feature2": "专属支持",
+      "feature3": "自定义部署"
+    },
+    "features": {
+      "title": "包含功能："
+    },
+    "cta": {
+      "free": "立即开始",
+      "pro": "开始专业版试用",
+      "enterprise": "联系销售"
+    }
+  }
+}

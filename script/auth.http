@@ -84,7 +84,7 @@ POST {{baseUrl}}/sign-in/username
 Content-Type: application/json
 
 {
-  "username": "tao",
+  "username": "admin",
   "password": "password123"
 }
 

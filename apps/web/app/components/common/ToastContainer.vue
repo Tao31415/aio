@@ -125,5 +125,5 @@
 </template>
 
 <script setup lang="ts">
-  const { toasts, removeToast } = useToast()
+  const { toasts, removeToast } = useMyToast()
 </script>

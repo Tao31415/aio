@@ -1,0 +1,380 @@
+{
+  "global": {
+    "appName": "NuxSaaS",
+    "nav": {
+      "admin": "Admin",
+      "features": "Features",
+      "pricing": "Pricing",
+      "docs": "Documentation"
+    },
+    "auth": {
+      "signIn": "Sign In",
+      "signOut": "Sign Out",
+      "profile": "Profile"
+    },
+    "page": {
+      "actions": "Actions",
+      "create": "Create",
+      "edit": "Edit",
+      "save": "Save",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "name": "Name",
+      "status": "Status",
+      "createdAt": "Created At",
+      "all": "All"
+    }
+  },
+  "403": {
+    "title": "Access Denied",
+    "message": "Sorry, you don't have permission to access this page.",
+    "back": "Back to home"
+  },
+  "colorModeToggler": {
+    "ariaLabel": "Change Color Mode"
+  },
+  "localeToggler": {
+    "ariaLabel": "Change language"
+  },
+  "checkboxFilter": {
+    "nSelected": "{n} selected"
+  },
+  "pagination": {
+    "rowsPerPage": "Rows per page",
+    "pageOf": "Page {page} of {totalPage}",
+    "selectedRows": "{selected} / {total} row(s) selected",
+    "totalRows": "Total row(s): {total}"
+  },
+  "sortControl": {
+    "sort": "Sort",
+    "addSort": "Add sort",
+    "resetSorting": "Reset sorting",
+    "asc": "Asc",
+    "desc": "Desc",
+    "sortBy": "Sort By",
+    "noSorting": "No sorting applied",
+    "addSortingHint": "Add sorting to organize your rows."
+  },
+  "menu": {
+    "navigation": "Navigation",
+    "search": "Search",
+    "dashboard": "Dashboard",
+    "users": "Users",
+    "subscriptions": "Subscriptions",
+    "maintenance": "Maintenance",
+    "dbStats": "Database Status",
+    "home": "Home",
+    "auditLog": "Audit Log",
+    "migration": "Data Migration",
+    "files": "Files"
+  },
+  "signUp": {
+    "pageTitle": "Sign up",
+    "title": "Create your account",
+    "or": "Or",
+    "form": {
+      "name": {
+        "label": "Name",
+        "placeholder": "Your Name",
+        "error": "Name must be at least {min} characters"
+      },
+      "email": {
+        "label": "Email",
+        "placeholder": "Email Address",
+        "error": "Invalid email address"
+      },
+      "password": {
+        "label": "Password",
+        "placeholder": "Password",
+        "error": "Password must be at least {min} characters"
+      },
+      "confirmPassword": {
+        "label": "Confirm Password",
+        "placeholder": "Confirm Password",
+        "error": "Passwords don't match"
+      }
+    },
+    "submit": "Create Account",
+    "haveAccount": "Already have an account?",
+    "signIn": "Sign in here",
+    "sendEmailSuccess": "Verification email has been sent, Please verify your email address to continue."
+  },
+  "fileManager": {
+    "filename": "Filename",
+    "size": "Size",
+    "type": "Type",
+    "uploadedBy": "Uploaded By",
+    "uploadedAt": "Uploaded At",
+    "preview": "Preview",
+    "images": "Images",
+    "videos": "Videos",
+    "audios": "Audios",
+    "applications": "Applications",
+    "texts": "Texts",
+    "documents": "Documents",
+    "others": "Others",
+    "upload": "Upload Files",
+    "uploading": "Uploading...",
+    "download": "Download",
+    "deleteSuccess": "File deleted successfully",
+    "deleteError": "Failed to delete file",
+    "selectedFiles": "Selected Files",
+    "uploadedFiles": "Uploaded Files",
+    "uploadSuccess": "File uploaded successfully"
+  },
+  "user": {
+    "title": "User Management",
+    "columns": {
+      "avatar": "Avatar",
+      "email": "Email",
+      "role": "Role"
+    },
+    "status": {
+      "banned": "Banned",
+      "verified": "Verified",
+      "unverified": "Unverified"
+    },
+    "actions": {
+      "createUser": "Create User",
+      "ban": "Ban",
+      "unban": "Unban"
+    },
+    "form": {
+      "email": "Email",
+      "password": "Password",
+      "role": "Role"
+    },
+    "validation": {
+      "nameMin": "Name must be at least {n} characters",
+      "emailInvalid": "Invalid email address",
+      "passwordMin": "Password must be at least {n} characters"
+    },
+    "roles": {
+      "user": "User",
+      "admin": "Administrator"
+    },
+    "modals": {
+      "createUser": "Create New User",
+      "ban": {
+        "title": "Ban User",
+        "reason": "Ban Reason",
+        "reasonPlaceholder": "Enter reason for banning user",
+        "period": "Ban Period",
+        "periods": {
+          "permanent": "Permanent",
+          "1_day": "1 Day",
+          "7_days": "7 Days",
+          "30_days": "30 Days"
+        },
+        "submit": "Ban User"
+      }
+    }
+  },
+  "subscription": {
+    "title": "Subscription Management",
+    "plan": "Plan",
+    "stripeCustomerId": "Customer ID",
+    "status": {
+      "incomplete": "Incomplete",
+      "incomplete_expired": "Incomplete Expired",
+      "trialing": "Trial",
+      "active": "Active",
+      "paused": "Paused",
+      "canceled": "Canceled",
+      "pastDue": "Past Due",
+      "unpaid": "Unpaid"
+    },
+    "period": "Billing Period",
+    "seats": "Seats"
+  },
+  "dashboard": {
+    "stats": {
+      "activeUsers": "Active Users",
+      "totalRevenue": "Total Revenue",
+      "activeProjects": "Active Projects",
+      "customerSatisfaction": "Customer Satisfaction"
+    },
+    "revenueChart": {
+      "title": "Revenue Growth"
+    },
+    "userDistribution": {
+      "title": "User Distribution by Plan"
+    }
+  },
+  "dbStats": {
+    "performance": "Performance Statistics",
+    "activeBackends": "Active Backends",
+    "transactions": "Transactions",
+    "commits": "Commits",
+    "rollbacks": "Rollbacks",
+    "tuples": "Tuples",
+    "inserted": "Inserted",
+    "updated": "Updated",
+    "deleted": "Deleted",
+    "cacheHitRatio": "Cache Hit Ratio",
+    "conflicts": "Conflicts",
+    "deadlocks": "Deadlocks",
+    "tempFiles": "Temporary Files",
+    "tempBytes": "Temporary Bytes"
+  },
+  "auditLog": {
+    "title": "Audit Log",
+    "category": "Category",
+    "categories": {
+      "auth": "Authentication",
+      "email": "Email",
+      "payment": "Payment"
+    },
+    "action": "Action",
+    "targetType": "Target Type",
+    "targetId": "Target ID",
+    "ipAddress": "IP Address",
+    "userAgent": "User Agent",
+    "status": {
+      "success": "Success",
+      "failure": "Failure",
+      "pending": "Pending"
+    },
+    "details": "Details",
+    "createdAt": "Created At"
+  },
+  "migration": {
+    "title": "Data Migration",
+    "description": "Manage various data migration operations for system maintenance and data integrity.",
+    "operations": "Available Operations",
+    "paymentCustomers": {
+      "title": "Payment Customers Management",
+      "description": "Ensure all users have corresponding payment provider customer records. This operation will create missing Stripe and Polar customer records for existing users.",
+      "execute": "Execute Ensure Payment Customers",
+      "summary": "Execution Summary",
+      "totalUsers": "Total Users",
+      "stripeSuccess": "Stripe Success",
+      "stripeError": "Stripe Errors",
+      "polarSuccess": "Polar Success",
+      "polarError": "Polar Errors",
+      "stripeResults": "Stripe Results",
+      "polarResults": "Polar Results",
+      "status": {
+        "success": "Success",
+        "error": "Error"
+      }
+    },
+    "common": {
+      "execute": "Execute",
+      "executing": "Executing...",
+      "completed": "Completed",
+      "failed": "Failed",
+      "noResults": "No results to display",
+      "backToOperations": "Back to Operations"
+    }
+  },
+  "signIn": {
+    "welcome": "Welcome to {name}",
+    "email": "Email",
+    "password": "Password",
+    "emailPlaceholder": "Email Address",
+    "passwordPlaceholder": "Password",
+    "rememberMe": "Remember me",
+    "forgotPassword": "Forgot your password?",
+    "signIn": "Sign In",
+    "noAccount": "Don't have an account?",
+    "createAccount": "Create today!",
+    "or": "Or",
+    "signInSuccess": "Sign in Success",
+    "errors": {
+      "invalidEmail": "Invalid email address",
+      "passwordLength": "Password must be at least {min} characters"
+    },
+    "emailNotVerified": "Email Not Verified",
+    "emailNotVerifiedDesc": "Please verify your email address to continue.",
+    "sendEmail": "Send Verification Email",
+    "sendEmailSuccess": "Verification email has been sent",
+    "sendEmailError": "Failed to send verification email"
+  },
+  "profile": {
+    "back": "Back",
+    "anonymousUser": "Anonymous User",
+    "role": "Role",
+    "emailVerified": "Email Verified",
+    "verified": "Verified",
+    "notVerified": "Not Verified",
+    "created": "Created",
+    "lastUpdated": "Last Updated",
+    "sessionInfo": "Session Information",
+    "ipAddress": "IP Address",
+    "expires": "Expires",
+    "userAgent": "User Agent",
+    "connectedAccounts": "Connected Accounts",
+    "linkedGithub": "Linked with GitHub",
+    "linkGithub": "Link account with GitHub"
+  },
+  "forgotPassword": {
+    "title": "Reset Password",
+    "description": "Enter your email address and we'll send you instructions to reset your password.",
+    "email": "Email",
+    "emailPlaceholder": "Enter your email address",
+    "submit": "Send Instructions",
+    "backToSignIn": "Back to Sign In",
+    "success": "Reset instructions have been sent to your email",
+    "errors": {
+      "invalidEmail": "Invalid email address"
+    }
+  },
+  "resetPassword": {
+    "title": "Reset Your Password",
+    "description": "Enter your new password below.",
+    "password": "New Password",
+    "passwordPlaceholder": "Enter your new password",
+    "confirmPassword": "Confirm Password",
+    "confirmPasswordPlaceholder": "Re-enter your new password",
+    "submit": "Reset Password",
+    "success": "Your password has been reset successfully.",
+    "errors": {
+      "minLength": "Password must be at least {min} characters long.",
+      "passwordMismatch": "Passwords do not match."
+    },
+    "backToSignIn": "Back to Sign In"
+  },
+  "pricing": {
+    "title": "Simple, transparent pricing",
+    "subtitle": "Choose the plan that suits your needs",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "savePercent": "Save {percent}%",
+    "popular": "Popular",
+    "free": {
+      "name": "Free",
+      "description": "Perfect for getting started",
+      "price": "Free",
+      "period": "forever",
+      "feature1": "Basic features",
+      "feature2": "Community support"
+    },
+    "pro": {
+      "name": "Pro",
+      "description": "For growing businesses",
+      "price": "${price}",
+      "period": "per month",
+      "yearPeriod": "per year",
+      "feature1": "All features",
+      "feature2": "Priority support"
+    },
+    "enterprise": {
+      "name": "Enterprise",
+      "description": "For large organizations",
+      "price": "Custom",
+      "period": "contact us",
+      "feature1": "Everything in Pro",
+      "feature2": "Dedicated support",
+      "feature3": "Custom deployment"
+    },
+    "features": {
+      "title": "Features included:"
+    },
+    "cta": {
+      "free": "Get Started",
+      "pro": "Start Pro Trial",
+      "enterprise": "Contact Sales"
+    }
+  }
+}

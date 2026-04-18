@@ -165,6 +165,7 @@ mise run deploy-start      # 启动 Docker 服务（不重建）
 mise run deploy-stop       # 停止 Docker 容器
 mise run deploy-restart    # 重启 Docker 容器
 mise run deploy-down       # 删除 Docker 容器
+mise run deploy-prune     # 清空 Docker 构建缓存
 ```
 
 ## Makefile
@@ -190,4 +191,5 @@ make deploy-start          # 启动 Docker 服务
 make deploy-stop           # 停止 Docker 容器
 make deploy-restart        # 重启 Docker 容器
 make deploy-down           # 删除 Docker 容器
+make deploy-prune          # 清空 Docker 构建缓存
 ```

@@ -1,4 +1,4 @@
-.PHONY: help init build dev check fix kill clean cleanAll reinstall deploy deploy-build deploy-build-api deploy-build deploy-build-web deploy-pull deploy-start deploy-stop deploy-restart deploy-down
+.PHONY: help init build dev check fix kill clean cleanAll reinstall deploy deploy-build deploy-build-api deploy-build deploy-build-web deploy-pull deploy-start deploy-stop deploy-restart deploy-down deploy-prune
 
 # ================================
 # 变量
@@ -37,6 +37,7 @@ help:
 	@echo "  make deploy-stop      # 停止 Docker 容器"
 	@echo "  make deploy-restart   # 重启 Docker 容器"
 	@echo "  make deploy-down      # 删除 Docker 容器"
+	@echo "  make deploy-prune     # 清空 Docker 构建缓存"
 
 # ================================
 # 1. 初始化项目
@@ -194,3 +195,8 @@ deploy-down:
 	@echo "==> 删除 Docker 容器..."
 	@$(DOCKER_COMPOSE) down
 	@echo "✓ 容器已删除"
+
+deploy-prune:
+	@echo "==> 清空 Docker 构建缓存..."
+	@$(DOCKER) builder prune -af
+	@echo "✓ Docker 构建缓存已清空"

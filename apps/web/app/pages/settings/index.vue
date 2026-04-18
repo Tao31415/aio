@@ -368,7 +368,7 @@
 
   const authStore = useAuthStore()
   const uiSettingsStore = useUiSettingsStore()
-  const { showToast } = useToast()
+  const { showToast } = useMyToast()
 
   const user = computed(() => authStore.user)
   const uiSettings = uiSettingsStore

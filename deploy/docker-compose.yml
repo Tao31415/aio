@@ -23,13 +23,17 @@ services:
     environment:
       - TZ=Asia/Shanghai
       - LANG=C.UTF-8
-    command: redis-server --appendonly yes
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-redis}
+    command: >
+      redis-server
+      --appendonly yes
+      --requirepass "$REDIS_PASSWORD"
     ports:
       - '${REDIS_PORT:-6379}:6379'
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ['CMD', 'redis-cli', 'ping']
+      test: ['CMD', 'redis-cli', '-a', '${REDIS_PASSWORD:-redis}', 'ping']
       interval: 10s
       timeout: 5s
       retries: 3
@@ -106,6 +110,7 @@ services:
       - DB_NAME=${DB_NAME:-aio}
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-redis}
       - MINIO_ENDPOINT=minio:9000
       - MINIO_ACCESS_KEY=${MINIO_ROOT_USER:-minioadmin}
       - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD:-minioadmin}

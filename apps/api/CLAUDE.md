@@ -50,13 +50,13 @@ apps/api/
 
 Uses `@thallesp/nestjs-better-auth` wrapping `better-auth` with:
 
-| Feature | Config |
-|---------|--------|
-| Sessions | Redis-backed, 7-day expiry, 5-min fresh age |
-| Rate Limiting | 100 req / 60s, stored in Redis |
-| Multi-Session | Max 10 sessions per user |
-| Cookie Cache | 5-min TTL for reduced DB calls |
-| CORS Origins | localhost:40000, 127.0.0.1:40000, UI_URL |
+| Feature       | Config                                      |
+| ------------- | ------------------------------------------- |
+| Sessions      | Redis-backed, 7-day expiry, 5-min fresh age |
+| Rate Limiting | 100 req / 60s, stored in Redis              |
+| Multi-Session | Max 10 sessions per user                    |
+| Cookie Cache  | 5-min TTL for reduced DB calls              |
+| CORS Origins  | localhost:40000, 127.0.0.1:40000, UI_URL    |
 
 **Auth Base Path**: `/api/v1/auth` (configurable via `BETTER_AUTH_BASE_PATH`)
 
@@ -68,9 +68,15 @@ Custom access control with three roles defined in `auth.ts`:
 
 ```typescript
 // Permissions: project (create, share, update, delete)
-const user    = ac.newRole({ project: ['create'] })
-const admin   = ac.newRole({ project: ['create', 'update'], ...adminAc.statements })
-const myCustomRole = ac.newRole({ project: ['create', 'update', 'delete'], user: ['ban'] })
+const user = ac.newRole({ project: ['create'] })
+const admin = ac.newRole({
+  project: ['create', 'update'],
+  ...adminAc.statements,
+})
+const myCustomRole = ac.newRole({
+  project: ['create', 'update', 'delete'],
+  user: ['ban'],
+})
 ```
 
 Use `@Roles()` decorator with `UserRole` enum values:
@@ -90,17 +96,18 @@ Related entities: `Account` (OAuth linking), `Verification` (email verification)
 
 ### Middleware Modules
 
-| Module | Token | Purpose |
-|--------|-------|---------|
-| `DatabaseModule` | - | TypeORM PostgreSQL, auto-loads entities, `synchronize` in non-production |
-| `RedisModule` | `REDIS_CLIENT` | Raw ioredis client, exponential backoff retry |
-| `CacheModule` | - | `@keyv/redis`, global cache |
-| `MqttModule` | `MQTT_SERVICE` | MQTT microservice client |
-| `StorageModule` | `MINIO_CLIENT` | MinIO/S3 operations (upload, download, presigned URLs) |
+| Module           | Token          | Purpose                                                                  |
+| ---------------- | -------------- | ------------------------------------------------------------------------ |
+| `DatabaseModule` | -              | TypeORM PostgreSQL, auto-loads entities, `synchronize` in non-production |
+| `RedisModule`    | `REDIS_CLIENT` | Raw ioredis client, exponential backoff retry                            |
+| `CacheModule`    | -              | `@keyv/redis`, global cache                                              |
+| `MqttModule`     | `MQTT_SERVICE` | MQTT microservice client                                                 |
+| `StorageModule`  | `MINIO_CLIENT` | MinIO/S3 operations (upload, download, presigned URLs)                   |
 
 ### Logging
 
 Uses `nestjs-pino`:
+
 - **Production**: log level `info`, no transport (structured JSON)
 - **Development**: log level `debug`, `pino-pretty` with colors
 
@@ -110,41 +117,41 @@ Validated by **Zod** at startup via `env.validation.ts`. Invalid env vars cause 
 
 ### Required
 
-| Variable | Type | Description |
-|----------|------|-------------|
+| Variable             | Type             | Description                                        |
+| -------------------- | ---------------- | -------------------------------------------------- |
 | `BETTER_AUTH_SECRET` | `string` (min 1) | Auth secret key. Generate with `bun run db:secret` |
 
 ### Optional (with defaults)
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `NODE_ENV` | `local` | Environment: `local`, `development`, `production`, `test` |
-| `PORT` | `30000` | Server port (1-65535) |
-| `DB_HOST` | `localhost` | PostgreSQL host |
-| `DB_PORT` | `5432` | PostgreSQL port |
-| `DB_USER` | `postgres` | PostgreSQL username |
-| `DB_PASSWORD` | `postgres` | PostgreSQL password |
-| `DB_NAME` | `aio` | PostgreSQL database name |
-| `REDIS_HOST` | `localhost` | Redis host |
-| `REDIS_PORT` | `6379` | Redis port |
-| `REDIS_PASSWORD` | — | Redis password (optional) |
-| `MINIO_ENDPOINT` | `localhost:9000` | MinIO endpoint |
-| `MINIO_ACCESS_KEY` | `minioadmin` | MinIO access key |
-| `MINIO_SECRET_KEY` | `minioadmin` | MinIO secret key |
-| `MINIO_BUCKET` | `default` | MinIO bucket name |
-| `MQTT_BROKER_URL` | `mqtt://localhost:1883` | MQTT broker URL |
-| `CORS_ORIGIN` | `http://localhost:40000` | CORS allowed origin |
-| `BETTER_AUTH_URL` | `http://localhost:30000` | Better Auth base URL |
-| `BETTER_AUTH_BASE_PATH` | `/api/v1/auth` | Auth routes base path |
-| `UI_URL` | `http://localhost:40000` | Frontend URL for redirects |
+| Variable                | Default                  | Description                                               |
+| ----------------------- | ------------------------ | --------------------------------------------------------- |
+| `NODE_ENV`              | `local`                  | Environment: `local`, `development`, `production`, `test` |
+| `PORT`                  | `30000`                  | Server port (1-65535)                                     |
+| `DB_HOST`               | `localhost`              | PostgreSQL host                                           |
+| `DB_PORT`               | `5432`                   | PostgreSQL port                                           |
+| `DB_USER`               | `postgres`               | PostgreSQL username                                       |
+| `DB_PASSWORD`           | `postgres`               | PostgreSQL password                                       |
+| `DB_NAME`               | `aio`                    | PostgreSQL database name                                  |
+| `REDIS_HOST`            | `localhost`              | Redis host                                                |
+| `REDIS_PORT`            | `6379`                   | Redis port                                                |
+| `REDIS_PASSWORD`        | —                        | Redis password (optional)                                 |
+| `MINIO_ENDPOINT`        | `localhost:9000`         | MinIO endpoint                                            |
+| `MINIO_ACCESS_KEY`      | `minioadmin`             | MinIO access key                                          |
+| `MINIO_SECRET_KEY`      | `minioadmin`             | MinIO secret key                                          |
+| `MINIO_BUCKET`          | `default`                | MinIO bucket name                                         |
+| `MQTT_BROKER_URL`       | `mqtt://localhost:1883`  | MQTT broker URL                                           |
+| `CORS_ORIGIN`           | `http://localhost:40000` | CORS allowed origin                                       |
+| `BETTER_AUTH_URL`       | `http://localhost:30000` | Better Auth base URL                                      |
+| `BETTER_AUTH_BASE_PATH` | `/api/v1/auth`           | Auth routes base path                                     |
+| `UI_URL`                | `http://localhost:40000` | Frontend URL for redirects                                |
 
 ### Environment Files
 
-| File | Used By | Purpose |
-|------|---------|---------|
-| `.env.local` | `dev`, `dev:debug`, `preview` scripts | Local development |
-| `.env.test` | `test*` scripts | Unit and E2E tests |
-| `.env.production` | Docker / CI-CD | Production runtime |
+| File              | Used By                               | Purpose            |
+| ----------------- | ------------------------------------- | ------------------ |
+| `.env.local`      | `dev`, `dev:debug`, `preview` scripts | Local development  |
+| `.env.test`       | `test*` scripts                       | Unit and E2E tests |
+| `.env.production` | Docker / CI-CD                        | Production runtime |
 
 ## Scripts
 

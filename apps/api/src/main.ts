@@ -51,7 +51,7 @@ async function bootstrap() {
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'Cookie'],
   })
-
+  app.enableShutdownHooks()
   await app.listen(process.env.PORT ?? 3000)
 
   const logger = app.get(Logger)
