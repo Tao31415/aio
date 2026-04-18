@@ -7,7 +7,7 @@
   "author": "",
   "scripts": {
     "dev": "nest start --watch --env-file=.env.local",
-    "build": "nest build",
+    "build": "nest build && tsc-alias",
     "dev:debug": "nest start --debug --watch --env-file=.env.local",
     "preview": "bun --env-file=.env.local dist/main",
     "db:migrate": "bun x @better-auth/cli@latest generate --config src/module/rbac/auth/auth.ts -y",
@@ -35,6 +35,8 @@
     "@nestjs/swagger": "^11.2.7",
     "@nestjs/typeorm": "^11.0.1",
     "@thallesp/nestjs-better-auth": "^2.6.0",
+    "@types/express": "^5.0.0",
+    "@types/jest": "^30.0.0",
     "cache-manager": "^7.2.8",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
@@ -46,9 +48,7 @@
     "pg": "^8.20.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
-    "typeorm": "^0.3.28",
-    "@types/express": "^5.0.0",
-    "@types/jest": "^30.0.0"
+    "typeorm": "^0.3.28"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.0",

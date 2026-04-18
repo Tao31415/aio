@@ -41,7 +41,8 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "rolldown": "^1.0.0-rc.15"
+    "rolldown": "^1.0.0-rc.15",
+    "tsc-alias": "^1.8.16"
   },
   "engines": {
     "node": ">=22.12.0"

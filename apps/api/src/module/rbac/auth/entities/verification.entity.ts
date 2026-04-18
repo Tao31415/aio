@@ -9,20 +9,20 @@ import {
 @Entity('verification')
 export class Verification {
   @PrimaryColumn('text')
-  id: string
+  id!: string
 
   @Column('text')
-  identifier: string
+  identifier!: string
 
   @Column('text')
-  value: string
+  value!: string
 
   @Column('timestamp')
-  expiresAt: Date
+  expiresAt!: Date
 
   @CreateDateColumn()
-  createdAt: Date
+  createdAt!: Date
 
   @UpdateDateColumn()
-  updatedAt: Date
+  updatedAt!: Date
 }

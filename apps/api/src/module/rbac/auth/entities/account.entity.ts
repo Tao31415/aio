@@ -12,45 +12,45 @@ import { User } from './user.entity'
 @Entity('account')
 export class Account {
   @PrimaryColumn('text')
-  id: string
+  id!: string
 
   @Column('text')
-  userId: string
+  userId!: string
 
   @Column('text')
-  accountId: string
+  accountId!: string
 
   @Column('text')
-  providerId: string
+  providerId!: string
 
   @Column('text', { nullable: true })
-  accessToken: string | null
+  accessToken!: string | null
 
   @Column('text', { nullable: true })
-  refreshToken: string | null
+  refreshToken!: string | null
 
   @Column('timestamp', { nullable: true })
-  accessTokenExpiresAt: Date | null
+  accessTokenExpiresAt!: Date | null
 
   @Column('timestamp', { nullable: true })
-  refreshTokenExpiresAt: Date | null
+  refreshTokenExpiresAt!: Date | null
 
   @Column('text', { nullable: true })
-  scope: string | null
+  scope!: string | null
 
   @Column('text', { nullable: true })
-  idToken: string | null
+  idToken!: string | null
 
   @Column('text', { nullable: true })
-  password: string | null
+  password!: string | null
 
   @CreateDateColumn()
-  createdAt: Date
+  createdAt!: Date
 
   @UpdateDateColumn()
-  updatedAt: Date
+  updatedAt!: Date
 
   @ManyToOne(() => User, (user) => user.accounts, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId' })
-  user: User
+  user!: User
 }

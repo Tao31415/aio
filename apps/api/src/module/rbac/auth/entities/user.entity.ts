@@ -16,44 +16,44 @@ export enum UserRole {
 @Entity('user')
 export class User {
   @PrimaryColumn('text')
-  id: string
+  id!: string
 
   @Column('text')
-  name: string
+  name!: string
 
   @Column('text', { unique: true })
-  email: string
+  email!: string
 
   @Column('boolean', { default: false })
-  emailVerified: boolean
+  emailVerified!: boolean
 
   @Column('text', { nullable: true })
-  image: string | null
+  image!: string | null
 
   @Column({ type: 'text', default: UserRole.USER })
-  role: UserRole
+  role!: UserRole
 
   @Column('boolean', { default: false })
-  banned: boolean
+  banned!: boolean
 
   @Column('text', { nullable: true })
-  banReason: string | null
+  banReason!: string | null
 
   @Column('timestamptz', { nullable: true })
-  banExpires: Date | null
+  banExpires!: Date | null
 
   @Column('text', { unique: true })
-  username: string
+  username!: string
 
   @Column('text', { nullable: true })
-  displayUsername: string | null
+  displayUsername!: string | null
 
   @CreateDateColumn()
-  createdAt: Date
+  createdAt!: Date
 
   @UpdateDateColumn()
-  updatedAt: Date
+  updatedAt!: Date
 
   @OneToMany(() => Account, (account) => account.user)
-  accounts: Account[]
+  accounts!: Account[]
 }

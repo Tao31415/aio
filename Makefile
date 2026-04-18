@@ -6,8 +6,8 @@
 BUN := bun
 DOCKER := docker
 DOCKER_COMPOSE := $(DOCKER) compose -f deploy/docker-compose.yml
-DOCKER_FILE_API := deploy/Dockerfile.api
-DOCKER_FILE_WEB := deploy/Dockerfile.web
+DOCKER_FILE_API := deploy/Dockerfile
+DOCKER_FILE_WEB := deploy/Dockerfile
 MISE := mise
 
 # ================================

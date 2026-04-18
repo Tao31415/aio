@@ -17,7 +17,9 @@ export default defineNuxtConfig({
     '@nuxt/image',
   ],
   devtools: { enabled: true },
-
+  nitro: {
+    preset: 'bun', // 或者 'bun-server'
+  },
   runtimeConfig: {
     public: {
       logLevel: env.NUXT_PUBLIC_LOG_LEVEL,

@@ -94,7 +94,7 @@ services:
     image: aio/api:latest
     build:
       context: ..
-      dockerfile: deploy/Dockerfile.api
+      dockerfile: deploy/Dockerfile
       target: api
     env_file:
       - ../apps/api/.env.production
@@ -137,7 +137,7 @@ services:
     image: aio/web:latest
     build:
       context: ..
-      dockerfile: deploy/Dockerfile.web
+      dockerfile: deploy/Dockerfile
       target: web
     env_file:
       - ../apps/web/.env.production

@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core'
 import { Transport } from '@nestjs/microservices'
-import { AppModule } from '@/app.module'
+import { AppModule } from './app.module'
 import { Logger } from 'nestjs-pino'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { VersioningType } from '@nestjs/common'

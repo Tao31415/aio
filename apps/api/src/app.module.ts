@@ -7,8 +7,8 @@ import {
   mqttConfig,
   minioConfig,
   appConfig,
-} from '@/config'
-import { validationEnv } from '@/config/env.validation'
+} from '@src/config'
+import { validationEnv } from '@src/config/env.validation'
 import { AuthModule } from '@auth/auth.module'
 import { LogModule } from '@log/log.module'
 import { RedisModule } from '@redis/redis.module'

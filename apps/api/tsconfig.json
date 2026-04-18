@@ -21,9 +21,9 @@
     "strictBindCallApply": true,
     "noFallthroughCasesInSwitch": true,
     "types": ["node", "jest"],
-    "strict": false,
+    "strict": true,
     "paths": {
-      "@/*": ["./src/*"],
+      "@src/*": ["./src/*"],
       "@auth/*": ["./src/module/rbac/auth/*"],
       "@config/*": ["./src/module/config/*"],
       "@database/*": ["./src/module/middleware/database/*"],
