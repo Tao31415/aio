@@ -20,7 +20,7 @@ export class TunnelMonitoringService implements OnModuleInit {
   }
 
   async onModuleInit() {
-    await this.createHypertable()
+    // await this.createHypertable()
   }
 
   /**
@@ -30,7 +30,8 @@ export class TunnelMonitoringService implements OnModuleInit {
   private async createHypertable() {
     try {
       // 检查 timescaledb 扩展是否已启用
-      const extensionResult = await this.dataSource.query(`
+      const extensionResult: Array<Record<string, unknown>> = await this
+        .dataSource.query(`
         SELECT 1 FROM pg_extension WHERE extname = 'timescaledb';
       `)
 
@@ -55,7 +56,7 @@ export class TunnelMonitoringService implements OnModuleInit {
         'Hypertable tunnel_monitoring_data created or already exists'
       )
     } catch (error) {
-      this.logger.error(`Failed to create hypertable: ${error}`)
+      this.logger.error({ error }, 'Failed to create hypertable')
     }
   }
 
@@ -63,7 +64,7 @@ export class TunnelMonitoringService implements OnModuleInit {
    * 处理隧道监测数据（已由 MqttService.processTunnelMonitoringData 调用）
    * 这里可以添加额外的业务逻辑，如告警检查、数据聚合等
    */
-  async processData(data: TunnelMonitoringData[]): Promise<void> {
+  processData(data: TunnelMonitoringData[]) {
     // TODO: 实现具体业务逻辑
     // - 触发告警检查
     // - 更新报表数据
@@ -71,7 +72,15 @@ export class TunnelMonitoringService implements OnModuleInit {
 
     for (const item of data) {
       this.logger.debug(
-        `Processing ring ${item.ringNumber}: p1x=${item.p1x}, p1y=${item.p1y}, p9y=${item.p9y}, sd=${item.sd}, coc=${item.coc}`
+        {
+          ringNumber: item.ringNumber,
+          p1x: item.p1x,
+          p1y: item.p1y,
+          p9y: item.p9y,
+          sd: item.sd,
+          coc: item.coc,
+        },
+        'Processing ring data'
       )
     }
   }
@@ -82,7 +91,7 @@ export class TunnelMonitoringService implements OnModuleInit {
   async findByRingNumber(ringNumber: string): Promise<TunnelMonitoringData[]> {
     return this.tunnelMonitoringRepository.find({
       where: { ringNumber },
-      order: { createdAt: 'DESC' },
+      order: { timestamp: 'DESC' },
     })
   }
 
@@ -91,7 +100,7 @@ export class TunnelMonitoringService implements OnModuleInit {
    */
   async findLatest(limit: number = 100): Promise<TunnelMonitoringData[]> {
     return this.tunnelMonitoringRepository.find({
-      order: { createdAt: 'DESC' },
+      order: { timestamp: 'DESC' },
       take: limit,
     })
   }

@@ -1,6 +1,6 @@
 services:
   timescale:
-    image: timescale/timescaledb:latest-pg17
+    image: timescale/timescaledb-ha:latest-pg17
     environment:
       - TZ=Asia/Shanghai
       - LANG=C.UTF-8
@@ -11,6 +11,10 @@ services:
       - '${DB_PORT:-5432}:5432'
     volumes:
       - timescale_data:/var/lib/postgresql/data
+    command: >
+      postgres
+      -c shared_preload_libraries=timescaledb
+      -c timescaledb.toolkit_management=true
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U ${DB_USER:-postgres}']
       interval: 5s
@@ -78,111 +82,3 @@ services:
     volumes:
       - mosquitto_data:/mosquitto/data
       - mosquitto_log:/mosquitto/log
-      - ./mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
-    healthcheck:
-      test:
-        [
-          'CMD-SHELL',
-          'timeout 5s bash -c "cat < /dev/null > /dev/tcp/localhost/1883" || exit 0',
-        ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    restart: unless-stopped
-
-  api:
-    image: aio/api:latest
-    build:
-      context: ..
-      dockerfile: deploy/Dockerfile
-      target: api
-    env_file:
-      - ../apps/api/.env.production
-    environment:
-      - TZ=Asia/Shanghai
-      - LANG=C.UTF-8
-      - LC_ALL=C.UTF-8
-      - NODE_ENV=production
-      - DB_HOST=timescale
-      - DB_PORT=5432
-      - DB_USER=${DB_USER:-postgres}
-      - DB_PASSWORD=${DB_PASSWORD:-postgres}
-      - DB_NAME=${DB_NAME:-aio}
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - REDIS_PASSWORD=${REDIS_PASSWORD:-redis}
-      - MINIO_ENDPOINT=minio:9000
-      - MINIO_ACCESS_KEY=${MINIO_ROOT_USER:-minioadmin}
-      - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD:-minioadmin}
-      - MQTT_BROKER_URL=mqtt://mosquitto:1883
-    ports:
-      - '${API_PORT:-3000}:3000'
-    depends_on:
-      timescale:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    healthcheck:
-      test:
-        [
-          'CMD-SHELL',
-          'wget -qO- http://localhost:3000/api/v1/auth/ok || exit 1',
-        ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    restart: unless-stopped
-
-  web:
-    image: aio/web:latest
-    build:
-      context: ..
-      dockerfile: deploy/Dockerfile
-      target: web
-    env_file:
-      - ../apps/web/.env.production
-    environment:
-      - TZ=Asia/Shanghai
-      - LANG=C.UTF-8
-      - NODE_ENV=production
-      - NUXT_PUBLIC_API_BASE=http://api:3000
-      - PORT=4000
-    expose:
-      - '4000'
-    depends_on:
-      - api
-    restart: unless-stopped
-
-  nginx:
-    image: nginx:latest
-    environment:
-      - TZ=Asia/Shanghai
-      - LANG=C.UTF-8
-    ports:
-      - '${NGINX_PORT:-80}:80'
-      - '${NGINX_SSL_PORT:-443}:443'
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/conf.d:/etc/nginx/conf.d:ro
-    depends_on:
-      - api
-      - web
-    restart: unless-stopped
-
-  dozzle:
-    image: amir20/dozzle:latest
-    environment:
-      - TZ=Asia/Shanghai
-      - LANG=C.UTF-8
-      - DOZZLE_NO_ANALYTICS=true
-    ports: []
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    restart: unless-stopped
-
-volumes:
-  timescale_data:
-  redis_data:
-  minio_data:
-  mosquitto_data:
-  mosquitto_log:

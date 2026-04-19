@@ -55,8 +55,8 @@ async function bootstrap() {
   await app.listen(process.env.PORT ?? 3000)
 
   const logger = app.get(Logger)
-  logger.log(`Application is running on: ${await app.getUrl()}`)
-  logger.log(`Swagger docs available at: ${await app.getUrl()}/api/docs`)
+  logger.log({ url: await app.getUrl() }, 'Application is running')
+  logger.log({ url: await app.getUrl() }, 'Swagger docs available')
 }
 bootstrap().catch((err) => {
   console.error(err)

@@ -36,6 +36,7 @@
         "@nestjs/swagger": "^11.2.7",
         "@nestjs/typeorm": "^11.0.1",
         "@thallesp/nestjs-better-auth": "^2.6.0",
+        "@timescaledb/typeorm": "^0.0.1",
         "@types/express": "^5.0.0",
         "@types/jest": "^30.0.0",
         "cache-manager": "^7.2.8",
@@ -1131,6 +1132,14 @@
     "@tanstack/vue-virtual": ["@tanstack/vue-virtual@3.13.24", "https://registry.npmmirror.com/@tanstack/vue-virtual/-/vue-virtual-3.13.24.tgz", { "dependencies": { "@tanstack/virtual-core": "3.14.0" }, "peerDependencies": { "vue": "^2.7.0 || ^3.0.0" } }, "sha512-A0k2qF0zFSUStXSZkGXABouXr2Tw2Ztl/cVIYG9qy84uR8W7UNjAcX3DvzBS3YnDcwvLxab8v7dbmYBZ39itDA=="],
 
     "@thallesp/nestjs-better-auth": ["@thallesp/nestjs-better-auth@2.6.0", "https://registry.npmmirror.com/@thallesp/nestjs-better-auth/-/nestjs-better-auth-2.6.0.tgz", { "peerDependencies": { "@nestjs/common": "^11.1.6", "@nestjs/core": "^11.1.6", "@nestjs/graphql": "^13.1.0", "@nestjs/websockets": "^11.1.6", "better-auth": ">=1.5.0 <2.0.0", "express": "^5.1.0", "graphql": "^16.11.0", "qs": "^6.14.0", "typescript": "^5.9.2 || ^6.0.0" }, "optionalPeers": ["@nestjs/graphql", "@nestjs/websockets", "express", "graphql", "qs"] }, "sha512-AkZUsJ29QurUdM520UgdkEM79HKYYKiQKrd+fENHvnP/tMqHyb/ASzZ7ETJ5PdeTWYF2ygEDUR9jA0jL0ccNfw=="],
+
+    "@timescaledb/core": ["@timescaledb/core@0.0.1", "https://registry.npmmirror.com/@timescaledb/core/-/core-0.0.1.tgz", { "dependencies": { "@timescaledb/schemas": "0.0.1", "@timescaledb/utils": "0.0.1" } }, "sha512-T+X8u6qjke6F5pZFSA+L2UJnXkOIKE1isg9LkwyRFgVJR91zmZuLONzf9I3c937czExc0enZapBLreMsJYv2Zg=="],
+
+    "@timescaledb/schemas": ["@timescaledb/schemas@0.0.1", "https://registry.npmmirror.com/@timescaledb/schemas/-/schemas-0.0.1.tgz", { "dependencies": { "zod": "^3.24.1" } }, "sha512-DLwJzJkVbgpl43lclvnNYKOslMsGjZMF9KXFCa78tpjLA8ImHV949T5nqDpWvUawnQGDy+PNxoz7eKW2iyefeQ=="],
+
+    "@timescaledb/typeorm": ["@timescaledb/typeorm@0.0.1", "https://registry.npmmirror.com/@timescaledb/typeorm/-/typeorm-0.0.1.tgz", { "dependencies": { "@timescaledb/core": "0.0.1", "@timescaledb/schemas": "0.0.1", "@timescaledb/utils": "0.0.1", "reflect-metadata": "^0.2.2", "typeorm": "^0.3.20" } }, "sha512-aAw9psQAloh/F2yJbLQe12nV25U63ClWFpI2Lkke7F8IYn2qOEb+OYsD1UAmn4U+dQS8YuOqCq32jAxE+DUasg=="],
+
+    "@timescaledb/utils": ["@timescaledb/utils@0.0.1", "https://registry.npmmirror.com/@timescaledb/utils/-/utils-0.0.1.tgz", { "dependencies": { "@timescaledb/schemas": "0.0.1", "debug": "^4.4.0" } }, "sha512-4adkbhTmK7NAS5ukwlTy5cF9hR+SHC3xY6SPOiWPnpgro+/nIsNpGqFlvGRrAdjJHSTsDPUJ9nHEiyo+obbSpA=="],
 
     "@tiptap/core": ["@tiptap/core@3.22.3", "https://registry.npmmirror.com/@tiptap/core/-/core-3.22.3.tgz", { "peerDependencies": { "@tiptap/pm": "^3.22.3" } }, "sha512-Dv9MKK5BDWCF0N2l6/Pxv3JNCce2kwuWf2cKMBc2bEetx0Pn6o7zlFmSxMvYK4UtG1Tw9Yg/ZHi6QOFWK0Zm9Q=="],
 
@@ -3707,6 +3716,8 @@
     "@tailwindcss/oxide-wasm32-wasi/@tybys/wasm-util": ["@tybys/wasm-util@0.10.1", "https://registry.npmmirror.com/@tybys/wasm-util/-/wasm-util-0.10.1.tgz", { "dependencies": { "tslib": "^2.4.0" }, "bundled": true }, "sha512-9tTaPJLSiejZKx+Bmog4uSubteqTvFrVrURwkmHixBo0G4seD0zUxp98E1DzUBJxLQ3NPwXrGKDiVjwx/DpPsg=="],
 
     "@tailwindcss/oxide-wasm32-wasi/tslib": ["tslib@2.8.1", "https://registry.npmmirror.com/tslib/-/tslib-2.8.1.tgz", { "bundled": true }, "sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w=="],
+
+    "@timescaledb/schemas/zod": ["zod@3.25.76", "https://registry.npmmirror.com/zod/-/zod-3.25.76.tgz", {}, "sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ=="],
 
     "@typescript-eslint/typescript-estree/minimatch": ["minimatch@10.2.5", "https://registry.npmmirror.com/minimatch/-/minimatch-10.2.5.tgz", { "dependencies": { "brace-expansion": "^5.0.5" } }, "sha512-MULkVLfKGYDFYejP07QOurDLLQpcjk7Fw+7jXS2R2czRQzR56yHRveU5NDJEOviH+hETZKSkIk5c+T23GjFUMg=="],
 

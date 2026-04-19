@@ -25,10 +25,10 @@ export class StorageService implements OnModuleInit {
   private async testConnection() {
     try {
       const buckets = await this.client.listBuckets()
-      this.logger.info(`MinIO 连接成功，已连接 ${buckets.length} 个 buckets`)
+      this.logger.info({ count: buckets.length }, 'MinIO connected')
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error)
-      this.logger.error(`MinIO 连接失败: ${message}`)
+      this.logger.error({ error: message }, 'MinIO connection failed')
       throw error
     }
   }
@@ -38,11 +38,11 @@ export class StorageService implements OnModuleInit {
       const exists = await this.client.bucketExists(this.bucket)
       if (!exists) {
         await this.client.makeBucket(this.bucket)
-        this.logger.info(`Bucket "${this.bucket}" 已创建`)
+        this.logger.info({ bucket: this.bucket }, 'Bucket created')
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error)
-      this.logger.error(`确保 Bucket 存在失败: ${message}`)
+      this.logger.error({ error: message }, 'Failed to ensure bucket exists')
       throw error
     }
   }

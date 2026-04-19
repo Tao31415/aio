@@ -1,21 +1,30 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  Index,
-} from 'typeorm'
+import { Entity, Column, Index, PrimaryColumn } from 'typeorm'
+import { Hypertable, TimeColumn } from '@timescaledb/typeorm'
 
 /**
  * 单条隧道监测数据（单环）
  */
+@Hypertable({
+  compression: {
+    compress: true,
+    compress_orderby: 'timestamp',
+    compress_segmentby: 'sn',
+    policy: {
+      schedule_interval: '7 days',
+    },
+  },
+})
 @Entity('tunnel_monitoring_data')
 export class TunnelMonitoringData {
-  @PrimaryGeneratedColumn('uuid')
-  id!: string
+  @TimeColumn()
+  @PrimaryColumn({ name: 'timestamp', type: 'timestamptz' })
+  timestamp!: Date
 
-  @Column({ name: 'ring_number', length: 64 })
+  @Column({ name: 'sn', type: 'varchar' })
   @Index()
+  sn!: string
+
+  @PrimaryColumn({ name: 'ring_number', type: 'varchar' })
   ringNumber!: string
 
   /** 拱腰水平（左） */
@@ -147,9 +156,6 @@ export class TunnelMonitoringData {
     nullable: true,
   })
   sd!: number | null
-
-  @CreateDateColumn()
-  createdAt!: Date
 }
 
 /**

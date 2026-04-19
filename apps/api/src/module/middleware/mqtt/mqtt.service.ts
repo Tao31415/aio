@@ -48,7 +48,7 @@ export class MqttService {
       qos,
       timestamp: new Date().toISOString(),
     })
-    this.logger.info(`Published to ${topic}`)
+    this.logger.info({ topic }, 'Published to topic')
   }
 
   async getMessages(
@@ -77,7 +77,8 @@ export class MqttService {
     const { timestamp, sn, data } = payload
 
     this.logger.info(
-      `Processing tunnel monitoring data: sn=${sn}, rings=${data.length}, timestamp=${timestamp}`
+      { sn, rings: data.length, timestamp },
+      'Processing tunnel monitoring data'
     )
 
     const entities: TunnelMonitoringData[] = []
@@ -85,6 +86,8 @@ export class MqttService {
     for (const item of data) {
       const entity = this.tunnelMonitoringRepository.create({
         ringNumber: item.rn,
+        sn: sn,
+        timestamp: new Date(timestamp),
         p1x: item['1x'] ?? null,
         p1y: item['1y'] ?? null,
         p7x: item['7x'] ?? null,
@@ -104,10 +107,13 @@ export class MqttService {
     }
 
     const savedEntities = await this.tunnelMonitoringRepository.save(entities)
-    this.logger.info(`Saved ${savedEntities.length} tunnel monitoring records`)
+    this.logger.info(
+      { count: savedEntities.length },
+      'Saved tunnel monitoring records'
+    )
 
     // 触发后续业务处理
-    await this.tunnelMonitoringService.processData(savedEntities)
+    this.tunnelMonitoringService.processData(savedEntities)
 
     return savedEntities
   }
