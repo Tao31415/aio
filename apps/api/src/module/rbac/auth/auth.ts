@@ -32,9 +32,10 @@ export const myCustomRole = ac.newRole({
 export interface AuthOptions {
   pool: Pool
   redis: Redis
+  baseURL: string
   basePath: string
-  cookiePrefix: string
   isProduction: boolean
+  trustedOrigins: string[]
 }
 
 export const createAuthOptions = (opts: AuthOptions): BetterAuthOptions => {
@@ -50,7 +51,7 @@ export const createAuthOptions = (opts: AuthOptions): BetterAuthOptions => {
     //     console.log(`[${level}] ${message}`, ...args)
     //   },
     // },
-
+    baseURL: opts.baseURL,
     basePath: opts.basePath,
     // disabledPaths: ['/sign-up/email', '/sign-in/email'],
     secondaryStorage: redisStorage({
@@ -58,17 +59,8 @@ export const createAuthOptions = (opts: AuthOptions): BetterAuthOptions => {
       keyPrefix: 'better-auth:', // 可选，默认 "better-auth:"
     }),
 
-    // Trusted origins for CORS (UI runs on port 40000)
-    trustedOrigins: [
-      'http://localhost',
-      'http://127.0.0.1',
-      'http://localhost:40000',
-      'http://127.0.0.1:40000',
-      'http://web:4000',
-      'http://localhost:4000',
-      'http://nginx:80',
-      'http://localhost:80',
-    ],
+    // Reuse the same browser origin allowlist as Nest CORS.
+    trustedOrigins: opts.trustedOrigins,
 
     // ==================== PLUGINS ====================
     plugins: [

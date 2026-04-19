@@ -41,9 +41,10 @@ export const AUTH_CLIENT = 'AUTH_CLIENT'
             password: config.getOrThrow<string>('db.password'),
           }),
           redis: redis,
+          baseURL: config.getOrThrow<string>('app.betterAuthUrl'),
           basePath: config.getOrThrow<string>('app.betterAuthBasePath'),
-          cookiePrefix: 'aio',
           isProduction: config.getOrThrow<string>('app.env') === 'production',
+          trustedOrigins: config.getOrThrow<string[]>('app.corsOrigins'),
         })
 
         return {

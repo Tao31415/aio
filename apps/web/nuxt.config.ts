@@ -46,10 +46,6 @@ export default defineNuxtConfig({
       gaId: env.NUXT_PUBLIC_GA_ID,
     },
   },
-  // 自动导入配置
-  imports: {
-    dirs: ['app/composables/**', 'app/stores/**', 'app/utils/**', 'app/components/**'],
-  },
 
   // 组件自动导入
   components: [

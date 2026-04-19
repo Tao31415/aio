@@ -59,16 +59,24 @@ bun run lint        # Lint code
 ### API (NestJS)
 
 - Entry: `apps/api/src/main.ts`
-- CORS is enabled for `http://localhost:40000` and `http://127.0.0.1:40000`
+- CORS and Better Auth `trustedOrigins` share the same browser-origin allowlist from env
 - Uses `@aio/utils` via workspace dependency
-- Listens on port 30000
+- Listens on port 30000 locally, 3000 in Docker production
 
 ### Web (Nuxt 4)
 
 - Entry: `apps/web/app/app.vue`
-- API base URL configured via `runtimeConfig.public.apiBase` (defaults to `http://localhost:30000`)
-- Web port is 40000 (configured in `nuxt.config.ts`)
+- API base URL configured via `runtimeConfig.public.apiBase`
+- Web port is 40000 locally, 4000 in Docker production
 - Imports and uses `@aio/utils` directly
+
+### Deployment Environments
+
+- **Local development**: API runs on `http://localhost:30000`, Web runs on `http://localhost:40000`, and the browser calls API directly across origins
+- **Docker deployment**: API listens on `3000`, Web listens on `4000`, and browser traffic should enter through Nginx on `http://localhost` (or your real domain later)
+- **Browser origin rule**: CORS and Better Auth should be configured from the browser-visible origin, not from container service names like `api:3000` or `web:4000`
+- **Real domain deployment**: when switching from `localhost` to a real domain, update `apps/api/.env.production` (`CORS_ORIGIN`, `BETTER_AUTH_URL`) and `apps/web/.env.production` (`NUXT_PUBLIC_API_BASE`) together
+- **Recommended production review**: also verify `BETTER_AUTH_BASE_PATH`, `PORT`, HTTPS/cookie settings, and whether `api` / `web` host port mappings should remain exposed or only be accessed through Nginx
 
 ### Utils Package
 
@@ -119,6 +127,12 @@ bun run cleanAll         # 删除 node_modules/ 和 dist/
 - **生产环境**: 通过 Docker 或 CI/CD 在运行时注入
 
 .env.example 中定义了所有可用的环境变量，包含必填项校验（通过 Zod）。
+
+### Docker Production Notes
+
+- `apps/api/.env.production`: `CORS_ORIGIN` must list browser-visible origins, and `BETTER_AUTH_URL` must match the public API origin used by the browser
+- `apps/web/.env.production`: `NUXT_PUBLIC_API_BASE` must point to the same public entry, usually Nginx such as `http://localhost` or `https://app.example.com`
+- If you introduce a real domain, update all three values in the same change to avoid mismatched CORS, Better Auth redirects, or browser requests going to `localhost`
 
 ## Tooling
 

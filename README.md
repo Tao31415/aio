@@ -218,6 +218,45 @@ make deploy-start
 # 或者一步完成：make deploy
 ```
 
+### 环境划分
+
+- **本地开发**: API 使用 `http://localhost:30000`，Web 使用 `http://localhost:40000`，浏览器直接跨域访问 API
+- **Docker 部署**: API 容器监听 `3000`，Web 容器监听 `4000`，浏览器应通过 Nginx 入口访问 `http://localhost`
+
+### 生产环境变量约定
+
+Docker 形态下，浏览器看到的入口应是 Nginx，而不是容器内部服务名。因此生产环境变量要按“浏览器真实访问地址”配置：
+
+- `apps/api/.env.production`
+  - `CORS_ORIGIN`: 填浏览器实际访问的前端 Origin，例如 `http://localhost` 或 `https://app.example.com`
+  - `BETTER_AUTH_URL`: 填 Better Auth 对外可访问地址，通常与 Nginx 公开入口一致，例如 `http://localhost` 或 `https://app.example.com`
+- `apps/web/.env.production`
+  - `NUXT_PUBLIC_API_BASE`: 填前端在浏览器中实际请求的 API 基础地址，当前 Nginx 方案下通常为 `http://localhost` 或 `https://app.example.com`
+
+如果后续改成真实域名部署，至少要在一次变更中同时更新以下配置：
+
+- `apps/api/.env.production` 中的 `CORS_ORIGIN`
+- `apps/api/.env.production` 中的 `BETTER_AUTH_URL`
+- `apps/web/.env.production` 中的 `NUXT_PUBLIC_API_BASE`
+
+建议同时复核以下配置项：
+
+- `BETTER_AUTH_BASE_PATH`: 确认仍然与 Nginx 转发路径一致，默认是 `/api/v1/auth`
+- `PORT`: API 容器应监听 `3000`，Web 容器应监听 `4000`
+- `NUXT_PUBLIC_MOCK`: 生产环境应保持 `false`
+- `deploy/.env` 中的 `NGINX_PORT` / `NGINX_SSL_PORT`: 确认对外端口与域名接入方案一致
+- `docker-compose.yml` 中 `api` / `web` 的 `ports`: 如果希望只能通过 Nginx 访问，可考虑取消对宿主机的直接暴露
+
+### 域名部署检查清单
+
+切换到真实域名或 HTTPS 前，建议至少检查以下内容：
+
+- Nginx `server_name` 是否已改为真实域名
+- `CORS_ORIGIN`、`BETTER_AUTH_URL`、`NUXT_PUBLIC_API_BASE` 是否已同步切换为真实域名
+- Better Auth Cookie 与 HTTPS 策略是否满足生产要求
+- 前端是否仍然错误指向 `localhost`
+- API 和 Web 是否需要继续保留 `3000` / `4000` 的宿主机端口映射
+
 ### Docker 服务
 
 项目 docker-compose 包含以下服务：
@@ -232,3 +271,24 @@ make deploy-start
 - **dozzle** — Docker 日志查看（端口 8080）
 
 详细配置见 `deploy/` 目录。
+
+### 主要访问路由
+
+Docker 部署完成后，浏览器通常通过 Nginx 入口访问以下路径：
+
+| 路径 | 功能 | 说明 |
+| ---- | ---- | ---- |
+| `/` | Web 前端入口 | 后台管理界面主入口 |
+| `/api/` | API 入口 | 前端请求后端接口的统一前缀 |
+| `/docs` | Swagger 文档 | 查看 NestJS API 文档 |
+| `/docs/auth/` | Better Auth 文档 | 查看 Better Auth Reference/OpenAPI |
+| `/auth` | 认证文档短链 | 会重定向到 `/docs/auth/` |
+| `/dozzle/` | 容器日志界面 | 查看 Docker 容器运行日志 |
+| `/health` | 网关健康检查 | 返回 Nginx 自身健康状态 |
+
+补充说明：
+
+- `/auth` 不是登录页面，而是认证文档跳转入口
+- Better Auth 实际接口仍位于 `/api/v1/auth/*`
+- `/health` 只代表 Nginx 可用，不代表 API 和数据库全部健康
+- 更完整的路由说明和转发目标见 [deploy/README.md](file:///Users/mac/Dev/Starter/aio/deploy/README.md)

@@ -27,14 +27,17 @@ const envSchema = z.object({
   MQTT_BROKER_URL: z.string(),
 
   // CORS
-  CORS_ORIGIN: z.string().default('http://localhost:40000'),
+  CORS_ORIGIN: z
+    .string()
+    .default('')
+    .describe('允许的浏览器 Origin，多个值用逗号分隔'),
 
   // Better Auth
   BETTER_AUTH_SECRET: z
     .string()
     .min(32, 'Secret must be at least 32 characters'),
   BETTER_AUTH_BASE_PATH: z.string().default('/api/v1/auth'),
-  BETTER_AUTH_URL: z.string().default('http://localhost:30000'),
+  BETTER_AUTH_URL: z.string().default(''),
 })
 
 export const validationEnv = (): Env => {

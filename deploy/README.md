@@ -100,6 +100,50 @@ docker builder prune -af
 | mosquitto | 1883/1884/8883 | 1883/1884/8883 | MQTT Broker          |
 | dozzle    | 8080           | 8080           | Docker 日志查看      |
 
+## Nginx 路由
+
+浏览器访问 Docker 部署时，推荐统一从 Nginx 入口进入，例如 `http://localhost`。当前 `deploy/nginx/conf.d/default.conf` 中的主要路由如下：
+
+| 路径 | 功能 | 转发目标 | 说明 |
+| ---- | ---- | -------- | ---- |
+| `/` | Web 前端首页和 SPA 路由 | `web:4000` | 前端页面、静态资源、客户端路由都经由此入口 |
+| `/api/` | API 请求入口 | `api:3000` | 所有后端接口与 Better Auth 接口都从这里进入 |
+| `/docs` | Swagger 文档 | `api/api/docs` | 查看 NestJS API 文档 |
+| `/docs/auth/` | Better Auth OpenAPI / Reference | `api/api/v1/auth/reference` | 查看 Better Auth 路由参考文档 |
+| `/auth` | Better Auth 文档短链 | 301 到 `/docs/auth/` | 便于快速跳转到认证文档 |
+| `/auth/` | Better Auth 文档短链 | 301 到 `/docs/auth/` | 与 `/auth` 保持一致 |
+| `/dozzle/` | Docker 日志查看 | `dozzle:8080` | 查看容器运行日志，支持流式输出 |
+| `/dozzle` | Dozzle 短链 | 301 到 `/dozzle/` | 统一补齐末尾斜杠 |
+| `/health` | Nginx 健康检查 | Nginx 本地返回 | 返回 `healthy`，用于快速确认网关可用 |
+
+### 路由使用说明
+
+- `/` 是用户访问后台管理系统的主入口
+- `/api/` 是前端调用后端的统一入口，浏览器不应直接使用容器内部地址如 `http://api:3000`
+- `/docs` 适合联调 REST API
+- `/docs/auth/` 适合查看 Better Auth 路由、参数和返回结构
+- `/auth` 只是文档跳转入口，不是登录页面，也不是实际认证 API 前缀
+- `/dozzle/` 面向运维和调试场景，不建议在公网无保护暴露
+- `/health` 只代表 Nginx 网关存活，不代表 API、数据库、Redis 等依赖全部正常
+
+### 实际访问示例
+
+```text
+http://localhost/              # Web 前端
+http://localhost/api/v1/users  # API 示例
+http://localhost/docs          # Swagger 文档
+http://localhost/docs/auth/    # Better Auth 文档
+http://localhost/dozzle/       # 容器日志
+http://localhost/health        # 网关健康检查
+```
+
+### 认证相关说明
+
+- Better Auth 的真实接口路径仍然是 `/api/v1/auth/*`
+- 前端在 Docker 环境下应通过 `NUXT_PUBLIC_API_BASE=http://localhost` 访问认证接口
+- API 侧 `BETTER_AUTH_URL` 应与浏览器实际访问入口一致，例如 `http://localhost` 或未来的真实域名
+- 如果切换到真实域名，必须同步修改 `CORS_ORIGIN`、`BETTER_AUTH_URL` 和 `NUXT_PUBLIC_API_BASE`
+
 ## MinIO
 
 - API 地址: `http://localhost:9000`

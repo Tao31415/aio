@@ -49,12 +49,12 @@ CMD ["bun", "dist/main.js"]
 
 FROM base AS web
 WORKDIR /usr/src/app
-COPY --from=install /temp/prod/node_modules node_modules
-COPY --from=install /temp/prod/apps/web/node_modules ./apps/web/node_modules
-COPY --from=install /temp/prod/packages/utils/node_modules ./packages/utils/node_modules
+# COPY --from=install /temp/prod/node_modules node_modules
+# COPY --from=install /temp/prod/apps/web/node_modules ./apps/web/node_modules
+# COPY --from=install /temp/prod/packages/utils/node_modules ./packages/utils/node_modules
 
 COPY --from=prerelease /usr/src/app/apps/web/.output ./apps/web/.output
-COPY --from=prerelease /usr/src/app/packages/utils/dist ./packages/utils/dist
+# COPY --from=prerelease /usr/src/app/packages/utils/dist ./packages/utils/dist
 COPY --from=prerelease /usr/src/app/apps/web/.env.production ./apps/web/.env
 
 WORKDIR /usr/src/app/apps/web

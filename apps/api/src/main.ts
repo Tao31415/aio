@@ -3,6 +3,7 @@ import { Transport } from '@nestjs/microservices'
 import { AppModule } from './app.module'
 import { Logger } from 'nestjs-pino'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
+import { ConfigService } from '@nestjs/config'
 import { VersioningType } from '@nestjs/common'
 
 async function bootstrap() {
@@ -45,18 +46,21 @@ async function bootstrap() {
 
   await app.startAllMicroservices()
 
+  const configService = app.get(ConfigService)
+  const corsOrigins = configService.get<string[]>('app.corsOrigins', [])
+
   app.enableCors({
-    origin: [
-      'http://localhost',
-      'http://127.0.0.1',
-      'http://localhost:40000',
-      'http://127.0.0.1:40000',
-      'http://localhost:4000',
-      'http://127.0.0.1:4000',
-      'http://web:4000',
-      'http://nginx:80',
-      'http://localhost:80',
-    ],
+    origin: (
+      origin: string | undefined,
+      callback: (err: Error | null, allow?: boolean) => void
+    ) => {
+      if (!origin || corsOrigins.includes(origin)) {
+        callback(null, true)
+        return
+      }
+
+      callback(new Error(`Origin ${origin} is not allowed by CORS`), false)
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'Cookie'],

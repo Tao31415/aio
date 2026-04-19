@@ -1,4 +1,6 @@
 import type { RouteLocationRaw } from 'vue-router'
+import { useAuthStatus } from './auth/useAuthStatus'
+import { useAuthActions } from './auth/useAuthActions'
 
 const getAuthClient = () => {
   const { $auth } = useNuxtApp()
