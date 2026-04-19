@@ -89,9 +89,6 @@
     try {
       logger.info({ form }, 'sign in request')
       await signIn.username(form, {
-        onSuccess: () => {
-          navigateTo(redirectTo.value)
-        },
         onRequest: () => {
           logger.info('onRequest')
           loading.value = true

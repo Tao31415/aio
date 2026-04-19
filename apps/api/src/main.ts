@@ -46,7 +46,17 @@ async function bootstrap() {
   await app.startAllMicroservices()
 
   app.enableCors({
-    origin: ['http://localhost:40000', 'http://127.0.0.1:40000'],
+    origin: [
+      'http://localhost',
+      'http://127.0.0.1',
+      'http://localhost:40000',
+      'http://127.0.0.1:40000',
+      'http://localhost:4000',
+      'http://127.0.0.1:4000',
+      'http://web:4000',
+      'http://nginx:80',
+      'http://localhost:80',
+    ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'Cookie'],

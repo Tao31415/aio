@@ -12,7 +12,6 @@ import {
 export type AuthClient = ReturnType<typeof createAuthClient<typeof _typeConfig>>
 export type Session = AuthClient['$Infer']['Session']['session']
 export type User = AuthClient['$Infer']['Session']['user']
-export type SessionData = Awaited<ReturnType<AuthClient['getSession']>>['data']
 
 // need improve
 const _typeConfig = {
@@ -38,7 +37,7 @@ const _typeConfig = {
   plugins: [adminClient(), usernameClient(), multiSessionClient()],
 }
 
-export default defineNuxtPlugin((_) => {
+export default defineNuxtPlugin(async (_) => {
   const config = useRuntimeConfig()
   const logger = useLogger('auth')
   const store = useAuthStore()
@@ -64,7 +63,6 @@ export default defineNuxtPlugin((_) => {
     },
     plugins: [adminClient(), usernameClient(), multiSessionClient()],
   })
-
   if (import.meta.client) {
     logger.debug('auth.sessionSignal listener registered')
     authClient.$store.listen('$sessionSignal', async (signal) => {
@@ -84,6 +82,7 @@ export default defineNuxtPlugin((_) => {
       }
     })
   }
+  await authClient.getSession()
 
   return {
     provide: {

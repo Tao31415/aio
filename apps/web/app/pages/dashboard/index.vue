@@ -1,3 +1,187 @@
+<script setup lang="ts">
+  definePageMeta({
+    layout: 'default',
+    auth: true,
+  })
+
+  const authStore = useAuthStore()
+  const { showToast } = useMyToast()
+
+  const currentUser = computed(() => authStore.user)
+  const isRefreshing = ref(false)
+  const selectedPeriod = ref('7天')
+
+  // 统计数据
+  const stats = ref([
+    {
+      title: '总用户数',
+      value: '12,345',
+      change: 12.5,
+      icon: 'IconUsers',
+      bgColor: 'bg-blue-100 dark:bg-blue-900/30',
+      iconColor: 'text-blue-600 dark:text-blue-400',
+    },
+    {
+      title: '活跃用户',
+      value: '8,234',
+      change: 8.2,
+      icon: 'IconActivity',
+      bgColor: 'bg-green-100 dark:bg-green-900/30',
+      iconColor: 'text-green-600 dark:text-green-400',
+    },
+    {
+      title: '总收入',
+      value: '¥234,567',
+      change: -2.4,
+      icon: 'IconMoney',
+      bgColor: 'bg-yellow-100 dark:bg-yellow-900/30',
+      iconColor: 'text-yellow-600 dark:text-yellow-400',
+    },
+    {
+      title: '订单数',
+      value: '1,234',
+      change: 15.3,
+      icon: 'IconCart',
+      bgColor: 'bg-purple-100 dark:bg-purple-900/30',
+      iconColor: 'text-purple-600 dark:text-purple-400',
+    },
+  ])
+
+  // 图表数据
+  const chartData = computed(() => {
+    const days =
+      selectedPeriod.value === '7天'
+        ? 7
+        : selectedPeriod.value === '30天'
+          ? 30
+          : 90
+    return Array.from({ length: Math.min(days, 12) }, (_, i) => ({
+      label: `${i + 1}日`,
+      value: Math.floor(Math.random() * 60) + 40,
+    }))
+  })
+
+  // 最近用户
+  const recentUsers = ref([
+    { id: 1, name: '张三', email: 'zhangsan@example.com', status: 'active' },
+    { id: 2, name: '李四', email: 'lisi@example.com', status: 'active' },
+    { id: 3, name: '王五', email: 'wangwu@example.com', status: 'offline' },
+    { id: 4, name: '赵六', email: 'zhaoliu@example.com', status: 'active' },
+    { id: 5, name: '钱七', email: 'qianqi@example.com', status: 'offline' },
+  ])
+
+  // 待办事项
+  const tasks = ref([
+    {
+      id: 1,
+      title: '完成项目文档编写',
+      completed: false,
+      priority: 'high' as const,
+    },
+    {
+      id: 2,
+      title: '审核用户反馈',
+      completed: true,
+      priority: 'medium' as const,
+    },
+    {
+      id: 3,
+      title: '更新系统配置',
+      completed: false,
+      priority: 'low' as const,
+    },
+    {
+      id: 4,
+      title: '准备周会报告',
+      completed: false,
+      priority: 'medium' as const,
+    },
+    { id: 5, title: '测试新功能', completed: true, priority: 'high' as const },
+  ])
+
+  const completedTasks = computed(
+    () => tasks.value.filter((t) => t.completed).length
+  )
+
+  function toggleTask(id: number) {
+    const task = tasks.value.find((t) => t.id === id)
+    if (task) {
+      task.completed = !task.completed
+    }
+  }
+
+  // 通知
+  const notifications = ref([
+    {
+      id: 1,
+      type: 'success' as const,
+      title: '系统更新完成',
+      message: '新版本已成功部署到生产环境',
+      time: '5 分钟前',
+    },
+    {
+      id: 2,
+      type: 'info' as const,
+      title: '新用户注册',
+      message: '今日新增 23 位用户注册',
+      time: '1 小时前',
+    },
+    {
+      id: 3,
+      type: 'warning' as const,
+      title: '存储空间告警',
+      message: '服务器存储使用率已达 85%',
+      time: '2 小时前',
+    },
+    {
+      id: 4,
+      type: 'error' as const,
+      title: '支付失败',
+      message: '订单 #12345 支付处理失败',
+      time: '3 小时前',
+    },
+  ])
+
+  // 刷新数据
+  async function handleRefresh() {
+    isRefreshing.value = true
+    try {
+      // 模拟 API 调用
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+      showToast('数据已刷新', 'success')
+    } catch {
+      showToast('刷新失败', 'error')
+    } finally {
+      isRefreshing.value = false
+    }
+  }
+
+  // 图标组件
+  const IconUsers = {
+    template: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>`,
+  }
+  const IconActivity = {
+    template: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>`,
+  }
+  const IconMoney = {
+    template: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`,
+  }
+  const IconCart = {
+    template: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>`,
+  }
+
+  // 图标映射
+  const iconMap = {
+    IconUsers,
+    IconActivity,
+    IconMoney,
+    IconCart,
+  } as const
+
+  // 获取图标组件
+  const getIcon = (name: string) => iconMap[name as keyof typeof iconMap]
+</script>
+
 <template>
   <div class="space-y-6">
     <!-- 页面标题 -->
@@ -308,186 +492,3 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-  definePageMeta({
-    layout: 'default',
-  })
-
-  const authStore = useAuthStore()
-  const { showToast } = useMyToast()
-
-  const currentUser = computed(() => authStore.user)
-  const isRefreshing = ref(false)
-  const selectedPeriod = ref('7天')
-
-  // 统计数据
-  const stats = ref([
-    {
-      title: '总用户数',
-      value: '12,345',
-      change: 12.5,
-      icon: 'IconUsers',
-      bgColor: 'bg-blue-100 dark:bg-blue-900/30',
-      iconColor: 'text-blue-600 dark:text-blue-400',
-    },
-    {
-      title: '活跃用户',
-      value: '8,234',
-      change: 8.2,
-      icon: 'IconActivity',
-      bgColor: 'bg-green-100 dark:bg-green-900/30',
-      iconColor: 'text-green-600 dark:text-green-400',
-    },
-    {
-      title: '总收入',
-      value: '¥234,567',
-      change: -2.4,
-      icon: 'IconMoney',
-      bgColor: 'bg-yellow-100 dark:bg-yellow-900/30',
-      iconColor: 'text-yellow-600 dark:text-yellow-400',
-    },
-    {
-      title: '订单数',
-      value: '1,234',
-      change: 15.3,
-      icon: 'IconCart',
-      bgColor: 'bg-purple-100 dark:bg-purple-900/30',
-      iconColor: 'text-purple-600 dark:text-purple-400',
-    },
-  ])
-
-  // 图表数据
-  const chartData = computed(() => {
-    const days =
-      selectedPeriod.value === '7天'
-        ? 7
-        : selectedPeriod.value === '30天'
-          ? 30
-          : 90
-    return Array.from({ length: Math.min(days, 12) }, (_, i) => ({
-      label: `${i + 1}日`,
-      value: Math.floor(Math.random() * 60) + 40,
-    }))
-  })
-
-  // 最近用户
-  const recentUsers = ref([
-    { id: 1, name: '张三', email: 'zhangsan@example.com', status: 'active' },
-    { id: 2, name: '李四', email: 'lisi@example.com', status: 'active' },
-    { id: 3, name: '王五', email: 'wangwu@example.com', status: 'offline' },
-    { id: 4, name: '赵六', email: 'zhaoliu@example.com', status: 'active' },
-    { id: 5, name: '钱七', email: 'qianqi@example.com', status: 'offline' },
-  ])
-
-  // 待办事项
-  const tasks = ref([
-    {
-      id: 1,
-      title: '完成项目文档编写',
-      completed: false,
-      priority: 'high' as const,
-    },
-    {
-      id: 2,
-      title: '审核用户反馈',
-      completed: true,
-      priority: 'medium' as const,
-    },
-    {
-      id: 3,
-      title: '更新系统配置',
-      completed: false,
-      priority: 'low' as const,
-    },
-    {
-      id: 4,
-      title: '准备周会报告',
-      completed: false,
-      priority: 'medium' as const,
-    },
-    { id: 5, title: '测试新功能', completed: true, priority: 'high' as const },
-  ])
-
-  const completedTasks = computed(
-    () => tasks.value.filter((t) => t.completed).length
-  )
-
-  function toggleTask(id: number) {
-    const task = tasks.value.find((t) => t.id === id)
-    if (task) {
-      task.completed = !task.completed
-    }
-  }
-
-  // 通知
-  const notifications = ref([
-    {
-      id: 1,
-      type: 'success' as const,
-      title: '系统更新完成',
-      message: '新版本已成功部署到生产环境',
-      time: '5 分钟前',
-    },
-    {
-      id: 2,
-      type: 'info' as const,
-      title: '新用户注册',
-      message: '今日新增 23 位用户注册',
-      time: '1 小时前',
-    },
-    {
-      id: 3,
-      type: 'warning' as const,
-      title: '存储空间告警',
-      message: '服务器存储使用率已达 85%',
-      time: '2 小时前',
-    },
-    {
-      id: 4,
-      type: 'error' as const,
-      title: '支付失败',
-      message: '订单 #12345 支付处理失败',
-      time: '3 小时前',
-    },
-  ])
-
-  // 刷新数据
-  async function handleRefresh() {
-    isRefreshing.value = true
-    try {
-      // 模拟 API 调用
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      showToast('数据已刷新', 'success')
-    } catch {
-      showToast('刷新失败', 'error')
-    } finally {
-      isRefreshing.value = false
-    }
-  }
-
-  // 图标组件
-  const IconUsers = {
-    template: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>`,
-  }
-  const IconActivity = {
-    template: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>`,
-  }
-  const IconMoney = {
-    template: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`,
-  }
-  const IconCart = {
-    template: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>`,
-  }
-
-  // 图标映射
-  const iconMap = {
-    IconUsers,
-    IconActivity,
-    IconMoney,
-    IconCart,
-  } as const
-
-  // 获取图标组件
-  const getIcon = (name: string) => iconMap[name as keyof typeof iconMap]
-</script>

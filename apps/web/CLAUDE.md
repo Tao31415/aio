@@ -81,22 +81,29 @@ Web 通过 `useFetch` 访问 `http://localhost:30000` 的 API 接口：
 
 ## Logging
 
-如果需要在 Web 项目中使用日志（server 端或 composable），使用 pino：
+使用 `useLogger` composable 记录客户端日志：
 
 ```typescript
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino'
+const logger = useLogger('auth.global')
 
-// 正确用法：传入类名作为 context
-@InjectPinoLogger(MyService.name)
-private readonly logger: PinoLogger
+// 第一个参数是 metadata/extra data，第二个参数是 message
+logger.info(
+  {
+    path: to.fullPath,
+  },
+  'Unauthorized access to protected route, redirecting to login'
+)
 
-// pino 没有 log 方法，使用以下方法替代：
-this.logger.info('message')      // info 级别
-this.logger.error('message')      // error 级别
-this.logger.warn('message')       // warn 级别
-this.logger.debug('message')      // debug 级别
-this.logger.child({ context: 'MyService' }) // 创建子 logger
+// 日志级别：info | warn | error | debug | trace | fatal
+logger.warn({ context: 'Auth' }, 'Session expired')
+logger.error({ err }, 'Failed to fetch user data')
 ```
+
+**注意**：
+
+- 第一个参数必须是对象（metadata），第二个参数是字符串（message）
+- 使用 `err` 作为 error 对象的 key 可以被 pino 特殊处理
+- Context 命名约定：使用点号分隔，如 `auth.global`、`mqtt.publish`、`api.users`
 
 ## Environment Variables
 

@@ -327,6 +327,32 @@ someAdminRoute() { ... }
 2. Implement the module class decorated with `@Global()` if it should be app-wide
 3. Add to imports in `app.module.ts`
 
+### Add a new entity
+
+**必须显式 import 到对应 module**，否则 TypeORM 无法自动加载 entity（测试环境下 `synchronize: true` 不会自动创建表）：
+
+```typescript
+// 1. 创建 entity 文件
+// src/module/middleware/mqtt/entities/my-entity.entity.ts
+@Entity('my_table')
+export class MyEntity {
+  @PrimaryGeneratedColumn()
+  id: number
+
+  @Column()
+  name: string
+}
+
+// 2. 在 module 中显式 import
+@Module({
+  imports: [TypeOrmModule.forFeature([MyEntity])],
+  // ...
+})
+export class MqttModule {}
+```
+
+**注意**：即使使用 glob pattern 匹配 entities，entity 文件也必须被显式 import 到某个 module 的 `forFeature()` 中，TypeORM 才能正确识别。
+
 ### Configure open routes
 
 Modify `authRouteWhitelist` in `auth.module.ts` (whitelist-restricted — only listed routes are accessible):

@@ -8,7 +8,7 @@ import { Hypertable, TimeColumn } from '@timescaledb/typeorm'
   compression: {
     compress: true,
     compress_orderby: 'timestamp',
-    compress_segmentby: 'sn',
+    compress_segmentby: 'ring_number',
     policy: {
       schedule_interval: '7 days',
     },
@@ -20,11 +20,11 @@ export class TunnelMonitoringData {
   @PrimaryColumn({ name: 'timestamp', type: 'timestamptz' })
   timestamp!: Date
 
-  @Column({ name: 'sn', type: 'varchar' })
+  @Column({ name: 'sn', type: 'text' })
   @Index()
   sn!: string
 
-  @PrimaryColumn({ name: 'ring_number', type: 'varchar' })
+  @PrimaryColumn({ name: 'ring_number', type: 'text' })
   ringNumber!: string
 
   /** 拱腰水平（左） */

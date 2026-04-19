@@ -17,50 +17,56 @@ const initialState: AuthState = {
 }
 
 export const useAuthStore = defineStore('auth', () => {
+  const logger = useLogger('auth.store')
   const authState = reactive(initialState)
-  const isInitialized = ref(false)
-  function setInitialized() {
-    isInitialized.value = true
-  }
   function sessionLoading(result: boolean) {
     authState.isLoading = result
+    logger.debug({ isLoading: result }, 'Auth loading state changed')
   }
 
   function setSession(data: { session?: Session | null; user?: User | null }) {
     authState.user = data?.user ?? null
     authState.session = data?.session ?? null
     authState.isAuthenticated = !!data.session
+    logger.info(
+      {
+        hasSession: !!data.session,
+        hasUser: !!data.user,
+        userId: data.user?.id,
+      },
+      'Auth session updated'
+    )
   }
 
   let errorTimer: ReturnType<typeof setTimeout> | null = null
   function setError(error: string | null) {
     authState.globalError = error
-    if (errorTimer) clearTimeout(errorTimer)
-    errorTimer = setTimeout(() => {
-      clearError()
-    }, 5000)
+    if (error) {
+      logger.error({ error }, 'Auth error set')
+      if (errorTimer) clearTimeout(errorTimer)
+      errorTimer = setTimeout(() => {
+        clearError()
+      }, 5000)
+    }
   }
 
   function clearError() {
     authState.globalError = null
+    logger.debug('Auth error cleared')
   }
 
   function reset() {
-    authState.isAuthenticated = false
-    authState.isLoading = false
-    authState.session = null
-    authState.user = null
+    logger.info('Auth state reset')
+    Object.assign(authState, initialState)
   }
 
   return {
     ...authState,
     authState,
-    isInitialized,
     setError,
     clearError,
     setSession,
     reset,
     sessionLoading,
-    setInitialized,
   }
 })

@@ -60,10 +60,14 @@ export const createAuthOptions = (opts: AuthOptions): BetterAuthOptions => {
 
     // Trusted origins for CORS (UI runs on port 40000)
     trustedOrigins: [
+      'http://localhost',
+      'http://127.0.0.1',
       'http://localhost:40000',
       'http://127.0.0.1:40000',
       'http://web:4000',
       'http://localhost:4000',
+      'http://nginx:80',
+      'http://localhost:80',
     ],
 
     // ==================== PLUGINS ====================

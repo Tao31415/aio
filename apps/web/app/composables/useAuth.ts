@@ -41,15 +41,12 @@ export const useAuth = () => {
       if (error) {
         logger.error({ error }, 'auth.fetchSession failed')
         store.reset()
-        store.setInitialized()
         return { error }
       }
       store.setSession({ session: data?.session, user: data?.user })
-      store.setInitialized()
     } catch (err) {
       logger.error({ err }, 'auth.fetchSession exception')
       store.reset()
-      store.setInitialized()
       throw err
     } finally {
       store.sessionLoading(false)
@@ -60,7 +57,7 @@ export const useAuth = () => {
     ...status,
     ...actions,
     errorCodes: client.$ERROR_CODES,
-    getSession: fetchSession,
+    fetchSession,
     client,
   }
 }

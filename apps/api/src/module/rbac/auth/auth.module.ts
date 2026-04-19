@@ -1,5 +1,6 @@
 import { Logger, Module } from '@nestjs/common'
 import { AuthModule as BetterAuthModule } from '@thallesp/nestjs-better-auth'
+import { TypeOrmModule } from '@nestjs/typeorm'
 import { createAuthOptions } from './auth'
 import { betterAuth } from 'better-auth'
 import type { NextFunction, Request, Response } from 'express'
@@ -7,6 +8,7 @@ import { REDIS_CLIENT } from '@redis/redis.module'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import Redis from 'ioredis'
 import { Pool } from 'pg'
+import { User, Account, Verification } from './entities'
 
 const logger = new Logger('AuthModule')
 const authRouteWhitelist = [
@@ -17,6 +19,7 @@ const authRouteWhitelist = [
   'is-username-available',
   'sign-up/email',
   'update-user',
+  'reference',
   'admin',
 ]
 const authBasePath = 'api/v1/auth'
@@ -25,6 +28,7 @@ export const AUTH_CLIENT = 'AUTH_CLIENT'
 @Module({
   imports: [
     ConfigModule,
+    TypeOrmModule.forFeature([User, Account, Verification]),
     BetterAuthModule.forRootAsync({
       inject: [ConfigService, REDIS_CLIENT],
       useFactory: (config: ConfigService, redis: Redis) => {

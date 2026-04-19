@@ -48,7 +48,7 @@ export default defineNuxtConfig({
   },
   // 自动导入配置
   imports: {
-    dirs: ['composables/**', 'stores/**', 'utils/**'],
+    dirs: ['app/composables/**', 'app/stores/**', 'app/utils/**', 'app/components/**'],
   },
 
   // 组件自动导入
