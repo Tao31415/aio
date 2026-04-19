@@ -281,14 +281,15 @@ Docker 部署完成后，浏览器通常通过 Nginx 入口访问以下路径：
 | `/` | Web 前端入口 | 后台管理界面主入口 |
 | `/api/` | API 入口 | 前端请求后端接口的统一前缀 |
 | `/docs` | Swagger 文档 | 查看 NestJS API 文档 |
-| `/docs/auth/` | Better Auth 文档 | 查看 Better Auth Reference/OpenAPI |
-| `/auth` | 认证文档短链 | 会重定向到 `/docs/auth/` |
+| `/api/v1/auth/reference` | Better Auth 文档真实地址 | Better Auth Reference/OpenAPI 页面 |
+| `/docs/auth` | Better Auth 文档短链 | 会重定向到 `/api/v1/auth/reference` |
+| `/auth` | 认证文档短链 | 会重定向到 `/api/v1/auth/reference` |
 | `/dozzle/` | 容器日志界面 | 查看 Docker 容器运行日志 |
 | `/health` | 网关健康检查 | 返回 Nginx 自身健康状态 |
 
 补充说明：
 
-- `/auth` 不是登录页面，而是认证文档跳转入口
+- `/docs/auth` 和 `/auth` 都只是文档短链，不是 Better Auth 的真实页面路径
 - Better Auth 实际接口仍位于 `/api/v1/auth/*`
 - `/health` 只代表 Nginx 可用，不代表 API 和数据库全部健康
 - 更完整的路由说明和转发目标见 [deploy/README.md](file:///Users/mac/Dev/Starter/aio/deploy/README.md)

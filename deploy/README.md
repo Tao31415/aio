@@ -109,9 +109,10 @@ docker builder prune -af
 | `/` | Web 前端首页和 SPA 路由 | `web:4000` | 前端页面、静态资源、客户端路由都经由此入口 |
 | `/api/` | API 请求入口 | `api:3000` | 所有后端接口与 Better Auth 接口都从这里进入 |
 | `/docs` | Swagger 文档 | `api/api/docs` | 查看 NestJS API 文档 |
-| `/docs/auth/` | Better Auth OpenAPI / Reference | `api/api/v1/auth/reference` | 查看 Better Auth 路由参考文档 |
-| `/auth` | Better Auth 文档短链 | 301 到 `/docs/auth/` | 便于快速跳转到认证文档 |
-| `/auth/` | Better Auth 文档短链 | 301 到 `/docs/auth/` | 与 `/auth` 保持一致 |
+| `/docs/auth` | Better Auth 文档短链 | 301 到 `/api/v1/auth/reference` | 跳转到 Better Auth 真实文档地址 |
+| `/docs/auth/` | Better Auth 文档短链 | 301 到 `/api/v1/auth/reference` | 与 `/docs/auth` 保持一致 |
+| `/auth` | Better Auth 文档短链 | 301 到 `/api/v1/auth/reference` | 便于快速跳转到认证文档 |
+| `/auth/` | Better Auth 文档短链 | 301 到 `/api/v1/auth/reference` | 与 `/auth` 保持一致 |
 | `/dozzle/` | Docker 日志查看 | `dozzle:8080` | 查看容器运行日志，支持流式输出 |
 | `/dozzle` | Dozzle 短链 | 301 到 `/dozzle/` | 统一补齐末尾斜杠 |
 | `/health` | Nginx 健康检查 | Nginx 本地返回 | 返回 `healthy`，用于快速确认网关可用 |
@@ -121,7 +122,8 @@ docker builder prune -af
 - `/` 是用户访问后台管理系统的主入口
 - `/api/` 是前端调用后端的统一入口，浏览器不应直接使用容器内部地址如 `http://api:3000`
 - `/docs` 适合联调 REST API
-- `/docs/auth/` 适合查看 Better Auth 路由、参数和返回结构
+- `/api/v1/auth/reference` 是 Better Auth Reference 的真实页面地址
+- `/docs/auth` 和 `/auth` 只是跳转短链，便于记忆和访问
 - `/auth` 只是文档跳转入口，不是登录页面，也不是实际认证 API 前缀
 - `/dozzle/` 面向运维和调试场景，不建议在公网无保护暴露
 - `/health` 只代表 Nginx 网关存活，不代表 API、数据库、Redis 等依赖全部正常
@@ -132,7 +134,8 @@ docker builder prune -af
 http://localhost/              # Web 前端
 http://localhost/api/v1/users  # API 示例
 http://localhost/docs          # Swagger 文档
-http://localhost/docs/auth/    # Better Auth 文档
+http://localhost/api/v1/auth/reference  # Better Auth 文档真实地址
+http://localhost/docs/auth     # Better Auth 文档短链
 http://localhost/dozzle/       # 容器日志
 http://localhost/health        # 网关健康检查
 ```
