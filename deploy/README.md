@@ -104,18 +104,18 @@ docker builder prune -af
 
 浏览器访问 Docker 部署时，推荐统一从 Nginx 入口进入，例如 `http://localhost`。当前 `deploy/nginx/conf.d/default.conf` 中的主要路由如下：
 
-| 路径 | 功能 | 转发目标 | 说明 |
-| ---- | ---- | -------- | ---- |
-| `/` | Web 前端首页和 SPA 路由 | `web:4000` | 前端页面、静态资源、客户端路由都经由此入口 |
-| `/api/` | API 请求入口 | `api:3000` | 所有后端接口与 Better Auth 接口都从这里进入 |
-| `/docs` | Swagger 文档 | `api/api/docs` | 查看 NestJS API 文档 |
-| `/docs/auth` | Better Auth 文档短链 | 301 到 `/api/v1/auth/reference` | 跳转到 Better Auth 真实文档地址 |
-| `/docs/auth/` | Better Auth 文档短链 | 301 到 `/api/v1/auth/reference` | 与 `/docs/auth` 保持一致 |
-| `/auth` | Better Auth 文档短链 | 301 到 `/api/v1/auth/reference` | 便于快速跳转到认证文档 |
-| `/auth/` | Better Auth 文档短链 | 301 到 `/api/v1/auth/reference` | 与 `/auth` 保持一致 |
-| `/dozzle/` | Docker 日志查看 | `dozzle:8080` | 查看容器运行日志，支持流式输出 |
-| `/dozzle` | Dozzle 短链 | 301 到 `/dozzle/` | 统一补齐末尾斜杠 |
-| `/health` | Nginx 健康检查 | Nginx 本地返回 | 返回 `healthy`，用于快速确认网关可用 |
+| 路径          | 功能                    | 转发目标                        | 说明                                        |
+| ------------- | ----------------------- | ------------------------------- | ------------------------------------------- |
+| `/`           | Web 前端首页和 SPA 路由 | `web:4000`                      | 前端页面、静态资源、客户端路由都经由此入口  |
+| `/api/`       | API 请求入口            | `api:3000`                      | 所有后端接口与 Better Auth 接口都从这里进入 |
+| `/docs`       | Swagger 文档            | `api/api/docs`                  | 查看 NestJS API 文档                        |
+| `/docs/auth`  | Better Auth 文档短链    | 301 到 `/api/v1/auth/reference` | 跳转到 Better Auth 真实文档地址             |
+| `/docs/auth/` | Better Auth 文档短链    | 301 到 `/api/v1/auth/reference` | 与 `/docs/auth` 保持一致                    |
+| `/auth`       | Better Auth 文档短链    | 301 到 `/api/v1/auth/reference` | 便于快速跳转到认证文档                      |
+| `/auth/`      | Better Auth 文档短链    | 301 到 `/api/v1/auth/reference` | 与 `/auth` 保持一致                         |
+| `/dozzle/`    | Docker 日志查看         | `dozzle:8080`                   | 查看容器运行日志，支持流式输出              |
+| `/dozzle`     | Dozzle 短链             | 301 到 `/dozzle/`               | 统一补齐末尾斜杠                            |
+| `/health`     | Nginx 健康检查          | Nginx 本地返回                  | 返回 `healthy`，用于快速确认网关可用        |
 
 ### 路由使用说明
 

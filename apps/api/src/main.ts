@@ -31,8 +31,14 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config)
   SwaggerModule.setup('api/docs', app, document, {
+    explorer: true,
+    jsonDocumentUrl: 'api/v1/common-docs',
     swaggerOptions: {
       persistAuthorization: true,
+      urls: [
+        { url: '/api/v1/auth-docs', name: 'Auth API' },
+        { url: '/api/v1/common-docs', name: 'Main API' },
+      ],
     },
   })
 

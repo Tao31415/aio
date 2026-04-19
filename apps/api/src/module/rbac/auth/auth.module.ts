@@ -9,6 +9,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
 import Redis from 'ioredis'
 import { Pool } from 'pg'
 import { User, Account, Verification } from './entities'
+import { AuthDocsController } from './auth-docs.controller'
 
 const logger = new Logger('AuthModule')
 const authRouteWhitelist = [
@@ -26,6 +27,7 @@ const authBasePath = 'api/v1/auth'
 export const AUTH_CLIENT = 'AUTH_CLIENT'
 
 @Module({
+  controllers: [AuthDocsController],
   imports: [
     ConfigModule,
     TypeOrmModule.forFeature([User, Account, Verification]),
@@ -77,6 +79,5 @@ export const AUTH_CLIENT = 'AUTH_CLIENT'
       },
     }),
   ],
-  exports: [],
 })
 export class AuthModule {}
