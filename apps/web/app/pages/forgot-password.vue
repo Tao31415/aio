@@ -111,10 +111,10 @@
           class="space-y-4"
         >
           <div
-            v-if="auth.globalError || localError"
+            v-if="globalError || localError"
             class="p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm"
           >
-            {{ auth.globalError || localError }}
+            {{ globalError || localError }}
           </div>
 
           <div class="space-y-2">
@@ -150,11 +150,11 @@
 
           <button
             type="submit"
-            :disabled="auth.loading"
+            :disabled="loading"
             class="w-full h-12 text-sm font-medium bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             <svg
-              v-if="auth.loading"
+              v-if="loading"
               class="h-4 w-4 animate-spin"
               viewBox="0 0 24 24"
               fill="none"
@@ -163,8 +163,8 @@
             >
               <path d="M21 12a9 9 0 1 1-6.219-8.56" />
             </svg>
-            <span>{{ auth.loading ? '发送中...' : '发送重置链接' }}</span>
-            <span v-if="!auth.loading">→</span>
+            <span>{{ loading ? '发送中...' : '发送重置链接' }}</span>
+            <span v-if="!loading">→</span>
           </button>
 
           <div
@@ -213,9 +213,9 @@
 </template>
 
 <script setup lang="ts">
-  definePageMeta({ layout: 'auth' })
+  definePageMeta({ layout: 'auth', auth: 'guest' })
 
-  const auth = useAuthStore()
+  const { requestPasswordReset, clearError, globalError, loading } = useAuth()
   const toast = useMyToast()
 
   const email = ref('')
@@ -239,7 +239,10 @@
       return
     }
     try {
-      await auth.forgotPassword(email.value)
+      await requestPasswordReset({
+        email: email.value,
+        redirectTo: `${window.location.origin}/reset-password`,
+      })
       isSubmitted.value = true
       toast.success('重置链接已发送到您的邮箱')
     } catch {
@@ -248,6 +251,6 @@
   }
 
   onMounted(() => {
-    auth.clearError()
+    clearError()
   })
 </script>

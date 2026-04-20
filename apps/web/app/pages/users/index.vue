@@ -333,6 +333,7 @@
 <script setup lang="ts">
   definePageMeta({
     layout: 'default',
+    auth: 'user',
   })
 
   const { showToast } = useMyToast()
@@ -482,8 +483,11 @@
     if (editingUser.value) {
       const index = users.value.findIndex((u) => u.id === editingUser.value!.id)
       if (index !== -1) {
+        const currentUser = users.value[index]
+        if (!currentUser) return
+
         users.value[index] = {
-          ...users.value[index],
+          ...currentUser,
           name: formData.name,
           email: formData.email,
           role: formData.role,
@@ -497,7 +501,7 @@
         email: formData.email,
         role: formData.role,
         status: 'active',
-        createdAt: new Date().toISOString().split('T')[0],
+        createdAt: new Date().toISOString().split('T')[0] ?? '',
         lastLogin: '-',
       })
       showToast('用户已添加', 'success')

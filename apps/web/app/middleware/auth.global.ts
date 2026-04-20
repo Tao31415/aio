@@ -1,27 +1,29 @@
 /**
  * 认证中间件
- * 保护需要登录的路由
- * 使用 better-auth client 获取会话状态
+ * 基于 route meta 的 user / guest 访问控制
  */
-export default defineNuxtRouteMiddleware(async (to, _from) => {
-  // 仅在客户端执行
-  if (!import.meta.client) return
-  if (!to.meta.auth) return
+import { ensureSession } from '~/composables/auth/session-manager'
 
+export default defineNuxtRouteMiddleware(async (to, _from) => {
+  if (!import.meta.client) return
+
+  const routeAuth = to.meta.auth
+  if (routeAuth !== 'user' && routeAuth !== 'guest') return
+
+  const redirectPath = '/dashboard'
   const logger = useLogger('auth.global')
   const { isAuthenticated } = useAuth()
 
-  // 公开路由（不需要认证）
-  const publicRoutes = ['/login']
-  const isPublicRoute = publicRoutes.some((route) => to.path.startsWith(route))
+  await ensureSession({
+    reason: `auth.middleware:${routeAuth}:${to.fullPath}`,
+  })
 
-  // 未登录用户访问受保护路由 → 重定向到登录页
-  if (!isAuthenticated.value && !isPublicRoute) {
+  if (routeAuth === 'user' && !isAuthenticated.value) {
     logger.info(
       {
         path: to.fullPath,
       },
-      'Unauthorized access to protected route, redirecting to login'
+      'Guest user accessing protected route, redirecting to login'
     )
     return navigateTo({
       path: '/login',
@@ -29,14 +31,13 @@ export default defineNuxtRouteMiddleware(async (to, _from) => {
     })
   }
 
-  // 已登录用户访问认证页面（登录/注册等）→ 重定向到首页
-  if (isAuthenticated.value && isPublicRoute) {
+  if (routeAuth === 'guest' && isAuthenticated.value) {
     logger.info(
       {
         path: to.fullPath,
       },
-      'Authenticated user accessing public route, redirecting to home'
+      'Authenticated user accessing guest route, redirecting to dashboard'
     )
-    return navigateTo('/')
+    return navigateTo(redirectPath)
   }
 })

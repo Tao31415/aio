@@ -1,12 +1,4 @@
-const getAuthClient = () => {
-  const { $auth } = useNuxtApp()
-  if (!$auth) {
-    throw new Error(
-      'Auth client not initialized. Please ensure auth plugin is loaded.'
-    )
-  }
-  return $auth
-}
+import { getAuthClient } from './session-manager'
 
 export const useAuthActions = () => {
   const client = getAuthClient()
@@ -35,6 +27,7 @@ export const useAuthActions = () => {
   return {
     signIn: client.signIn,
     signUp: client.signUp,
+    requestPasswordReset: client.requestPasswordReset,
     resetPassword: client.resetPassword,
     signOut,
   }

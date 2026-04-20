@@ -255,10 +255,10 @@
         class="space-y-3"
       >
         <div
-          v-if="auth.globalError || localError"
+          v-if="globalError || localError"
           class="p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm"
         >
-          {{ auth.globalError || localError }}
+          {{ globalError || localError }}
         </div>
 
         <div class="space-y-2">
@@ -544,11 +544,11 @@
 
         <button
           type="submit"
-          :disabled="auth.loading"
+          :disabled="loading"
           class="w-full h-11 text-sm font-medium bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           <svg
-            v-if="auth.loading"
+            v-if="loading"
             class="h-4 w-4 animate-spin"
             viewBox="0 0 24 24"
             fill="none"
@@ -557,8 +557,8 @@
           >
             <path d="M21 12a9 9 0 1 1-6.219-8.56" />
           </svg>
-          <span>{{ auth.loading ? '注册中...' : '创建账户' }}</span>
-          <span v-if="!auth.loading">→</span>
+          <span>{{ loading ? '注册中...' : '创建账户' }}</span>
+          <span v-if="!loading">→</span>
         </button>
       </form>
 
@@ -579,9 +579,11 @@
 </template>
 
 <script setup lang="ts">
-  definePageMeta({ layout: 'auth' })
+  import { ensureSession } from '~/composables/auth/session-manager'
 
-  const auth = useAuthStore()
+  definePageMeta({ layout: 'auth', auth: 'guest' })
+
+  const { signUp, clearError, globalError, loading } = useAuth()
   const router = useRouter()
   const toast = useMyToast()
   const config = useRuntimeConfig()
@@ -594,9 +596,7 @@
   }
 
   // 读取注册开关环境变量，默认关闭
-  const registrationEnabled = computed(
-    () => config.public.ENABLE_REGISTRATION === 'true'
-  )
+  const registrationEnabled = computed(() => config.public.ENABLE_REGISTRATION)
 
   const showPassword = ref(false)
   const showConfirmPassword = ref(false)
@@ -649,8 +649,16 @@
       return
     }
     try {
-      await auth.register(form)
+      await signUp.email({
+        name: form.name,
+        email: form.email,
+        password: form.password,
+      })
       toast.success('注册成功')
+      await ensureSession({
+        force: true,
+        reason: 'register.success',
+      })
       await router.push('/dashboard')
     } catch {
       // 错误已在 store 中处理
@@ -658,6 +666,6 @@
   }
 
   onMounted(() => {
-    auth.clearError()
+    clearError()
   })
 </script>

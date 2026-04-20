@@ -147,10 +147,10 @@
           class="space-y-4"
         >
           <div
-            v-if="auth.globalError || localError"
+            v-if="globalError || localError"
             class="p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm"
           >
-            {{ auth.globalError || localError }}
+            {{ globalError || localError }}
           </div>
 
           <div class="space-y-2">
@@ -423,10 +423,10 @@
 </template>
 
 <script setup lang="ts">
-  definePageMeta({ layout: 'auth' })
+  definePageMeta({ layout: 'auth', auth: 'guest' })
 
   const route = useRoute()
-  const auth = useAuthStore()
+  const { resetPassword, clearError, globalError } = useAuth()
   const toast = useMyToast()
 
   const loading = ref(false)
@@ -479,7 +479,10 @@
     }
     loading.value = true
     try {
-      await auth.resetPassword(token.value, form.password, form.confirmPassword)
+      await resetPassword({
+        token: token.value,
+        newPassword: form.password,
+      })
       isSuccess.value = true
       toast.success('密码重置成功')
     } catch {
@@ -490,6 +493,6 @@
   }
 
   onMounted(() => {
-    auth.clearError()
+    clearError()
   })
 </script>

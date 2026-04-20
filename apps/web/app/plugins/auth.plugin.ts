@@ -8,6 +8,7 @@ import {
   usernameClient,
   multiSessionClient,
 } from 'better-auth/client/plugins'
+import { ensureSession } from '~/composables/auth/session-manager'
 
 export type AuthClient = ReturnType<typeof createAuthClient<typeof _typeConfig>>
 export type Session = AuthClient['$Infer']['Session']['session']
@@ -40,7 +41,6 @@ const _typeConfig = {
 export default defineNuxtPlugin(async (_) => {
   const config = useRuntimeConfig()
   const logger = useLogger('auth')
-  const store = useAuthStore()
 
   const authClient = createAuthClient({
     baseURL: config.public.apiBase,
@@ -65,24 +65,20 @@ export default defineNuxtPlugin(async (_) => {
   })
   if (import.meta.client) {
     logger.debug('auth.sessionSignal listener registered')
-    authClient.$store.listen('$sessionSignal', async (signal) => {
+    authClient.$store.listen('$sessionSignal', (signal) => {
       if (!signal) return
       logger.debug({ signal }, 'auth.sessionSignal received')
-      try {
-        const { data, error } = await authClient.getSession()
-        if (error) {
-          logger.error({ error }, 'auth.sessionSignal: getSession failed')
-          store.reset()
-          return
-        }
-        store.setSession({ session: data?.session, user: data?.user })
-      } catch (err) {
-        logger.error({ err }, 'auth.sessionSignal exception')
-        store.reset()
-      }
+      void ensureSession({
+        client: authClient,
+        force: true,
+        reason: 'auth.session-signal',
+      })
     })
   }
-  await authClient.getSession()
+  await ensureSession({
+    client: authClient,
+    reason: 'auth.plugin-init',
+  })
 
   return {
     provide: {

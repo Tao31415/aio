@@ -1,6 +1,7 @@
 <script setup lang="ts">
+  import { ensureSession } from '~/composables/auth/session-manager'
   import { type SignInForm, signInSchema } from '~/types/auth'
-  definePageMeta({ layout: 'auth' })
+  definePageMeta({ layout: 'auth', auth: 'guest' })
 
   const auth = useAuth()
   const { signIn } = auth
@@ -30,7 +31,7 @@
   const errors = ref<Record<string, string>>({})
 
   const loading = ref(false)
-  const error = ref(null)
+  const error = ref<string | null>(null)
 
   function fillDemoCredentials() {
     if (demoUsername.value && demoPassword.value) {
@@ -89,6 +90,14 @@
     try {
       logger.info({ form }, 'sign in request')
       await signIn.username(form, {
+        onSuccess: async () => {
+          logger.info('onSuccess')
+          await ensureSession({
+            force: true,
+            reason: 'login.success',
+          })
+          await navigateTo(redirectTo.value)
+        },
         onRequest: () => {
           logger.info('onRequest')
           loading.value = true
@@ -98,7 +107,7 @@
           loading.value = false
         },
         onError: (ctx: { error: { message: any } }) => {
-          logger.info('onRequest')
+          logger.info('onError')
           loading.value = false
           error.value = ctx.error.message
           toast.add({
@@ -183,7 +192,8 @@
             <input
               id="username"
               v-model="form.username"
-              type="username"
+              type="text"
+              autocomplete="username"
               @blur="handleBlur('username')"
               required
               class="w-full pl-10 pr-3 py-3 border rounded-xl bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary/50 transition-all"

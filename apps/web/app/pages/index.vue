@@ -12,6 +12,7 @@
 <script setup lang="ts">
   definePageMeta({
     layout: 'default',
+    auth: 'user',
   })
 
   // 自动跳转到仪表板

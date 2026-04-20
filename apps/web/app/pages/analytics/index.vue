@@ -255,6 +255,7 @@
 <script setup lang="ts">
   definePageMeta({
     layout: 'default',
+    auth: 'user',
   })
 
   const timeRange = ref('7d')

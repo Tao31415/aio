@@ -69,6 +69,7 @@ bun run lint        # Lint code
 - API base URL configured via `runtimeConfig.public.apiBase`
 - Web port is 40000 locally, 4000 in Docker production
 - Imports and uses `@aio/utils` directly
+- **SPA only**: `auth.global.ts` middleware only runs on client (`import.meta.client` is always true in this project)
 
 ### Deployment Environments
 
