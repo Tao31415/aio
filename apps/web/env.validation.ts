@@ -1,5 +1,14 @@
 import { z } from 'zod'
 
+type EnvSource = Record<string, string | undefined>
+
+function getProcessEnv(): EnvSource {
+  const runtime = globalThis as typeof globalThis & {
+    process?: { env?: EnvSource }
+  }
+  return runtime.process?.env ?? {}
+}
+
 /**
  * 环境变量校验 Schema
  * 重要：这些环境变量必须在编译/运行时提供，否则应用将报错
@@ -84,7 +93,7 @@ const envSchema = z.object({
  * 如果校验失败，会抛出错误导致应用无法启动
  */
 export function validateEnv(): EnvSchema {
-  const result = envSchema.safeParse(process.env)
+  const result = envSchema.safeParse(getProcessEnv())
 
   if (!result.success) {
     const errors = z.treeifyError(result.error)

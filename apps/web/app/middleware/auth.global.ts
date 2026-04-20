@@ -25,10 +25,11 @@ export default defineNuxtRouteMiddleware(async (to, _from) => {
       },
       'Guest user accessing protected route, redirecting to login'
     )
-    return navigateTo({
+    await navigateTo({
       path: '/login',
       query: { redirect: to.fullPath },
     })
+    return
   }
 
   if (routeAuth === 'guest' && isAuthenticated.value) {
@@ -38,6 +39,7 @@ export default defineNuxtRouteMiddleware(async (to, _from) => {
       },
       'Authenticated user accessing guest route, redirecting to dashboard'
     )
-    return navigateTo(redirectPath)
+    await navigateTo(redirectPath)
+    return
   }
 })

@@ -3,5 +3,3 @@ declare module 'vue-router' {
     auth?: 'user' | 'guest'
   }
 }
-
-
