@@ -5,7 +5,7 @@ export default defineNuxtPlugin(() => {
   const isDev = import.meta.dev
 
   const logger = pino({
-    level: isDev ? 'debug' : (config.public.logLevel || 'info'),
+    level: isDev ? 'debug' : config.public.logLevel || 'info',
     browser: {
       asObject: false,
     },

@@ -81,9 +81,9 @@ export default defineNuxtConfig({
     head: {
       charset: 'utf-8',
       viewport: 'width=device-width, initial-scale=1',
-      title: 'Admin Pro',
+      title: 'AIO Admin',
       meta: [
-        { name: 'description', content: 'Halolight 现代化中文后台管理系统' },
+        { name: 'description', content: 'Aio 现代化中文后台管理系统' },
         { name: 'keywords', content: 'admin, dashboard, management' },
       ],
       link: [

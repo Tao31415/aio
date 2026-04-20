@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <UApp :toaster="{ position: 'bottom-right', duration: 4000 }">
     <NuxtLayout>
       <NuxtPage v-slot="{ Component }">
         <KeepAlive :include="keepAlive.includeKeys.value">
@@ -10,7 +10,7 @@
         </KeepAlive>
       </NuxtPage>
     </NuxtLayout>
-  </div>
+  </UApp>
 </template>
 
 <script setup lang="ts">

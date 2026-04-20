@@ -336,7 +336,7 @@
     auth: 'user',
   })
 
-  const { showToast } = useMyToast()
+  const toast = useToast()
 
   interface User {
     id: number
@@ -469,14 +469,14 @@
   function deleteUser(user: User) {
     if (confirm(`确定要删除用户 "${user.name}" 吗？`)) {
       users.value = users.value.filter((u) => u.id !== user.id)
-      showToast('用户已删除', 'success')
+      toast.add({ title: '用户已删除', color: 'success' })
     }
   }
 
   // 提交表单
   function handleSubmit() {
     if (!formData.name || !formData.email) {
-      showToast('请填写完整信息', 'error')
+      toast.add({ title: '请填写完整信息', color: 'error' })
       return
     }
 
@@ -493,7 +493,7 @@
           role: formData.role,
         }
       }
-      showToast('用户信息已更新', 'success')
+      toast.add({ title: '用户信息已更新', color: 'success' })
     } else {
       users.value.push({
         id: Date.now(),
@@ -504,7 +504,7 @@
         createdAt: new Date().toISOString().split('T')[0] ?? '',
         lastLogin: '-',
       })
-      showToast('用户已添加', 'success')
+      toast.add({ title: '用户已添加', color: 'success' })
     }
 
     showAddModal.value = false

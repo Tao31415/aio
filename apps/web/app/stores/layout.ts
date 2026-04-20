@@ -42,7 +42,7 @@ export const useLayoutStore = defineStore('layout', {
   },
 
   persist: {
-    key: 'halolight-layout',
+    key: 'aio-layout',
     pick: ['sidebarCollapsed'],
   },
 })

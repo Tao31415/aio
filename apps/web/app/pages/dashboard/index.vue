@@ -5,7 +5,7 @@
   })
 
   const authStore = useAuthStore()
-  const { showToast } = useMyToast()
+  const toast = useToast()
 
   const currentUser = computed(() => authStore.user)
   const isRefreshing = ref(false)
@@ -148,9 +148,9 @@
     try {
       // 模拟 API 调用
       await new Promise((resolve) => setTimeout(resolve, 1000))
-      showToast('数据已刷新', 'success')
+      toast.add({ title: '数据已刷新', color: 'success' })
     } catch {
-      showToast('刷新失败', 'error')
+      toast.add({ title: '刷新失败', color: 'error' })
     } finally {
       isRefreshing.value = false
     }
@@ -180,6 +180,22 @@
 
   // 获取图标组件
   const getIcon = (name: string) => iconMap[name as keyof typeof iconMap]
+
+  // 测试 Toast
+  function testToast() {
+    toast.add({
+      title: 'Toast 测试成功',
+      description: '这是一条 Toast 通知',
+      color: 'success',
+      icon: 'i-lucide-check-circle',
+      duration: 3000,
+    })
+  }
+
+  // 测试 Error Page
+  function testError() {
+    navigateTo('/error-page-that-does-not-exist')
+  }
 </script>
 
 <template>
@@ -212,6 +228,44 @@
             />
           </svg>
           {{ isRefreshing ? '刷新中...' : '刷新' }}
+        </button>
+        <button
+          @click="testToast"
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border bg-background hover:bg-accent transition-colors"
+        >
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+            />
+          </svg>
+          测试 Toast
+        </button>
+        <button
+          @click="testError"
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border bg-background hover:bg-accent transition-colors text-destructive"
+        >
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+            />
+          </svg>
+          测试 Error
         </button>
       </div>
     </div>

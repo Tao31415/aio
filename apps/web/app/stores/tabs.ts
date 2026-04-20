@@ -106,7 +106,7 @@ export const useTabsStore = defineStore('tabs', {
   },
 
   persist: {
-    key: 'halolight-tabs',
+    key: 'aio-tabs',
     pick: ['tabs'],
   },
 })

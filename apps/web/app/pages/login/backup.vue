@@ -107,7 +107,7 @@
           class="mb-2 text-4xl font-bold text-white"
           style="letter-spacing: -0.03em; line-height: 1.15"
         >
-          Admin Pro
+          AIO Admin
         </h1>
         <p
           class="mb-10 text-base font-normal"

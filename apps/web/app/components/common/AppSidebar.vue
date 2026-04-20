@@ -70,19 +70,6 @@
         </li>
       </ul>
     </nav>
-
-    <!-- 底部区域 -->
-    <div class="border-t p-4 shrink-0">
-      <Transition name="fade">
-        <div
-          v-if="!collapsed || isMobile"
-          class="text-xs text-muted-foreground text-center"
-        >
-          <p>&copy; {{ new Date().getFullYear() }} {{ brandName }}</p>
-          <p class="mt-1">v1.0.0</p>
-        </div>
-      </Transition>
-    </div>
   </aside>
 </template>
 

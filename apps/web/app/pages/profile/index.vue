@@ -207,7 +207,7 @@
   })
 
   const authStore = useAuthStore()
-  const { showToast } = useMyToast()
+  const toast = useToast()
 
   const user = computed(() => authStore.user)
 
@@ -234,6 +234,6 @@
   }
 
   function saveProfile() {
-    showToast('个人资料已保存', 'success')
+    toast.add({ title: '个人资料已保存', color: 'success' })
   }
 </script>

@@ -385,3 +385,27 @@ body,
 .pointer-events-auto {
   pointer-events: auto;
 }
+
+/* Toast 样式 - 使用 CSS 变量匹配项目 UI 风格 */
+[data-toast] {
+  background-color: hsl(var(--card)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1) !important;
+}
+
+[data-toast-color="success"] {
+  border-color: hsl(142 76% 46% / 50%) !important;
+}
+
+[data-toast-color="error"] {
+  border-color: hsl(0 84% 60% / 50%) !important;
+}
+
+[data-toast-color="warning"] {
+  border-color: hsl(38 92% 50% / 50%) !important;
+}
+
+[data-toast-color="info"] {
+  border-color: hsl(217 91% 60% / 50%) !important;
+}

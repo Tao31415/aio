@@ -22,7 +22,6 @@ apps/web/
 │   │   │   ├── AppHeader.vue    # 头部
 │   │   │   ├── AppSidebar.vue   # 侧边栏
 │   │   │   ├── AppFooter.vue    # 底部
-│   │   │   ├── ToastContainer.vue
 │   │   │   ├── AppTabs.vue
 │   │   │   └── CommandMenu.vue
 │   │   ├── dashboard/          # 仪表盘组件
@@ -104,6 +103,42 @@ logger.error({ err }, 'Failed to fetch user data')
 - 第一个参数必须是对象（metadata），第二个参数是字符串（message）
 - 使用 `err` 作为 error 对象的 key 可以被 pino 特殊处理
 - Context 命名约定：使用点号分隔，如 `auth.global`、`mqtt.publish`、`api.users`
+
+## Toast Notifications
+
+使用 Nuxt UI 的 `useToast` 显示操作反馈：
+
+```typescript
+const toast = useToast()
+
+// 显示成功提示
+toast.add({
+  title: '操作成功',
+  color: 'success',
+  icon: 'i-lucide-check-circle',
+  duration: 3000,
+})
+
+// 显示错误提示
+toast.add({
+  title: '操作失败',
+  description: '请稍后重试',
+  color: 'error',
+  icon: 'i-lucide-alert-circle',
+  duration: 5000,
+})
+
+// 清除所有 toast
+toast.clear()
+```
+
+**方法**：`add()`、`update()`、`remove()`、`clear()`
+
+**注意**：
+
+- `<UToast />` 组件已在 `app.vue` 中全局注册，无需手动添加
+- `title` 为必填，`description` 和 `icon` 可选
+- `duration` 默认 5000ms，设为 0 则不自动关闭
 
 ## Environment Variables
 

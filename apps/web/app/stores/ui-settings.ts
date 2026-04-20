@@ -141,7 +141,7 @@ export const useUiSettingsStore = defineStore('uiSettings', {
   },
 
   persist: {
-    key: 'halolight-ui-settings',
+    key: 'aio-ui-settings',
     pick: [
       'showFooter',
       'showTabBar',

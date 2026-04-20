@@ -79,10 +79,10 @@ const envSchema = z.object({
     .describe('是否显示演示账号提示'),
 
   // 应用标题
-  NUXT_PUBLIC_APP_TITLE: z.string().default('Admin Pro').describe('应用标题'),
+  NUXT_PUBLIC_APP_TITLE: z.string().default('AIO Admin').describe('应用标题'),
 
   // 品牌名称
-  NUXT_PUBLIC_BRAND_NAME: z.string().default('Halolight').describe('品牌名称'),
+  NUXT_PUBLIC_BRAND_NAME: z.string().default('Aio').describe('品牌名称'),
 
   // Google Analytics ID
   NUXT_PUBLIC_GA_ID: z.string().default('').describe('Google Analytics ID'),

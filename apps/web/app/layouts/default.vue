@@ -90,9 +90,6 @@
       </div>
     </div>
 
-    <!-- Toast 通知容器 -->
-    <ToastContainer />
-
     <!-- 命令面板 -->
     <CommandMenu />
   </div>
