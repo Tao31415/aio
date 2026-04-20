@@ -42,7 +42,7 @@
             :class="[
               'flex items-center gap-3 px-3 py-2 rounded-md transition-colors',
               isActive(item.path)
-                ? 'bg-primary text-primary-foreground'
+                ? 'bg-primary text-white font-medium'
                 : 'hover:bg-accented text-muted hover:text-default',
             ]"
             :title="collapsed && !isMobile ? item.title : undefined"

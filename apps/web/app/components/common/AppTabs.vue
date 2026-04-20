@@ -17,43 +17,43 @@
     <!-- 标签列表 -->
     <div
       ref="tabsContainerRef"
-      class="flex-1 flex items-center gap-1 px-2 overflow-x-auto scrollbar-hide"
+      class="flex-1 flex items-center gap-0.5 px-2 overflow-x-auto scrollbar-hide"
     >
-      <div
+      <button
         v-for="tab in tabs.tabs"
         :key="tab.id"
         :data-tab-id="tab.id"
         :class="[
-          'flex items-center gap-1 px-3 py-1.5 rounded-t text-sm cursor-pointer transition-colors shrink-0 relative group',
+          'flex items-center gap-2 px-3 h-8 text-sm cursor-pointer transition-all shrink-0 relative group rounded-t-md',
           tab.path === route.path
-            ? 'bg-default border-t border-x border-default text-default -mb-px'
-            : 'text-muted hover:text-default hover:bg-accented',
+            ? 'text-default font-medium bg-accented/40'
+            : 'text-muted hover:text-default hover:bg-accented/20',
         ]"
         @click="navigateTo(tab.path)"
         @contextmenu.prevent="openContextMenu($event, tab)"
       >
-        <!-- 活动指示器 -->
+        <span class="max-w-32 truncate">{{ tab.title }}</span>
+        <span
+          v-if="tab.closable !== false"
+          :class="[
+            'flex items-center justify-center w-4 h-4 rounded transition-all',
+            tab.path === route.path
+              ? 'opacity-80 hover:opacity-100'
+              : 'opacity-0 group-hover:opacity-60 hover:opacity-100',
+          ]"
+          @click.stop="closeTab(tab.id)"
+        >
+          <UIcon
+            name="i-lucide-x"
+            class="w-3 h-3"
+          />
+        </span>
+        <!-- 底部激活指示器 -->
         <div
           v-if="tab.path === route.path"
-          class="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
+          class="absolute bottom-0 left-2 right-2 h-0.5 bg-primary rounded-full"
         />
-
-        <span class="max-w-32 truncate">{{ tab.title }}</span>
-        <UButton
-          v-if="tab.closable !== false"
-          color="neutral"
-          variant="ghost"
-          size="xs"
-          icon="i-lucide-x"
-          class="ml-1"
-          :class="
-            tab.path === route.path
-              ? 'opacity-100'
-              : 'opacity-0 group-hover:opacity-100'
-          "
-          @click.stop="closeTab(tab.id)"
-        />
-      </div>
+      </button>
     </div>
 
     <!-- 右滚动按钮 -->
