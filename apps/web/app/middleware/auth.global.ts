@@ -1,45 +1,45 @@
 /**
  * 认证中间件
- * 基于 route meta 的 user / guest 访问控制
+ * - 未登录：只允许访问 guestOnlyPaths 中的页面
+ * - 已登录：访问 guestOnlyPaths 页面跳转到 dashboard
  */
 import { ensureSession } from '~/composables/auth/session-manager'
+
+const guestOnlyPaths = new Set(['/login'])
 
 export default defineNuxtRouteMiddleware(async (to, _from) => {
   if (!import.meta.client) return
 
-  const routeAuth = to.meta.auth
-  if (routeAuth !== 'user' && routeAuth !== 'guest') return
-
-  const redirectPath = '/dashboard'
   const logger = useLogger('auth.global')
   const { isAuthenticated } = useAuth()
 
   await ensureSession({
-    reason: `auth.middleware:${routeAuth}:${to.fullPath}`,
+    reason: `auth.middleware:${to.fullPath}`,
   })
 
-  if (routeAuth === 'user' && !isAuthenticated.value) {
-    logger.info(
-      {
-        path: to.fullPath,
-      },
-      'Guest user accessing protected route, redirecting to login'
-    )
-    await navigateTo({
-      path: '/login',
-      query: { redirect: to.fullPath },
-    })
+  const isGuestOnlyPage = guestOnlyPaths.has(to.path)
+
+  // 未登录：只允许访问 guest 页面
+  if (!isAuthenticated.value) {
+    if (!isGuestOnlyPage) {
+      logger.info(
+        { path: to.fullPath },
+        'Guest accessing protected route, redirecting to login'
+      )
+      return navigateTo({
+        path: '/login',
+        query: { redirect: to.fullPath },
+      })
+    }
     return
   }
 
-  if (routeAuth === 'guest' && isAuthenticated.value) {
+  // 已登录：访问 guest 页面跳转到 dashboard
+  if (isGuestOnlyPage) {
     logger.info(
-      {
-        path: to.fullPath,
-      },
-      'Authenticated user accessing guest route, redirecting to dashboard'
+      { path: to.fullPath },
+      'Authenticated user accessing guest route, redirect to dashboard'
     )
-    await navigateTo(redirectPath)
-    return
+    return navigateTo('/dashboard')
   }
 })

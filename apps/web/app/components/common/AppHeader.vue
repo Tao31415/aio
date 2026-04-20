@@ -1,3 +1,60 @@
+<script setup lang="ts">
+  // 事件定义
+  defineEmits<{
+    toggleSidebar: []
+    toggleMobileSidebar: []
+  }>()
+
+  // 状态
+  const auth = useAuthStore()
+  const uiSettings = useUiSettingsStore()
+  const commandMenu = useCommandMenu()
+  const { signOut } = useAuthActions()
+  const userInitial = computed(() => {
+    const displayName =
+      auth.user?.username || auth.user?.name || auth.user?.email
+    return displayName?.trim().charAt(0).toUpperCase() || 'U'
+  })
+
+  // 用户菜单状态
+  const userMenuOpen = ref(false)
+  const userMenuRef = ref<HTMLElement | null>(null)
+
+  // 切换主题
+  function toggleTheme() {
+    uiSettings.toggleTheme()
+  }
+
+  // 打开命令面板
+  function openCommandMenu() {
+    commandMenu.open()
+  }
+
+  // 退出登录
+  async function handleLogout() {
+    userMenuOpen.value = false
+    await signOut({ redirectTo: '/login' })
+  }
+
+  // 点击外部关闭菜单
+  onMounted(() => {
+    document.addEventListener('click', handleClickOutside)
+  })
+
+  onUnmounted(() => {
+    document.removeEventListener('click', handleClickOutside)
+  })
+
+  function handleClickOutside(event: MouseEvent) {
+    if (
+      userMenuRef.value &&
+      !userMenuRef.value.contains(event.target as Node)
+    ) {
+      userMenuOpen.value = false
+    }
+  }
+</script>
+
 <template>
   <header
     class="h-14 border-b bg-card flex items-center justify-between px-4 lg:px-6 shrink-0"
@@ -150,7 +207,7 @@
             class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"
           >
             <span class="text-primary-foreground text-sm font-medium">
-              {{ auth.initials }}
+              {{ userInitial }}
             </span>
           </div>
           <span class="hidden md:inline text-sm font-medium">
@@ -262,56 +319,3 @@
     </div>
   </header>
 </template>
-
-<script setup lang="ts">
-  // 事件定义
-  defineEmits<{
-    toggleSidebar: []
-    toggleMobileSidebar: []
-  }>()
-
-  // 状态
-  const auth = useAuthStore()
-  const uiSettings = useUiSettingsStore()
-  const commandMenu = useCommandMenu()
-  const router = useRouter()
-
-  // 用户菜单状态
-  const userMenuOpen = ref(false)
-  const userMenuRef = ref<HTMLElement | null>(null)
-
-  // 切换主题
-  function toggleTheme() {
-    uiSettings.toggleTheme()
-  }
-
-  // 打开命令面板
-  function openCommandMenu() {
-    commandMenu.open()
-  }
-
-  // 退出登录
-  async function handleLogout() {
-    userMenuOpen.value = false
-    auth.logout()
-    await router.push('/login')
-  }
-
-  // 点击外部关闭菜单
-  onMounted(() => {
-    document.addEventListener('click', handleClickOutside)
-  })
-
-  onUnmounted(() => {
-    document.removeEventListener('click', handleClickOutside)
-  })
-
-  function handleClickOutside(event: MouseEvent) {
-    if (
-      userMenuRef.value &&
-      !userMenuRef.value.contains(event.target as Node)
-    ) {
-      userMenuOpen.value = false
-    }
-  }
-</script>

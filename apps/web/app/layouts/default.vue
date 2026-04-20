@@ -1,3 +1,39 @@
+<script setup lang="ts">
+  // 布局状态
+  const layout = useLayoutStore()
+  const uiSettings = useUiSettingsStore()
+
+  // 响应式判断移动端
+  const isMobile = ref(false)
+
+  // 切换侧边栏
+  function handleToggleSidebar() {
+    if (isMobile.value) {
+      layout.toggleMobileSidebar()
+    } else {
+      layout.toggleSidebar()
+    }
+  }
+
+  // 监听窗口大小变化
+  function handleResize() {
+    isMobile.value = window.innerWidth < 1024
+    if (!isMobile.value) {
+      layout.closeMobileSidebar()
+    }
+  }
+
+  // 生命周期
+  onMounted(() => {
+    handleResize()
+    window.addEventListener('resize', handleResize)
+  })
+
+  onUnmounted(() => {
+    window.removeEventListener('resize', handleResize)
+  })
+</script>
+
 <template>
   <div class="h-screen overflow-hidden flex flex-col bg-background">
     <!-- 主要内容区域 -->
@@ -61,39 +97,3 @@
     <CommandMenu />
   </div>
 </template>
-
-<script setup lang="ts">
-  // 布局状态
-  const layout = useLayoutStore()
-  const uiSettings = useUiSettingsStore()
-
-  // 响应式判断移动端
-  const isMobile = ref(false)
-
-  // 切换侧边栏
-  function handleToggleSidebar() {
-    if (isMobile.value) {
-      layout.toggleMobileSidebar()
-    } else {
-      layout.toggleSidebar()
-    }
-  }
-
-  // 监听窗口大小变化
-  function handleResize() {
-    isMobile.value = window.innerWidth < 1024
-    if (!isMobile.value) {
-      layout.closeMobileSidebar()
-    }
-  }
-
-  // 生命周期
-  onMounted(() => {
-    handleResize()
-    window.addEventListener('resize', handleResize)
-  })
-
-  onUnmounted(() => {
-    window.removeEventListener('resize', handleResize)
-  })
-</script>
