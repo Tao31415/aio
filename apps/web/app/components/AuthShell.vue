@@ -136,12 +136,12 @@
               </svg>
               <span class="text-xl font-bold text-white">AIO Admin</span>
             </div>
-            <p class="text-sm text-muted-foreground">{{ mobileSubtitle }}</p>
+            <p class="text-sm text-muted">{{ mobileSubtitle }}</p>
           </div>
 
           <!-- 卡片 -->
           <div
-            class="border border-border/50 shadow-2xl backdrop-blur-xl bg-card/80 rounded-xl overflow-hidden"
+            class="border border-muted shadow-2xl backdrop-blur-xl bg-elevated/80 rounded-xl overflow-hidden"
           >
             <!-- 顶部装饰线 -->
             <div

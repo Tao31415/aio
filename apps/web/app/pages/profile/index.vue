@@ -4,14 +4,14 @@
     <div class="flex items-center justify-between">
       <div>
         <h1 class="text-2xl font-bold">个人资料</h1>
-        <p class="text-muted-foreground">管理您的个人信息和账户设置</p>
+        <p class="text-muted">管理您的个人信息和账户设置</p>
       </div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- 个人信息卡片 -->
       <div class="lg:col-span-1">
-        <div class="bg-card rounded-xl border p-6 text-center">
+        <UCard class="text-center">
           <div
             class="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4"
           >
@@ -20,103 +20,116 @@
             </span>
           </div>
           <h2 class="text-xl font-semibold">{{ user?.name || '用户' }}</h2>
-          <p class="text-muted-foreground">
+          <p class="text-muted">
             {{ user?.email || 'user@example.com' }}
           </p>
           <div class="flex items-center justify-center gap-2 mt-2">
-            <span
-              class="px-2 py-1 text-xs rounded-full bg-primary/10 text-primary"
+            <UBadge
+              color="primary"
+              variant="soft"
+              size="sm"
             >
               {{ user?.role === 'admin' ? '管理员' : '用户' }}
-            </span>
+            </UBadge>
           </div>
 
-          <div class="mt-6 pt-6 border-t space-y-4">
+          <div class="mt-6 pt-6 border-t border-default space-y-4">
             <div class="flex items-center justify-between text-sm">
-              <span class="text-muted-foreground">注册时间</span>
+              <span class="text-muted">注册时间</span>
               <span>2024-01-01</span>
             </div>
             <div class="flex items-center justify-between text-sm">
-              <span class="text-muted-foreground">最后登录</span>
+              <span class="text-muted">最后登录</span>
               <span>今天 14:30</span>
             </div>
             <div class="flex items-center justify-between text-sm">
-              <span class="text-muted-foreground">账户状态</span>
-              <span class="text-green-600 dark:text-green-400">正常</span>
+              <span class="text-muted">账户状态</span>
+              <UBadge
+                color="success"
+                variant="soft"
+                size="sm"
+              >
+                正常
+              </UBadge>
             </div>
           </div>
-        </div>
+        </UCard>
       </div>
 
       <!-- 详细信息 -->
       <div class="lg:col-span-2 space-y-6">
         <!-- 基本信息 -->
-        <div class="bg-card rounded-xl border p-6">
-          <h3 class="font-semibold mb-4">基本信息</h3>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="space-y-2">
-              <label class="text-sm font-medium text-muted-foreground">
-                用户名
-              </label>
-              <input
+        <UCard>
+          <template #header>
+            <h3 class="font-semibold">基本信息</h3>
+          </template>
+          <UForm
+            :state="form"
+            class="grid grid-cols-1 md:grid-cols-2 gap-4"
+          >
+            <UFormField
+              label="用户名"
+              name="name"
+            >
+              <UInput
                 v-model="form.name"
                 type="text"
-                class="w-full h-10 px-4 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50"
               />
-            </div>
-            <div class="space-y-2">
-              <label class="text-sm font-medium text-muted-foreground">
-                邮箱地址
-              </label>
-              <input
+            </UFormField>
+            <UFormField
+              label="邮箱地址"
+              name="email"
+            >
+              <UInput
                 v-model="form.email"
                 type="email"
-                class="w-full h-10 px-4 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50"
               />
-            </div>
-            <div class="space-y-2">
-              <label class="text-sm font-medium text-muted-foreground">
-                手机号码
-              </label>
-              <input
+            </UFormField>
+            <UFormField
+              label="手机号码"
+              name="phone"
+            >
+              <UInput
                 v-model="form.phone"
                 type="tel"
                 placeholder="请输入手机号"
-                class="w-full h-10 px-4 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50"
               />
-            </div>
-            <div class="space-y-2">
-              <label class="text-sm font-medium text-muted-foreground">
-                所在城市
-              </label>
-              <input
+            </UFormField>
+            <UFormField
+              label="所在城市"
+              name="city"
+            >
+              <UInput
                 v-model="form.city"
                 type="text"
                 placeholder="请输入城市"
-                class="w-full h-10 px-4 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50"
               />
-            </div>
-          </div>
-        </div>
+            </UFormField>
+          </UForm>
+        </UCard>
 
         <!-- 个人简介 -->
-        <div class="bg-card rounded-xl border p-6">
-          <h3 class="font-semibold mb-4">个人简介</h3>
-          <textarea
+        <UCard>
+          <template #header>
+            <h3 class="font-semibold">个人简介</h3>
+          </template>
+          <UTextarea
             v-model="form.bio"
-            rows="4"
+            :rows="4"
             placeholder="介绍一下自己..."
-            class="w-full px-4 py-3 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
+            class="w-full"
           />
-        </div>
+        </UCard>
 
         <!-- 社交链接 -->
-        <div class="bg-card rounded-xl border p-6">
-          <h3 class="font-semibold mb-4">社交链接</h3>
+        <UCard>
+          <template #header>
+            <h3 class="font-semibold">社交链接</h3>
+          </template>
           <div class="space-y-4">
             <div class="flex items-center gap-3">
               <div
-                class="w-10 h-10 rounded-lg bg-muted flex items-center justify-center"
+                class="w-10 h-10 rounded-lg bg-accented flex items-center justify-center"
               >
                 <svg
                   class="w-5 h-5"
@@ -128,16 +141,16 @@
                   />
                 </svg>
               </div>
-              <input
+              <UInput
                 v-model="form.github"
                 type="text"
                 placeholder="GitHub 用户名"
-                class="flex-1 h-10 px-4 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50"
+                class="flex-1"
               />
             </div>
             <div class="flex items-center gap-3">
               <div
-                class="w-10 h-10 rounded-lg bg-muted flex items-center justify-center"
+                class="w-10 h-10 rounded-lg bg-accented flex items-center justify-center"
               >
                 <svg
                   class="w-5 h-5"
@@ -149,16 +162,16 @@
                   />
                 </svg>
               </div>
-              <input
+              <UInput
                 v-model="form.twitter"
                 type="text"
                 placeholder="Twitter 用户名"
-                class="flex-1 h-10 px-4 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50"
+                class="flex-1"
               />
             </div>
             <div class="flex items-center gap-3">
               <div
-                class="w-10 h-10 rounded-lg bg-muted flex items-center justify-center"
+                class="w-10 h-10 rounded-lg bg-accented flex items-center justify-center"
               >
                 <svg
                   class="w-5 h-5"
@@ -170,30 +183,31 @@
                   />
                 </svg>
               </div>
-              <input
+              <UInput
                 v-model="form.linkedin"
                 type="text"
                 placeholder="LinkedIn 用户名"
-                class="flex-1 h-10 px-4 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50"
+                class="flex-1"
               />
             </div>
           </div>
-        </div>
+        </UCard>
 
         <!-- 保存按钮 -->
         <div class="flex justify-end gap-3">
-          <button
+          <UButton
             @click="resetForm"
-            class="px-6 py-2 rounded-lg border hover:bg-accent transition-colors"
+            color="neutral"
+            variant="outline"
           >
             重置
-          </button>
-          <button
+          </UButton>
+          <UButton
             @click="saveProfile"
-            class="px-6 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+            color="primary"
           >
             保存更改
-          </button>
+          </UButton>
         </div>
       </div>
     </div>

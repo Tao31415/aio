@@ -1,32 +1,36 @@
 <template>
-  <div class="bg-card border rounded-xl p-6 space-y-4 h-full flex flex-col">
+  <div
+    class="bg-elevated border border-default rounded-xl p-6 space-y-4 h-full flex flex-col"
+  >
     <div class="flex items-center justify-between">
       <h3 class="font-semibold">快速操作</h3>
-      <span class="text-xs text-muted-foreground">常用入口</span>
+      <span class="text-xs text-muted">常用入口</span>
     </div>
 
     <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 flex-1">
-      <button
+      <UButton
         v-for="action in actions"
         :key="action.label"
-        class="flex flex-col items-center justify-center gap-2 p-3 rounded-lg border hover:border-primary hover:bg-primary/5 transition-all min-h-[88px] group"
+        color="neutral"
+        variant="ghost"
+        class="flex min-h-[88px] flex-col items-center justify-center gap-2 rounded-lg border border-default bg-default p-3 text-center transition-all hover:bg-accented/80"
         @click="handleAction(action)"
       >
         <span
           class="h-10 w-10 rounded-lg flex items-center justify-center"
-          :class="action.bg"
+          :class="getActionToneBg(action.tone)"
         >
           <component
             :is="action.icon"
             class="w-5 h-5"
-            :class="action.color"
+            :class="getActionToneText(action.tone)"
           />
         </span>
         <div class="text-center">
           <p class="font-medium text-sm">{{ action.label }}</p>
-          <p class="text-xs text-muted-foreground">{{ action.hint }}</p>
+          <p class="text-xs text-muted">{{ action.hint }}</p>
         </div>
-      </button>
+      </UButton>
     </div>
   </div>
 </template>
@@ -45,8 +49,7 @@
     label: string
     hint: string
     icon: Component
-    bg: string
-    color: string
+    tone: 'info' | 'success' | 'warning' | 'secondary' | 'error' | 'neutral'
     href: string
   }
 
@@ -61,48 +64,42 @@
       label: '添加用户',
       hint: '快速添加成员',
       icon: IconUsers,
-      bg: 'bg-blue-50 dark:bg-blue-900/30',
-      color: 'text-blue-600 dark:text-blue-400',
+      tone: 'info',
       href: '/users',
     },
     {
       label: '新建文档',
       hint: '创建文档',
       icon: IconFilePlus,
-      bg: 'bg-emerald-50 dark:bg-emerald-900/30',
-      color: 'text-emerald-600 dark:text-emerald-400',
+      tone: 'success',
       href: '/documents',
     },
     {
       label: '发送通知',
       hint: '推送消息',
       icon: IconBell,
-      bg: 'bg-amber-50 dark:bg-amber-900/30',
-      color: 'text-amber-600 dark:text-amber-400',
+      tone: 'warning',
       href: '/notifications',
     },
     {
       label: '数据分析',
       hint: '查看报表',
       icon: IconBarChart3,
-      bg: 'bg-purple-50 dark:bg-purple-900/30',
-      color: 'text-purple-600 dark:text-purple-400',
+      tone: 'secondary',
       href: '/analytics',
     },
     {
       label: '日程安排',
       hint: '管理日程',
       icon: IconCalendar,
-      bg: 'bg-pink-50 dark:bg-pink-900/30',
-      color: 'text-pink-600 dark:text-pink-400',
+      tone: 'error',
       href: '/calendar',
     },
     {
       label: '系统设置',
       hint: '配置选项',
       icon: IconSettings,
-      bg: 'bg-slate-50 dark:bg-slate-900/30',
-      color: 'text-slate-600 dark:text-slate-400',
+      tone: 'neutral',
       href: '/settings',
     },
   ]
@@ -110,5 +107,31 @@
   const handleAction = (action: QuickAction) => {
     emit('action', action.label)
     router.push(action.href)
+  }
+
+  function getActionToneBg(tone: QuickAction['tone']) {
+    const map = {
+      info: 'bg-info/10',
+      success: 'bg-success/10',
+      warning: 'bg-warning/10',
+      secondary: 'bg-secondary/10',
+      error: 'bg-error/10',
+      neutral: 'bg-accented',
+    } as const
+
+    return map[tone]
+  }
+
+  function getActionToneText(tone: QuickAction['tone']) {
+    const map = {
+      info: 'text-info',
+      success: 'text-success',
+      warning: 'text-warning',
+      secondary: 'text-secondary',
+      error: 'text-error',
+      neutral: 'text-muted',
+    } as const
+
+    return map[tone]
   }
 </script>

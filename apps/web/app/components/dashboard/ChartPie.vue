@@ -1,8 +1,10 @@
 <template>
-  <div class="bg-card border rounded-xl p-6 space-y-4 h-full flex flex-col">
+  <div
+    class="bg-elevated border border-default rounded-xl p-6 space-y-4 h-full flex flex-col"
+  >
     <div class="flex items-center justify-between">
       <h3 class="font-semibold">渠道占比</h3>
-      <span class="text-xs text-muted-foreground">实时</span>
+      <span class="text-xs text-muted">实时</span>
     </div>
 
     <!-- Pie Chart -->
@@ -57,7 +59,7 @@
           class="h-2 w-2 rounded-full shrink-0"
           :style="{ background: slice.color }"
         />
-        <span class="text-muted-foreground truncate">{{ slice.name }}</span>
+        <span class="text-muted truncate">{{ slice.name }}</span>
         <span class="ml-auto font-medium">{{ slice.percent }}%</span>
       </div>
     </div>

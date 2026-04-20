@@ -4,333 +4,144 @@
     <div class="flex items-center justify-between">
       <div>
         <h1 class="text-2xl font-bold">用户管理</h1>
-        <p class="text-muted-foreground">管理系统中的所有用户账户</p>
+        <p class="text-muted">管理系统中的所有用户账户</p>
       </div>
-      <button
-        @click="showAddModal = true"
-        class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+      <UButton
+        icon="i-lucide-plus"
+        color="primary"
+        @click="openAddModal"
       >
-        <svg
-          class="w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 4v16m8-8H4"
-          />
-        </svg>
         添加用户
-      </button>
+      </UButton>
     </div>
 
     <!-- 搜索和筛选 -->
     <div class="flex flex-col sm:flex-row gap-4">
-      <div class="relative flex-1">
-        <svg
-          class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-          />
-        </svg>
-        <input
-          v-model="searchQuery"
-          type="text"
-          placeholder="搜索用户..."
-          class="w-full h-10 pl-10 pr-4 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50"
-        />
-      </div>
-      <select
-        v-model="statusFilter"
-        class="h-10 px-4 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50"
-      >
-        <option value="">全部状态</option>
-        <option value="active">活跃</option>
-        <option value="inactive">未激活</option>
-        <option value="banned">已禁用</option>
-      </select>
-      <select
-        v-model="roleFilter"
-        class="h-10 px-4 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50"
-      >
-        <option value="">全部角色</option>
-        <option value="admin">管理员</option>
-        <option value="user">普通用户</option>
-        <option value="guest">访客</option>
-      </select>
+      <UInput
+        v-model="searchQuery"
+        icon="i-lucide-search"
+        placeholder="搜索用户..."
+        class="flex-1"
+      />
+      <USelect
+        v-model="statusFilterSelection"
+        :items="statusOptions"
+        class="sm:w-40"
+      />
+      <USelect
+        v-model="roleFilterSelection"
+        :items="roleOptions"
+        class="sm:w-40"
+      />
     </div>
 
     <!-- 用户列表 -->
-    <div class="bg-card rounded-xl border overflow-hidden">
+    <UCard :ui="{ body: 'p-0' }">
       <div class="overflow-x-auto">
-        <table class="w-full">
-          <thead class="bg-muted/50">
-            <tr>
-              <th class="text-left px-6 py-3 text-sm font-medium">
-                <input
-                  type="checkbox"
-                  class="rounded"
-                />
-              </th>
-              <th class="text-left px-6 py-3 text-sm font-medium">用户</th>
-              <th class="text-left px-6 py-3 text-sm font-medium">角色</th>
-              <th class="text-left px-6 py-3 text-sm font-medium">状态</th>
-              <th class="text-left px-6 py-3 text-sm font-medium">注册时间</th>
-              <th class="text-left px-6 py-3 text-sm font-medium">最后登录</th>
-              <th class="text-right px-6 py-3 text-sm font-medium">操作</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y">
-            <tr
-              v-for="user in filteredUsers"
-              :key="user.id"
-              class="hover:bg-muted/50 transition-colors"
-            >
-              <td class="px-6 py-4">
-                <input
-                  type="checkbox"
-                  class="rounded"
-                />
-              </td>
-              <td class="px-6 py-4">
-                <div class="flex items-center gap-3">
-                  <div
-                    class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center"
-                  >
-                    <span class="text-sm font-medium text-primary">
-                      {{ user.name.charAt(0) }}
-                    </span>
-                  </div>
-                  <div>
-                    <p class="font-medium">{{ user.name }}</p>
-                    <p class="text-sm text-muted-foreground">
-                      {{ user.email }}
-                    </p>
-                  </div>
-                </div>
-              </td>
-              <td class="px-6 py-4">
-                <span
-                  class="text-xs px-2 py-1 rounded-full"
-                  :class="{
-                    'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400':
-                      user.role === 'admin',
-                    'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400':
-                      user.role === 'user',
-                    'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400':
-                      user.role === 'guest',
-                  }"
-                >
-                  {{
-                    { admin: '管理员', user: '用户', guest: '访客' }[user.role]
-                  }}
-                </span>
-              </td>
-              <td class="px-6 py-4">
-                <span
-                  class="text-xs px-2 py-1 rounded-full"
-                  :class="{
-                    'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400':
-                      user.status === 'active',
-                    'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400':
-                      user.status === 'inactive',
-                    'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400':
-                      user.status === 'banned',
-                  }"
-                >
-                  {{
-                    { active: '活跃', inactive: '未激活', banned: '已禁用' }[
-                      user.status
-                    ]
-                  }}
-                </span>
-              </td>
-              <td class="px-6 py-4 text-sm text-muted-foreground">
-                {{ user.createdAt }}
-              </td>
-              <td class="px-6 py-4 text-sm text-muted-foreground">
-                {{ user.lastLogin }}
-              </td>
-              <td class="px-6 py-4">
-                <div class="flex items-center justify-end gap-2">
-                  <button
-                    @click="editUser(user)"
-                    class="p-2 rounded-lg hover:bg-accent transition-colors"
-                    title="编辑"
-                  >
-                    <svg
-                      class="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                      />
-                    </svg>
-                  </button>
-                  <button
-                    @click="deleteUser(user)"
-                    class="p-2 rounded-lg hover:bg-destructive/10 text-destructive transition-colors"
-                    title="删除"
-                  >
-                    <svg
-                      class="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                      />
-                    </svg>
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <UTable
+          :data="paginatedUsers"
+          :columns="tableColumns"
+          class="w-full"
+        />
       </div>
 
       <!-- 分页 -->
-      <div class="flex items-center justify-between px-6 py-4 border-t">
-        <p class="text-sm text-muted-foreground">
-          显示 {{ (currentPage - 1) * pageSize + 1 }} -
+      <div
+        class="flex items-center justify-between px-6 py-4 border-t border-default"
+      >
+        <p class="text-sm text-muted">
+          显示 {{ startRow }} -
           {{ Math.min(currentPage * pageSize, totalUsers) }} /
           {{ totalUsers }} 条
         </p>
         <div class="flex items-center gap-2">
-          <button
+          <UButton
             @click="currentPage--"
             :disabled="currentPage === 1"
-            class="p-2 rounded-lg border hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            <svg
-              class="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-          </button>
+            color="neutral"
+            variant="outline"
+            icon="i-lucide-chevron-left"
+          ></UButton>
           <span class="text-sm">{{ currentPage }} / {{ totalPages }}</span>
-          <button
+          <UButton
             @click="currentPage++"
             :disabled="currentPage === totalPages"
-            class="p-2 rounded-lg border hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            <svg
-              class="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </button>
+            color="neutral"
+            variant="outline"
+            icon="i-lucide-chevron-right"
+          ></UButton>
         </div>
       </div>
-    </div>
+    </UCard>
 
     <!-- 添加/编辑用户弹窗 -->
-    <Teleport to="body">
-      <div
-        v-if="showAddModal"
-        class="fixed inset-0 z-50 flex items-center justify-center"
-      >
-        <div
-          class="absolute inset-0 bg-background/80 backdrop-blur-sm"
-          @click="showAddModal = false"
-        />
-        <div
-          class="relative bg-card rounded-xl border shadow-lg w-full max-w-md p-6 m-4"
+    <UModal
+      v-model:open="showAddModal"
+      :title="editingUser ? '编辑用户' : '添加用户'"
+    >
+      <template #body>
+        <UForm
+          :state="formData"
+          class="space-y-4"
+          @submit="handleSubmit"
         >
-          <h2 class="text-xl font-semibold mb-4">
-            {{ editingUser ? '编辑用户' : '添加用户' }}
-          </h2>
-          <form
-            @submit.prevent="handleSubmit"
-            class="space-y-4"
+          <UFormField
+            label="用户名"
+            name="name"
           >
-            <div class="space-y-2">
-              <label class="text-sm font-medium">用户名</label>
-              <input
-                v-model="formData.name"
-                type="text"
-                placeholder="请输入用户名"
-                class="w-full h-10 px-4 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50"
-              />
-            </div>
-            <div class="space-y-2">
-              <label class="text-sm font-medium">邮箱</label>
-              <input
-                v-model="formData.email"
-                type="email"
-                placeholder="请输入邮箱"
-                class="w-full h-10 px-4 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50"
-              />
-            </div>
-            <div class="space-y-2">
-              <label class="text-sm font-medium">角色</label>
-              <select
-                v-model="formData.role"
-                class="w-full h-10 px-4 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50"
-              >
-                <option value="admin">管理员</option>
-                <option value="user">普通用户</option>
-                <option value="guest">访客</option>
-              </select>
-            </div>
-            <div class="flex gap-3 pt-4">
-              <button
-                type="button"
-                @click="showAddModal = false"
-                class="flex-1 h-10 rounded-lg border hover:bg-accent transition-colors"
-              >
-                取消
-              </button>
-              <button
-                type="submit"
-                class="flex-1 h-10 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
-              >
-                {{ editingUser ? '保存' : '添加' }}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </Teleport>
+            <UInput
+              v-model="formData.name"
+              type="text"
+              placeholder="请输入用户名"
+            />
+          </UFormField>
+          <UFormField
+            label="邮箱"
+            name="email"
+          >
+            <UInput
+              v-model="formData.email"
+              type="email"
+              placeholder="请输入邮箱"
+            />
+          </UFormField>
+          <UFormField
+            label="角色"
+            name="role"
+          >
+            <USelect
+              v-model="formRoleSelection"
+              :items="formRoleOptions"
+              class="w-full"
+            />
+          </UFormField>
+          <div class="flex gap-3 pt-4">
+            <UButton
+              type="button"
+              color="neutral"
+              variant="outline"
+              class="flex-1 justify-center"
+              @click="closeModal"
+            >
+              取消
+            </UButton>
+            <UButton
+              type="submit"
+              color="primary"
+              class="flex-1 justify-center"
+            >
+              {{ editingUser ? '保存' : '添加' }}
+            </UButton>
+          </div>
+        </UForm>
+      </template>
+    </UModal>
   </div>
 </template>
 
 <script setup lang="ts">
+  import { h, resolveComponent } from 'vue'
+
   definePageMeta({
     layout: 'default',
     auth: 'user',
@@ -356,11 +167,76 @@
   const pageSize = 10
   const showAddModal = ref(false)
   const editingUser = ref<User | null>(null)
+  const selectedUserIds = ref<number[]>([])
 
   const formData = reactive({
     name: '',
     email: '',
     role: 'user' as 'admin' | 'user' | 'guest',
+  })
+
+  const statusOptions = ['全部状态', '活跃', '未激活', '已禁用']
+  const roleOptions = ['全部角色', '管理员', '普通用户', '访客']
+  const formRoleOptions = ['管理员', '普通用户', '访客']
+
+  const statusLabelMap = {
+    active: '活跃',
+    inactive: '未激活',
+    banned: '已禁用',
+  } as const
+
+  const roleLabelMap = {
+    admin: '管理员',
+    user: '普通用户',
+    guest: '访客',
+  } as const
+
+  const statusValueMap = {
+    全部状态: '',
+    活跃: 'active',
+    未激活: 'inactive',
+    已禁用: 'banned',
+  } as const
+
+  const roleValueMap = {
+    全部角色: '',
+    管理员: 'admin',
+    普通用户: 'user',
+    访客: 'guest',
+  } as const
+
+  const formRoleValueMap = {
+    管理员: 'admin',
+    普通用户: 'user',
+    访客: 'guest',
+  } as const
+
+  const statusFilterSelection = computed({
+    get: () =>
+      statusFilter.value
+        ? statusLabelMap[statusFilter.value as keyof typeof statusLabelMap]
+        : '全部状态',
+    set: (label: string) => {
+      statusFilter.value =
+        statusValueMap[label as keyof typeof statusValueMap] || ''
+    },
+  })
+
+  const roleFilterSelection = computed({
+    get: () =>
+      roleFilter.value
+        ? roleLabelMap[roleFilter.value as keyof typeof roleLabelMap]
+        : '全部角色',
+    set: (label: string) => {
+      roleFilter.value = roleValueMap[label as keyof typeof roleValueMap] || ''
+    },
+  })
+
+  const formRoleSelection = computed({
+    get: () => roleLabelMap[formData.role],
+    set: (label: string) => {
+      formData.role = formRoleValueMap[label as keyof typeof formRoleValueMap]
+    },
   })
 
   // 模拟用户数据
@@ -454,7 +330,189 @@
   })
 
   const totalUsers = computed(() => filteredUsers.value.length)
-  const totalPages = computed(() => Math.ceil(totalUsers.value / pageSize))
+  const totalPages = computed(() =>
+    Math.max(1, Math.ceil(totalUsers.value / pageSize))
+  )
+  const paginatedUsers = computed(() => {
+    const start = (currentPage.value - 1) * pageSize
+    const end = start + pageSize
+    return filteredUsers.value.slice(start, end)
+  })
+  const startRow = computed(() => {
+    if (totalUsers.value === 0) return 0
+    return (currentPage.value - 1) * pageSize + 1
+  })
+  const allVisibleSelected = computed(() => {
+    return (
+      paginatedUsers.value.length > 0 &&
+      paginatedUsers.value.every((user) =>
+        selectedUserIds.value.includes(user.id)
+      )
+    )
+  })
+
+  const tableColumns = computed(() => {
+    const UCheckbox = resolveComponent('UCheckbox')
+    const UBadge = resolveComponent('UBadge')
+    const UButton = resolveComponent('UButton')
+
+    return [
+      {
+        id: 'select',
+        header: () =>
+          h(UCheckbox, {
+            modelValue: allVisibleSelected.value,
+            'onUpdate:modelValue': toggleSelectAll,
+          }),
+        cell: ({ row }: { row: { original: User } }) =>
+          h(UCheckbox, {
+            modelValue: selectedUserIds.value.includes(row.original.id),
+            'onUpdate:modelValue': () => toggleUserSelection(row.original.id),
+          }),
+      },
+      {
+        accessorKey: 'name',
+        header: '用户',
+        cell: ({ row }: { row: { original: User } }) =>
+          h('div', { class: 'flex items-center gap-3' }, [
+            h(
+              'div',
+              {
+                class:
+                  'w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center',
+              },
+              [
+                h(
+                  'span',
+                  { class: 'text-sm font-medium text-primary' },
+                  row.original.name.charAt(0)
+                ),
+              ]
+            ),
+            h('div', [
+              h('p', { class: 'font-medium' }, row.original.name),
+              h('p', { class: 'text-sm text-muted' }, row.original.email),
+            ]),
+          ]),
+      },
+      {
+        accessorKey: 'role',
+        header: '角色',
+        cell: ({ row }: { row: { original: User } }) =>
+          h(
+            UBadge,
+            {
+              color: getRoleBadgeColor(row.original.role),
+              variant: 'soft',
+            },
+            () => roleLabelMap[row.original.role]
+          ),
+      },
+      {
+        accessorKey: 'status',
+        header: '状态',
+        cell: ({ row }: { row: { original: User } }) =>
+          h(
+            UBadge,
+            {
+              color: getStatusBadgeColor(row.original.status),
+              variant: 'soft',
+            },
+            () => statusLabelMap[row.original.status]
+          ),
+      },
+      {
+        accessorKey: 'createdAt',
+        header: '注册时间',
+        cell: ({ row }: { row: { original: User } }) =>
+          h('span', { class: 'text-sm text-muted' }, row.original.createdAt),
+      },
+      {
+        accessorKey: 'lastLogin',
+        header: '最后登录',
+        cell: ({ row }: { row: { original: User } }) =>
+          h('span', { class: 'text-sm text-muted' }, row.original.lastLogin),
+      },
+      {
+        id: 'actions',
+        header: () => h('div', { class: 'text-right' }, '操作'),
+        cell: ({ row }: { row: { original: User } }) =>
+          h('div', { class: 'flex items-center justify-end gap-2' }, [
+            h(UButton, {
+              color: 'neutral',
+              variant: 'ghost',
+              icon: 'i-lucide-pencil',
+              title: '编辑',
+              onClick: () => editUser(row.original),
+            }),
+            h(UButton, {
+              color: 'error',
+              variant: 'ghost',
+              icon: 'i-lucide-trash',
+              title: '删除',
+              onClick: () => deleteUser(row.original),
+            }),
+          ]),
+      },
+    ]
+  })
+
+  function getRoleBadgeColor(role: User['role']) {
+    const map = {
+      admin: 'secondary',
+      user: 'primary',
+      guest: 'neutral',
+    } as const
+    return map[role]
+  }
+
+  function getStatusBadgeColor(status: User['status']) {
+    const map = {
+      active: 'success',
+      inactive: 'warning',
+      banned: 'error',
+    } as const
+    return map[status]
+  }
+
+  function toggleUserSelection(userId: number) {
+    const exists = selectedUserIds.value.includes(userId)
+    selectedUserIds.value = exists
+      ? selectedUserIds.value.filter((id) => id !== userId)
+      : [...selectedUserIds.value, userId]
+  }
+
+  function toggleSelectAll(checked: boolean | 'indeterminate') {
+    if (checked !== true) {
+      selectedUserIds.value = selectedUserIds.value.filter(
+        (id) => !paginatedUsers.value.some((user) => user.id === id)
+      )
+      return
+    }
+
+    const visibleIds = paginatedUsers.value.map((user) => user.id)
+    selectedUserIds.value = Array.from(
+      new Set([...selectedUserIds.value, ...visibleIds])
+    )
+  }
+
+  function resetFormData() {
+    formData.name = ''
+    formData.email = ''
+    formData.role = 'user'
+  }
+
+  function openAddModal() {
+    editingUser.value = null
+    resetFormData()
+    showAddModal.value = true
+  }
+
+  function closeModal() {
+    showAddModal.value = false
+    editingUser.value = null
+    resetFormData()
+  }
 
   // 编辑用户
   function editUser(user: User) {
@@ -469,6 +527,9 @@
   function deleteUser(user: User) {
     if (confirm(`确定要删除用户 "${user.name}" 吗？`)) {
       users.value = users.value.filter((u) => u.id !== user.id)
+      selectedUserIds.value = selectedUserIds.value.filter(
+        (id) => id !== user.id
+      )
       toast.add({ title: '用户已删除', color: 'success' })
     }
   }
@@ -507,10 +568,17 @@
       toast.add({ title: '用户已添加', color: 'success' })
     }
 
-    showAddModal.value = false
-    editingUser.value = null
-    formData.name = ''
-    formData.email = ''
-    formData.role = 'user'
+    closeModal()
   }
+
+  watch([searchQuery, statusFilter, roleFilter], () => {
+    currentPage.value = 1
+    selectedUserIds.value = []
+  })
+
+  watch(totalPages, (pageCount) => {
+    if (currentPage.value > pageCount) {
+      currentPage.value = pageCount
+    }
+  })
 </script>

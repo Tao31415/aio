@@ -41,7 +41,7 @@
 </script>
 
 <template>
-  <div class="min-h-screen bg-background flex items-center justify-center px-4">
+  <div class="min-h-screen bg-default flex items-center justify-center px-4">
     <div class="text-center max-w-md w-full">
       <!-- Error Icon -->
       <div class="relative mx-auto w-32 h-32 mb-8">
@@ -53,7 +53,7 @@
           style="animation-duration: 2s"
         />
         <div
-          class="absolute inset-0 flex items-center justify-center bg-background rounded-full border-4 border-destructive/20"
+          class="absolute inset-0 flex items-center justify-center bg-default rounded-full border-4 border-destructive/20"
         >
           <span class="text-5xl font-bold text-destructive">
             {{ error.statusCode || 500 }}
@@ -63,10 +63,10 @@
 
       <!-- Error Info -->
       <div class="mb-8">
-        <h1 class="text-2xl font-bold text-foreground mb-2">
+        <h1 class="text-2xl font-bold text-default mb-2">
           {{ getErrorInfo(error.status).title }}
         </h1>
-        <p class="text-muted-foreground">
+        <p class="text-muted">
           {{ getErrorInfo(error.status).description }}
         </p>
       </div>
@@ -74,9 +74,9 @@
       <!-- Error Message (Development Only) -->
       <div
         v-if="error.message && error.statusCode === 500"
-        class="mb-8 p-4 bg-muted/50 rounded-lg text-left"
+        class="mb-8 p-4 bg-accented/50 rounded-lg text-left"
       >
-        <p class="text-sm text-muted-foreground font-mono break-all">
+        <p class="text-sm text-muted font-mono break-all">
           {{ error.message }}
         </p>
       </div>
@@ -105,7 +105,7 @@
 
         <NuxtLink
           to="/login"
-          class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 border border-input bg-background rounded-lg font-medium hover:bg-accent transition-colors"
+          class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 border border-default bg-default rounded-lg font-medium hover:bg-accented transition-colors"
         >
           <svg
             class="w-4 h-4"
@@ -125,9 +125,7 @@
       </div>
 
       <!-- Footer Tips -->
-      <p class="mt-12 text-sm text-muted-foreground">
-        如果问题持续存在，请联系管理员
-      </p>
+      <p class="mt-12 text-sm text-muted">如果问题持续存在，请联系管理员</p>
     </div>
   </div>
 </template>

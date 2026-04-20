@@ -139,237 +139,111 @@
       <!-- 标题 -->
       <div class="text-center">
         <h1
-          class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
+          class="text-2xl font-bold bg-linear-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
         >
           登录账户
         </h1>
-        <p class="text-sm text-muted-foreground mt-2">
-          输入您的用户名和密码登录
-        </p>
+        <p class="text-sm text-muted mt-2">输入您的用户名和密码登录</p>
       </div>
 
       <!-- 登录表单 -->
-      <form
-        @submit.prevent="handleSubmit"
+      <UForm
+        :state="form"
         class="space-y-4"
+        @submit="handleSubmit"
       >
-        <!-- 错误提示 -->
-        <div
+        <UAlert
           v-if="error"
-          class="p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm"
+          color="error"
+          variant="soft"
+          icon="i-lucide-circle-alert"
+          :title="error"
+        />
+
+        <UFormField
+          label="用户名"
+          name="username"
+          required
+          :error="errors.username"
         >
-          {{ error }}
-        </div>
+          <UInput
+            v-model="form.username"
+            type="text"
+            autocomplete="username"
+            placeholder="your username"
+            icon="i-lucide-user"
+            size="xl"
+            class="w-full"
+            @blur="handleBlur('username')"
+          />
+        </UFormField>
 
-        <!-- 用户名 -->
-        <div class="space-y-2">
-          <label
-            for="username"
-            class="text-xs font-medium text-muted-foreground"
-          >
-            用户名
-          </label>
+        <UFormField
+          label="密码"
+          name="password"
+          required
+          :error="errors.password"
+        >
           <div class="relative">
-            <svg
-              class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <rect
-                width="20"
-                height="16"
-                x="2"
-                y="4"
-                rx="2"
-              />
-              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-            </svg>
-            <input
-              id="username"
-              v-model="form.username"
-              type="text"
-              autocomplete="username"
-              @blur="handleBlur('username')"
-              required
-              class="w-full pl-10 pr-3 py-3 border rounded-xl bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary/50 transition-all"
-              placeholder="your username"
-            />
-            <span
-              v-if="errors.username"
-              class="text-red-500 text-sm"
-            >
-              {{ errors.username }}
-            </span>
-          </div>
-        </div>
-
-        <!-- 密码 -->
-        <div class="space-y-2">
-          <label
-            for="password"
-            class="text-xs font-medium text-muted-foreground"
-          >
-            密码
-          </label>
-          <div class="relative">
-            <svg
-              class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <rect
-                width="18"
-                height="11"
-                x="3"
-                y="11"
-                rx="2"
-                ry="2"
-              />
-              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-            </svg>
-            <input
-              id="password"
+            <UInput
               v-model="form.password"
               :type="showPassword ? 'text' : 'password'"
-              required
-              @blur="handleBlur('password')"
-              class="w-full pl-10 pr-10 py-3 border rounded-xl bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary/50 transition-all"
+              autocomplete="current-password"
               placeholder="••••••••"
+              icon="i-lucide-lock"
+              size="xl"
+              class="w-full"
+              :ui="{ base: 'pr-11' }"
+              @blur="handleBlur('password')"
             />
-            <span
-              v-if="errors.password"
-              class="text-red-500 text-sm"
-            >
-              {{ errors.password }}
-            </span>
-            <button
+            <UButton
               type="button"
+              color="neutral"
+              variant="ghost"
+              size="xs"
+              class="absolute right-2 top-1/2 -translate-y-1/2"
+              :icon="showPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'"
               @click="showPassword = !showPassword"
-              class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <svg
-                v-if="!showPassword"
-                class="h-4 w-4"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path
-                  d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"
-                />
-                <circle
-                  cx="12"
-                  cy="12"
-                  r="3"
-                />
-              </svg>
-              <svg
-                v-else
-                class="h-4 w-4"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path
-                  d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"
-                />
-                <path d="M14.084 14.158a3 3 0 0 1-4.242-4.242" />
-                <path
-                  d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"
-                />
-                <path d="m2 2 20 20" />
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        <!-- 记住我 -->
-        <div class="flex items-center justify-between text-sm">
-          <label class="flex items-center gap-2 cursor-pointer group">
-            <input
-              v-model="form.remember"
-              type="checkbox"
-              class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
             />
-            <span
-              class="text-muted-foreground group-hover:text-foreground transition-colors"
-            >
-              记住我
-            </span>
-          </label>
+          </div>
+        </UFormField>
+
+        <div class="flex items-center justify-between text-sm">
+          <UCheckbox
+            v-model="form.remember"
+            label="记住我"
+          />
         </div>
 
-        <!-- 测试账号按钮 -->
         <div
           v-if="demoUsername && demoPassword"
           class="flex items-center gap-2 py-2"
         >
-          <div class="flex-1 h-px bg-border/50" />
-          <button
+          <div class="flex-1 border-t border-default" />
+          <UButton
             type="button"
+            color="neutral"
+            variant="ghost"
+            size="xs"
+            icon="i-lucide-user-round"
             @click="fillDemoCredentials"
-            class="h-7 px-3 text-xs text-muted-foreground hover:text-primary hover:bg-primary/5 rounded-lg transition-colors flex items-center gap-1.5"
           >
-            <svg
-              class="h-3 w-3"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-              <circle
-                cx="12"
-                cy="7"
-                r="4"
-              />
-            </svg>
             测试账号
-          </button>
-          <div class="flex-1 h-px bg-border/50" />
+          </UButton>
+          <div class="flex-1 border-t border-default" />
         </div>
 
-        <!-- 提交按钮 -->
-        <button
+        <UButton
           type="submit"
-          :disabled="loading"
-          class="w-full h-12 text-sm font-medium bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          color="primary"
+          size="xl"
+          class="w-full justify-center"
+          :loading="loading"
+          trailing-icon="i-lucide-arrow-right"
         >
-          <svg
-            v-if="loading"
-            class="h-4 w-4 animate-spin"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-          </svg>
-          <span>{{ loading ? '登录中...' : '登录' }}</span>
-          <span
-            v-if="!loading"
-            class="ml-1"
-          >
-            →
-          </span>
-        </button>
-      </form>
+          {{ loading ? '登录中...' : '登录' }}
+        </UButton>
+      </UForm>
     </div>
   </AuthShell>
 </template>

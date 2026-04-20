@@ -35,7 +35,7 @@
 </script>
 
 <template>
-  <div class="h-screen overflow-hidden flex flex-col bg-background">
+  <div class="h-screen overflow-hidden flex flex-col bg-default">
     <!-- 主要内容区域 -->
     <div class="flex flex-1 min-h-0">
       <!-- 侧边栏 -->
@@ -58,9 +58,7 @@
             @click="layout.closeMobileSidebar"
           />
           <!-- 侧边栏内容 -->
-          <div
-            class="absolute left-0 top-0 h-full w-64 bg-background shadow-xl"
-          >
+          <div class="absolute left-0 top-0 h-full w-64 bg-default shadow-xl">
             <AppSidebar
               :collapsed="false"
               :is-mobile="true"
@@ -81,7 +79,7 @@
         <AppTabs v-if="uiSettings.showTabBar" />
 
         <!-- 页面内容 -->
-        <main class="flex-1 overflow-auto p-4 lg:p-6">
+        <main class="flex-1 overflow-auto bg-accented/20 p-4 lg:p-6">
           <slot />
         </main>
 

@@ -18,32 +18,28 @@
       value: '12,345',
       change: 12.5,
       icon: 'IconUsers',
-      bgColor: 'bg-blue-100 dark:bg-blue-900/30',
-      iconColor: 'text-blue-600 dark:text-blue-400',
+      tone: 'info',
     },
     {
       title: '活跃用户',
       value: '8,234',
       change: 8.2,
       icon: 'IconActivity',
-      bgColor: 'bg-green-100 dark:bg-green-900/30',
-      iconColor: 'text-green-600 dark:text-green-400',
+      tone: 'success',
     },
     {
       title: '总收入',
       value: '¥234,567',
       change: -2.4,
       icon: 'IconMoney',
-      bgColor: 'bg-yellow-100 dark:bg-yellow-900/30',
-      iconColor: 'text-yellow-600 dark:text-yellow-400',
+      tone: 'warning',
     },
     {
       title: '订单数',
       value: '1,234',
       change: 15.3,
       icon: 'IconCart',
-      bgColor: 'bg-purple-100 dark:bg-purple-900/30',
-      iconColor: 'text-purple-600 dark:text-purple-400',
+      tone: 'secondary',
     },
   ])
 
@@ -102,6 +98,63 @@
   const completedTasks = computed(
     () => tasks.value.filter((t) => t.completed).length
   )
+
+  function getTaskPriorityColor(priority: 'high' | 'medium' | 'low') {
+    const map = {
+      high: 'error',
+      medium: 'warning',
+      low: 'primary',
+    } as const
+    return map[priority]
+  }
+
+  function getRecentUserStatusColor(status: string) {
+    return status === 'active' ? 'success' : 'neutral'
+  }
+
+  function getNotificationIconWrapperClass(type: string) {
+    const map = {
+      info: 'bg-info/10',
+      success: 'bg-success/10',
+      warning: 'bg-warning/10',
+      error: 'bg-error/10',
+    } as const
+
+    return map[type as keyof typeof map] || 'bg-accented'
+  }
+
+  function getNotificationIconClass(type: string) {
+    const map = {
+      info: 'text-info',
+      success: 'text-success',
+      warning: 'text-warning',
+      error: 'text-error',
+    } as const
+
+    return map[type as keyof typeof map] || 'text-muted'
+  }
+
+  function getStatToneBg(tone: string) {
+    const map = {
+      info: 'bg-info/10',
+      success: 'bg-success/10',
+      warning: 'bg-warning/10',
+      secondary: 'bg-secondary/10',
+    } as const
+
+    return map[tone as keyof typeof map] || 'bg-accented'
+  }
+
+  function getStatToneText(tone: string) {
+    const map = {
+      info: 'text-info',
+      success: 'text-success',
+      warning: 'text-warning',
+      secondary: 'text-secondary',
+    } as const
+
+    return map[tone as keyof typeof map] || 'text-muted'
+  }
 
   function toggleTask(id: number) {
     const task = tasks.value.find((t) => t.id === id)
@@ -204,135 +257,100 @@
     <div class="flex items-center justify-between">
       <div>
         <h1 class="text-2xl font-bold">仪表板</h1>
-        <p class="text-muted-foreground">
+        <p class="text-muted">
           欢迎回来，{{ currentUser?.name || '用户' }}！以下是今日概览。
         </p>
       </div>
       <div class="flex items-center gap-2">
-        <button
+        <UButton
           @click="handleRefresh"
           :disabled="isRefreshing"
-          class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border bg-background hover:bg-accent transition-colors disabled:opacity-50"
+          color="neutral"
+          variant="outline"
+          :loading="isRefreshing"
+          icon="i-lucide-refresh-cw"
         >
-          <svg
-            :class="['w-4 h-4', isRefreshing && 'animate-spin']"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-            />
-          </svg>
           {{ isRefreshing ? '刷新中...' : '刷新' }}
-        </button>
-        <button
+        </UButton>
+        <UButton
           @click="testToast"
-          class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border bg-background hover:bg-accent transition-colors"
+          color="neutral"
+          variant="outline"
+          icon="i-lucide-bell-ring"
         >
-          <svg
-            class="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-            />
-          </svg>
           测试 Toast
-        </button>
-        <button
+        </UButton>
+        <UButton
           @click="testError"
-          class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border bg-background hover:bg-accent transition-colors text-destructive"
+          color="error"
+          variant="outline"
+          icon="i-lucide-triangle-alert"
         >
-          <svg
-            class="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-            />
-          </svg>
           测试 Error
-        </button>
+        </UButton>
       </div>
     </div>
 
     <!-- 统计卡片 -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div
+      <UCard
         v-for="stat in stats"
         :key="stat.title"
-        class="bg-card rounded-xl border p-6 transition-all hover:shadow-md"
+        class="transition-all hover:shadow-md"
+        :ui="{ body: 'p-6' }"
       >
         <div class="flex items-center justify-between">
           <div
             class="w-12 h-12 rounded-lg flex items-center justify-center"
-            :class="stat.bgColor"
+            :class="getStatToneBg(stat.tone)"
           >
             <component
               :is="getIcon(stat.icon)"
               class="w-6 h-6"
-              :class="stat.iconColor"
+              :class="getStatToneText(stat.tone)"
             />
           </div>
-          <span
-            class="text-sm font-medium px-2 py-1 rounded-full"
-            :class="
-              stat.change >= 0
-                ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-            "
+          <UBadge
+            :color="stat.change >= 0 ? 'success' : 'error'"
+            variant="soft"
           >
             {{ stat.change >= 0 ? '+' : '' }}{{ stat.change }}%
-          </span>
+          </UBadge>
         </div>
         <div class="mt-4">
           <p class="text-2xl font-bold">{{ stat.value }}</p>
-          <p class="text-sm text-muted-foreground">{{ stat.title }}</p>
+          <p class="text-sm text-muted">{{ stat.title }}</p>
         </div>
-      </div>
+      </UCard>
     </div>
 
     <!-- 图表和列表区域 -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- 访问趋势图 -->
-      <div class="lg:col-span-2 bg-card rounded-xl border p-6">
+      <UCard
+        class="lg:col-span-2"
+        :ui="{ body: 'p-6' }"
+      >
         <div class="flex items-center justify-between mb-6">
           <h3 class="font-semibold">访问趋势</h3>
           <div class="flex items-center gap-2">
-            <button
+            <UButton
               v-for="period in ['7天', '30天', '90天']"
               :key="period"
               @click="selectedPeriod = period"
-              :class="[
-                'px-3 py-1 text-sm rounded-lg transition-colors',
-                selectedPeriod === period
-                  ? 'bg-primary text-primary-foreground'
-                  : 'hover:bg-accent',
-              ]"
+              color="primary"
+              size="xs"
+              :variant="selectedPeriod === period ? 'solid' : 'ghost'"
             >
               {{ period }}
-            </button>
+            </UButton>
           </div>
         </div>
         <div class="h-64 flex items-end justify-between gap-2">
           <div
             v-for="(bar, index) in chartData"
             :key="index"
-            class="flex-1 bg-primary/20 rounded-t-lg transition-all hover:bg-primary/30 relative group"
+            class="relative flex-1 rounded-t-lg bg-primary/15 transition-all hover:bg-primary/20 group"
             :style="{ height: `${bar.value}%` }"
           >
             <div
@@ -342,7 +360,7 @@
             </div>
           </div>
         </div>
-        <div class="flex justify-between mt-2 text-xs text-muted-foreground">
+        <div class="flex justify-between mt-2 text-xs text-muted">
           <span
             v-for="(bar, index) in chartData"
             :key="index"
@@ -350,60 +368,58 @@
             {{ bar.label }}
           </span>
         </div>
-      </div>
+      </UCard>
 
       <!-- 最近用户 -->
-      <div class="bg-card rounded-xl border p-6">
+      <UCard :ui="{ body: 'p-6' }">
         <div class="flex items-center justify-between mb-4">
           <h3 class="font-semibold">最近用户</h3>
-          <NuxtLink
+          <UButton
             to="/users"
-            class="text-sm text-primary hover:underline"
+            color="primary"
+            variant="ghost"
+            size="xs"
           >
             查看全部
-          </NuxtLink>
+          </UButton>
         </div>
         <div class="space-y-4">
           <div
             v-for="item in recentUsers"
             :key="item.id"
-            class="flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors"
+            class="flex items-center gap-3 rounded-lg p-2 transition-colors hover:bg-accented/80"
           >
             <div
-              class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center"
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-accented"
             >
-              <span class="text-sm font-medium text-primary">
+              <span class="text-sm font-medium text-default">
                 {{ item.name.charAt(0) }}
               </span>
             </div>
             <div class="flex-1 min-w-0">
               <p class="font-medium truncate">{{ item.name }}</p>
-              <p class="text-sm text-muted-foreground truncate">
+              <p class="text-sm text-muted truncate">
                 {{ item.email }}
               </p>
             </div>
-            <span
-              class="text-xs px-2 py-1 rounded-full"
-              :class="
-                item.status === 'active'
-                  ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                  : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
-              "
+            <UBadge
+              :color="getRecentUserStatusColor(item.status)"
+              variant="soft"
             >
               {{ item.status === 'active' ? '活跃' : '离线' }}
-            </span>
+            </UBadge>
           </div>
         </div>
-      </div>
+      </UCard>
     </div>
 
     <!-- 待办事项和通知 -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- 待办事项 -->
-      <div class="bg-card rounded-xl border p-6">
+      <UCard :ui="{ body: 'p-6' }">
         <div class="flex items-center justify-between mb-4">
           <h3 class="font-semibold">待办事项</h3>
-          <span class="text-sm text-muted-foreground">
+          <span class="text-sm text-muted">
             {{ completedTasks }}/{{ tasks.length }} 已完成
           </span>
         </div>
@@ -411,92 +427,52 @@
           <div
             v-for="task in tasks"
             :key="task.id"
-            class="flex items-center gap-3 p-3 rounded-lg hover:bg-accent transition-colors group"
+            class="flex items-center gap-3 p-3 rounded-lg hover:bg-accented transition-colors group"
           >
-            <button
-              @click="toggleTask(task.id)"
-              :class="[
-                'w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors',
-                task.completed
-                  ? 'bg-primary border-primary'
-                  : 'border-muted-foreground hover:border-primary',
-              ]"
-            >
-              <svg
-                v-if="task.completed"
-                class="w-3 h-3 text-primary-foreground"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="3"
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-            </button>
+            <UCheckbox
+              :model-value="task.completed"
+              @update:model-value="toggleTask(task.id)"
+            />
             <span
-              :class="[
-                'flex-1',
-                task.completed && 'line-through text-muted-foreground',
-              ]"
+              :class="['flex-1', task.completed && 'line-through text-muted']"
             >
               {{ task.title }}
             </span>
-            <span
-              class="text-xs px-2 py-1 rounded-full"
-              :class="{
-                'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400':
-                  task.priority === 'high',
-                'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400':
-                  task.priority === 'medium',
-                'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400':
-                  task.priority === 'low',
-              }"
+            <UBadge
+              :color="getTaskPriorityColor(task.priority)"
+              variant="soft"
             >
               {{ { high: '高', medium: '中', low: '低' }[task.priority] }}
-            </span>
+            </UBadge>
           </div>
         </div>
-      </div>
+      </UCard>
 
       <!-- 通知列表 -->
-      <div class="bg-card rounded-xl border p-6">
+      <UCard :ui="{ body: 'p-6' }">
         <div class="flex items-center justify-between mb-4">
           <h3 class="font-semibold">最新通知</h3>
-          <button class="text-sm text-primary hover:underline">全部已读</button>
+          <UButton
+            color="primary"
+            variant="ghost"
+            size="xs"
+          >
+            全部已读
+          </UButton>
         </div>
         <div class="space-y-3">
           <div
             v-for="notification in notifications"
             :key="notification.id"
-            class="flex gap-3 p-3 rounded-lg hover:bg-accent transition-colors"
+            class="flex gap-3 p-3 rounded-lg hover:bg-accented transition-colors"
           >
             <div
               class="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
-              :class="{
-                'bg-blue-100 dark:bg-blue-900/30': notification.type === 'info',
-                'bg-green-100 dark:bg-green-900/30':
-                  notification.type === 'success',
-                'bg-yellow-100 dark:bg-yellow-900/30':
-                  notification.type === 'warning',
-                'bg-red-100 dark:bg-red-900/30': notification.type === 'error',
-              }"
+              :class="getNotificationIconWrapperClass(notification.type)"
             >
               <svg
                 class="w-5 h-5"
-                :class="{
-                  'text-blue-600 dark:text-blue-400':
-                    notification.type === 'info',
-                  'text-green-600 dark:text-green-400':
-                    notification.type === 'success',
-                  'text-yellow-600 dark:text-yellow-400':
-                    notification.type === 'warning',
-                  'text-red-600 dark:text-red-400':
-                    notification.type === 'error',
-                }"
+                :class="getNotificationIconClass(notification.type)"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -533,16 +509,16 @@
             </div>
             <div class="flex-1 min-w-0">
               <p class="font-medium">{{ notification.title }}</p>
-              <p class="text-sm text-muted-foreground truncate">
+              <p class="text-sm text-muted truncate">
                 {{ notification.message }}
               </p>
-              <p class="text-xs text-muted-foreground mt-1">
+              <p class="text-xs text-muted mt-1">
                 {{ notification.time }}
               </p>
             </div>
           </div>
         </div>
-      </div>
+      </UCard>
     </div>
   </div>
 </template>

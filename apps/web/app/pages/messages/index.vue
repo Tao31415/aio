@@ -1,30 +1,16 @@
 <template>
   <div class="h-full flex">
     <!-- 消息列表 -->
-    <div class="w-80 border-r flex flex-col bg-card">
+    <div class="w-80 border-r border-default flex flex-col bg-elevated">
       <!-- 搜索框 -->
-      <div class="p-4 border-b">
-        <div class="relative">
-          <svg
-            class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
-          <input
-            v-model="searchQuery"
-            type="text"
-            placeholder="搜索消息..."
-            class="w-full h-9 pl-9 pr-4 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-          />
-        </div>
+      <div class="p-4 border-b border-default">
+        <UInput
+          v-model="searchQuery"
+          icon="i-lucide-search"
+          placeholder="搜索消息..."
+          size="md"
+          class="w-full"
+        />
       </div>
 
       <!-- 消息列表 -->
@@ -36,21 +22,21 @@
           :class="[
             'flex items-center gap-3 p-4 cursor-pointer transition-colors',
             selectedConversation?.id === conversation.id
-              ? 'bg-primary/10'
-              : 'hover:bg-accent',
+              ? 'bg-accented'
+              : 'hover:bg-accented/80',
           ]"
         >
           <div class="relative">
             <div
-              class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center"
+              class="w-12 h-12 rounded-full bg-accented flex items-center justify-center"
             >
-              <span class="text-lg font-medium text-primary">
+              <span class="text-lg font-medium text-default">
                 {{ conversation.user.name.charAt(0) }}
               </span>
             </div>
             <span
               v-if="conversation.online"
-              class="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-green-500 border-2 border-card"
+              class="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-success border-2 border-default"
             />
           </div>
           <div class="flex-1 min-w-0">
@@ -58,20 +44,22 @@
               <span class="font-medium truncate">
                 {{ conversation.user.name }}
               </span>
-              <span class="text-xs text-muted-foreground">
+              <span class="text-xs text-muted">
                 {{ conversation.lastMessage.time }}
               </span>
             </div>
             <div class="flex items-center justify-between">
-              <p class="text-sm text-muted-foreground truncate">
+              <p class="text-sm text-muted truncate">
                 {{ conversation.lastMessage.content }}
               </p>
-              <span
+              <UBadge
                 v-if="conversation.unread > 0"
-                class="w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center"
+                color="primary"
+                variant="solid"
+                size="xs"
               >
                 {{ conversation.unread }}
-              </span>
+              </UBadge>
             </div>
           </div>
         </div>
@@ -82,7 +70,9 @@
     <div class="flex-1 flex flex-col">
       <template v-if="selectedConversation">
         <!-- 聊天头部 -->
-        <div class="h-16 border-b flex items-center justify-between px-6">
+        <div
+          class="h-16 border-b border-default flex items-center justify-between px-6"
+        >
           <div class="flex items-center gap-3">
             <div
               class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center"
@@ -93,57 +83,33 @@
             </div>
             <div>
               <p class="font-medium">{{ selectedConversation.user.name }}</p>
-              <p class="text-xs text-muted-foreground">
-                {{ selectedConversation.online ? '在线' : '离线' }}
-              </p>
+              <div class="mt-1">
+                <UBadge
+                  :color="selectedConversation.online ? 'success' : 'neutral'"
+                  variant="soft"
+                  size="xs"
+                >
+                  {{ selectedConversation.online ? '在线' : '离线' }}
+                </UBadge>
+              </div>
             </div>
           </div>
           <div class="flex items-center gap-2">
-            <button class="p-2 rounded-lg hover:bg-accent transition-colors">
-              <svg
-                class="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                />
-              </svg>
-            </button>
-            <button class="p-2 rounded-lg hover:bg-accent transition-colors">
-              <svg
-                class="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-                />
-              </svg>
-            </button>
-            <button class="p-2 rounded-lg hover:bg-accent transition-colors">
-              <svg
-                class="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
-                />
-              </svg>
-            </button>
+            <UButton
+              color="neutral"
+              variant="ghost"
+              icon="i-lucide-phone"
+            />
+            <UButton
+              color="neutral"
+              variant="ghost"
+              icon="i-lucide-video"
+            />
+            <UButton
+              color="neutral"
+              variant="ghost"
+              icon="i-lucide-ellipsis"
+            />
           </div>
         </div>
 
@@ -162,16 +128,14 @@
                 'max-w-[70%] px-4 py-2 rounded-2xl',
                 message.fromMe
                   ? 'bg-primary text-primary-foreground rounded-br-md'
-                  : 'bg-muted rounded-bl-md',
+                  : 'bg-accented rounded-bl-md',
               ]"
             >
               <p>{{ message.content }}</p>
               <p
                 :class="[
                   'text-xs mt-1',
-                  message.fromMe
-                    ? 'text-primary-foreground/70'
-                    : 'text-muted-foreground',
+                  message.fromMe ? 'text-primary-foreground/70' : 'text-muted',
                 ]"
               >
                 {{ message.time }}
@@ -181,63 +145,32 @@
         </div>
 
         <!-- 输入框 -->
-        <div class="p-4 border-t">
+        <div class="p-4 border-t border-default">
           <div class="flex items-center gap-3">
-            <button class="p-2 rounded-lg hover:bg-accent transition-colors">
-              <svg
-                class="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
-                />
-              </svg>
-            </button>
-            <input
+            <UButton
+              color="neutral"
+              variant="ghost"
+              icon="i-lucide-paperclip"
+            />
+            <UInput
               v-model="newMessage"
               type="text"
               placeholder="输入消息..."
-              class="flex-1 h-10 px-4 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50"
+              class="flex-1"
               @keyup.enter="sendMessage"
             />
-            <button class="p-2 rounded-lg hover:bg-accent transition-colors">
-              <svg
-                class="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            </button>
-            <button
+            <UButton
+              color="neutral"
+              variant="ghost"
+              icon="i-lucide-smile"
+            />
+            <UButton
               @click="sendMessage"
-              class="p-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+              color="primary"
+              icon="i-lucide-send"
             >
-              <svg
-                class="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-                />
-              </svg>
-            </button>
+              发送
+            </UButton>
           </div>
         </div>
       </template>
@@ -247,29 +180,20 @@
         v-else
         class="flex-1 flex items-center justify-center"
       >
-        <div class="text-center">
-          <div
-            class="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4"
-          >
-            <svg
-              class="w-8 h-8 text-muted-foreground"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+        <UCard class="w-full max-w-sm text-center">
+          <template #header>
+            <div
+              class="w-16 h-16 rounded-full bg-accented flex items-center justify-center mx-auto"
             >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+              <UIcon
+                name="i-lucide-message-circle"
+                class="size-8 text-muted"
               />
-            </svg>
-          </div>
+            </div>
+          </template>
           <h3 class="text-lg font-medium">选择一个对话</h3>
-          <p class="text-muted-foreground mt-1">
-            从左侧列表选择一个对话开始聊天
-          </p>
-        </div>
+          <p class="text-muted mt-1">从左侧列表选择一个对话开始聊天</p>
+        </UCard>
       </div>
     </div>
   </div>

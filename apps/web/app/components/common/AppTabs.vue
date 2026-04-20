@@ -1,29 +1,18 @@
 <template>
   <div
     v-if="tabs.tabs.length > 1"
-    class="h-10 border-b bg-card flex items-center gap-1 shrink-0 relative"
+    class="h-10 border-b border-default bg-default flex items-center gap-1 shrink-0 relative"
   >
     <!-- 左滚动按钮 -->
-    <button
+    <UButton
       v-if="canScrollLeft"
-      class="h-full px-2 hover:bg-accent text-muted-foreground hover:text-foreground transition-colors shrink-0"
+      color="neutral"
+      variant="ghost"
+      size="xs"
+      icon="i-lucide-chevron-left"
+      class="h-full rounded-none shrink-0"
       @click="scroll('left')"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        class="h-4 w-4"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M15 19l-7-7 7-7"
-        />
-      </svg>
-    </button>
+    />
 
     <!-- 标签列表 -->
     <div
@@ -37,8 +26,8 @@
         :class="[
           'flex items-center gap-1 px-3 py-1.5 rounded-t text-sm cursor-pointer transition-colors shrink-0 relative group',
           tab.path === route.path
-            ? 'bg-background border-t border-x text-foreground -mb-px'
-            : 'text-muted-foreground hover:text-foreground hover:bg-accent',
+            ? 'bg-default border-t border-x border-default text-default -mb-px'
+            : 'text-muted hover:text-default hover:bg-accented',
         ]"
         @click="navigateTo(tab.path)"
         @contextmenu.prevent="openContextMenu($event, tab)"
@@ -50,143 +39,107 @@
         />
 
         <span class="max-w-32 truncate">{{ tab.title }}</span>
-        <button
+        <UButton
           v-if="tab.closable !== false"
-          class="ml-1 p-0.5 rounded hover:bg-muted transition-colors"
+          color="neutral"
+          variant="ghost"
+          size="xs"
+          icon="i-lucide-x"
+          class="ml-1"
           :class="
             tab.path === route.path
               ? 'opacity-100'
               : 'opacity-0 group-hover:opacity-100'
           "
           @click.stop="closeTab(tab.id)"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-3 w-3"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
+        />
       </div>
     </div>
 
     <!-- 右滚动按钮 -->
-    <button
+    <UButton
       v-if="canScrollRight"
-      class="h-full px-2 hover:bg-accent text-muted-foreground hover:text-foreground transition-colors shrink-0"
+      color="neutral"
+      variant="ghost"
+      size="xs"
+      icon="i-lucide-chevron-right"
+      class="h-full rounded-none shrink-0"
       @click="scroll('right')"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        class="h-4 w-4"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M9 5l7 7-7 7"
-        />
-      </svg>
-    </button>
+    />
 
     <!-- 标签操作 -->
-    <div class="flex items-center gap-1 shrink-0 px-2 border-l">
+    <div class="flex items-center gap-1 shrink-0 px-2 border-l border-default">
       <!-- 关闭其他 -->
-      <button
-        class="p-1.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
+      <UButton
+        color="neutral"
+        variant="ghost"
+        size="xs"
+        icon="i-lucide-trash"
         title="关闭其他标签"
         @click="closeOtherTabs"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-4 w-4"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-          />
-        </svg>
-      </button>
+      />
       <!-- 刷新当前 -->
-      <button
-        class="p-1.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
+      <UButton
+        color="neutral"
+        variant="ghost"
+        size="xs"
+        icon="i-lucide-refresh-cw"
         title="刷新当前页面"
         @click="refreshCurrentTab"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-4 w-4"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-          />
-        </svg>
-      </button>
+      />
     </div>
 
     <!-- 右键菜单 -->
     <Transition name="fade">
       <div
         v-if="contextMenu.visible"
-        class="absolute z-50 w-44 rounded-lg border bg-popover shadow-lg py-1 text-sm"
+        class="absolute z-50 w-44 rounded-lg border border-default bg-elevated shadow-lg py-1 text-sm"
         :style="{ left: `${contextMenu.x}px`, top: `${contextMenu.y}px` }"
         @click.stop
       >
-        <button
-          class="w-full text-left px-3 py-2 hover:bg-accent transition-colors"
+        <UButton
+          color="neutral"
+          variant="ghost"
+          class="w-full justify-start rounded-none px-3"
           @click="refreshTab(contextMenu.tab!)"
         >
           刷新页面
-        </button>
+        </UButton>
         <div class="h-px bg-border my-1" />
-        <button
+        <UButton
           v-if="contextMenu.tab?.closable !== false"
-          class="w-full text-left px-3 py-2 hover:bg-accent transition-colors"
+          color="neutral"
+          variant="ghost"
+          class="w-full justify-start rounded-none px-3"
           @click="closeTab(contextMenu.tab!.id)"
         >
           关闭标签
-        </button>
-        <button
-          class="w-full text-left px-3 py-2 hover:bg-accent transition-colors"
+        </UButton>
+        <UButton
+          color="neutral"
+          variant="ghost"
+          class="w-full justify-start rounded-none px-3"
           @click="closeOtherTabsFrom(contextMenu.tab!)"
         >
           关闭其他
-        </button>
-        <button
-          class="w-full text-left px-3 py-2 hover:bg-accent transition-colors"
+        </UButton>
+        <UButton
+          color="neutral"
+          variant="ghost"
+          class="w-full justify-start rounded-none px-3"
           @click="closeRightTabs(contextMenu.tab!)"
         >
           关闭右侧
-        </button>
+        </UButton>
         <div class="h-px bg-border my-1" />
-        <button
-          class="w-full text-left px-3 py-2 hover:bg-accent transition-colors"
+        <UButton
+          color="neutral"
+          variant="ghost"
+          class="w-full justify-start rounded-none px-3"
           @click="closeAllTabs"
         >
           关闭所有
-        </button>
+        </UButton>
       </div>
     </Transition>
   </div>
@@ -276,7 +229,9 @@
     // 如果关闭的是当前标签，导航到最后一个标签
     if (closedTab?.path === route.path && tabs.tabs.length > 0) {
       const lastTab = tabs.tabs[tabs.tabs.length - 1]
-      router.push(lastTab.path)
+      if (lastTab) {
+        router.push(lastTab.path)
+      }
     }
   }
 

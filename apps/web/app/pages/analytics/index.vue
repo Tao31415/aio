@@ -4,70 +4,50 @@
     <div class="flex items-center justify-between">
       <div>
         <h1 class="text-2xl font-bold">数据分析</h1>
-        <p class="text-muted-foreground">查看系统运营数据和统计报表</p>
+        <p class="text-muted">查看系统运营数据和统计报表</p>
       </div>
       <div class="flex items-center gap-2">
-        <select
+        <USelect
           v-model="timeRange"
-          class="h-10 px-4 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50"
+          :items="timeRangeOptions"
+          value-key="value"
+          class="w-36"
+        />
+        <UButton
+          color="neutral"
+          variant="outline"
+          icon="i-lucide-download"
         >
-          <option value="7d">最近7天</option>
-          <option value="30d">最近30天</option>
-          <option value="90d">最近90天</option>
-          <option value="1y">最近1年</option>
-        </select>
-        <button
-          class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border hover:bg-accent transition-colors"
-        >
-          <svg
-            class="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-            />
-          </svg>
           导出报表
-        </button>
+        </UButton>
       </div>
     </div>
 
     <!-- 关键指标 -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div
+      <UCard
         v-for="metric in keyMetrics"
         :key="metric.label"
-        class="bg-card rounded-xl border p-6"
+        :ui="{ body: 'p-6' }"
       >
         <div class="flex items-center justify-between">
-          <span class="text-sm text-muted-foreground">{{ metric.label }}</span>
-          <span
-            :class="[
-              'text-xs px-2 py-1 rounded-full',
-              metric.trend >= 0
-                ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
-            ]"
+          <span class="text-sm text-muted">{{ metric.label }}</span>
+          <UBadge
+            :color="metric.trend >= 0 ? 'success' : 'error'"
+            variant="soft"
           >
             {{ metric.trend >= 0 ? '+' : '' }}{{ metric.trend }}%
-          </span>
+          </UBadge>
         </div>
         <p class="text-3xl font-bold mt-2">{{ metric.value }}</p>
-        <p class="text-sm text-muted-foreground mt-1">
-          较上期 {{ metric.comparison }}
-        </p>
-      </div>
+        <p class="text-sm text-muted mt-1">较上期 {{ metric.comparison }}</p>
+      </UCard>
     </div>
 
     <!-- 图表区域 -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- 访问量趋势 -->
-      <div class="bg-card rounded-xl border p-6">
+      <UCard :ui="{ body: 'p-6' }">
         <h3 class="font-semibold mb-4">访问量趋势</h3>
         <div class="h-64 flex items-end justify-between gap-1">
           <div
@@ -83,7 +63,7 @@
             </div>
           </div>
         </div>
-        <div class="flex justify-between mt-4 text-xs text-muted-foreground">
+        <div class="flex justify-between mt-4 text-xs text-muted">
           <span>周一</span>
           <span>周二</span>
           <span>周三</span>
@@ -92,10 +72,10 @@
           <span>周六</span>
           <span>周日</span>
         </div>
-      </div>
+      </UCard>
 
       <!-- 用户来源 -->
-      <div class="bg-card rounded-xl border p-6">
+      <UCard :ui="{ body: 'p-6' }">
         <h3 class="font-semibold mb-4">用户来源</h3>
         <div class="space-y-4">
           <div
@@ -107,7 +87,7 @@
               <span>{{ source.name }}</span>
               <span class="font-medium">{{ source.percentage }}%</span>
             </div>
-            <div class="h-2 bg-muted rounded-full overflow-hidden">
+            <div class="h-2 bg-accented rounded-full overflow-hidden">
               <div
                 class="h-full rounded-full transition-all"
                 :class="source.color"
@@ -116,10 +96,10 @@
             </div>
           </div>
         </div>
-      </div>
+      </UCard>
 
       <!-- 用户活跃度 -->
-      <div class="bg-card rounded-xl border p-6">
+      <UCard :ui="{ body: 'p-6' }">
         <h3 class="font-semibold mb-4">用户活跃度</h3>
         <div class="grid grid-cols-7 gap-1">
           <div
@@ -127,7 +107,7 @@
             :key="index"
             class="aspect-square rounded-sm transition-colors"
             :class="{
-              'bg-muted': day === 0,
+              'bg-accented': day === 0,
               'bg-primary/20': day === 1,
               'bg-primary/40': day === 2,
               'bg-primary/60': day === 3,
@@ -137,11 +117,11 @@
           />
         </div>
         <div
-          class="flex items-center justify-end gap-2 mt-4 text-xs text-muted-foreground"
+          class="flex items-center justify-end gap-2 mt-4 text-xs text-muted"
         >
           <span>低</span>
           <div class="flex gap-1">
-            <div class="w-3 h-3 rounded-sm bg-muted" />
+            <div class="w-3 h-3 rounded-sm bg-accented" />
             <div class="w-3 h-3 rounded-sm bg-primary/20" />
             <div class="w-3 h-3 rounded-sm bg-primary/40" />
             <div class="w-3 h-3 rounded-sm bg-primary/60" />
@@ -149,10 +129,10 @@
           </div>
           <span>高</span>
         </div>
-      </div>
+      </UCard>
 
       <!-- 设备分布 -->
-      <div class="bg-card rounded-xl border p-6">
+      <UCard :ui="{ body: 'p-6' }">
         <h3 class="font-semibold mb-4">设备分布</h3>
         <div class="flex items-center justify-center h-48">
           <div class="relative w-40 h-40">
@@ -210,55 +190,38 @@
             <span class="text-sm">平板 {{ deviceData.tablet }}%</span>
           </div>
         </div>
-      </div>
+      </UCard>
     </div>
 
     <!-- 热门页面 -->
-    <div class="bg-card rounded-xl border p-6">
+    <UCard :ui="{ body: 'p-6' }">
       <h3 class="font-semibold mb-4">热门页面</h3>
       <div class="overflow-x-auto">
-        <table class="w-full">
-          <thead>
-            <tr class="border-b">
-              <th class="text-left py-3 font-medium">页面</th>
-              <th class="text-right py-3 font-medium">访问量</th>
-              <th class="text-right py-3 font-medium">独立访客</th>
-              <th class="text-right py-3 font-medium">跳出率</th>
-              <th class="text-right py-3 font-medium">平均时长</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="page in topPages"
-              :key="page.path"
-              class="border-b last:border-0"
-            >
-              <td class="py-3">
-                <div class="flex items-center gap-2">
-                  <span class="text-primary">{{ page.path }}</span>
-                </div>
-              </td>
-              <td class="text-right py-3">{{ page.views.toLocaleString() }}</td>
-              <td class="text-right py-3">
-                {{ page.visitors.toLocaleString() }}
-              </td>
-              <td class="text-right py-3">{{ page.bounceRate }}%</td>
-              <td class="text-right py-3">{{ page.avgDuration }}</td>
-            </tr>
-          </tbody>
-        </table>
+        <UTable
+          :data="topPages"
+          :columns="analyticsColumns"
+          class="w-full"
+        />
       </div>
-    </div>
+    </UCard>
   </div>
 </template>
 
 <script setup lang="ts">
+  import { h } from 'vue'
+
   definePageMeta({
     layout: 'default',
     auth: 'user',
   })
 
   const timeRange = ref('7d')
+  const timeRangeOptions = [
+    { label: '最近7天', value: '7d' },
+    { label: '最近30天', value: '30d' },
+    { label: '最近90天', value: '90d' },
+    { label: '最近1年', value: '1y' },
+  ]
 
   // 关键指标
   const keyMetrics = ref([
@@ -337,4 +300,41 @@
       avgDuration: '2m 18s',
     },
   ])
+
+  const analyticsColumns = [
+    {
+      accessorKey: 'path',
+      header: '页面',
+      cell: ({ row }: { row: { original: { path: string } } }) =>
+        h('span', { class: 'text-primary font-medium' }, row.original.path),
+    },
+    {
+      accessorKey: 'views',
+      header: () => h('div', { class: 'text-right' }, '访问量'),
+      cell: ({ row }: { row: { original: { views: number } } }) =>
+        h('div', { class: 'text-right' }, row.original.views.toLocaleString()),
+    },
+    {
+      accessorKey: 'visitors',
+      header: () => h('div', { class: 'text-right' }, '独立访客'),
+      cell: ({ row }: { row: { original: { visitors: number } } }) =>
+        h(
+          'div',
+          { class: 'text-right' },
+          row.original.visitors.toLocaleString()
+        ),
+    },
+    {
+      accessorKey: 'bounceRate',
+      header: () => h('div', { class: 'text-right' }, '跳出率'),
+      cell: ({ row }: { row: { original: { bounceRate: number } } }) =>
+        h('div', { class: 'text-right' }, `${row.original.bounceRate}%`),
+    },
+    {
+      accessorKey: 'avgDuration',
+      header: () => h('div', { class: 'text-right' }, '平均时长'),
+      cell: ({ row }: { row: { original: { avgDuration: string } } }) =>
+        h('div', { class: 'text-right' }, row.original.avgDuration),
+    },
+  ]
 </script>
