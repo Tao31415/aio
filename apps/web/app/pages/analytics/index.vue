@@ -1,3 +1,134 @@
+<script setup lang="ts">
+  import { h } from 'vue'
+
+  definePageMeta({
+    layout: 'dashboard',
+    auth: 'user',
+  })
+
+  const timeRange = ref('7d')
+  const timeRangeOptions = [
+    { label: '最近7天', value: '7d' },
+    { label: '最近30天', value: '30d' },
+    { label: '最近90天', value: '90d' },
+    { label: '最近1年', value: '1y' },
+  ]
+
+  // 关键指标
+  const keyMetrics = ref([
+    { label: '总访问量', value: '124,567', trend: 12.5, comparison: '+14,023' },
+    { label: '独立访客', value: '45,678', trend: 8.2, comparison: '+3,456' },
+    { label: '页面浏览', value: '234,567', trend: -2.4, comparison: '-5,789' },
+    { label: '平均时长', value: '3m 24s', trend: 5.7, comparison: '+11s' },
+  ])
+
+  // 访问量数据
+  const visitData = ref([
+    { value: 65 },
+    { value: 78 },
+    { value: 56 },
+    { value: 89 },
+    { value: 92 },
+    { value: 45 },
+    { value: 38 },
+  ])
+
+  // 流量来源
+  const trafficSources = ref([
+    { name: '直接访问', percentage: 35, color: 'bg-blue-500' },
+    { name: '搜索引擎', percentage: 28, color: 'bg-green-500' },
+    { name: '社交媒体', percentage: 22, color: 'bg-yellow-500' },
+    { name: '外部链接', percentage: 15, color: 'bg-purple-500' },
+  ])
+
+  // 活跃度数据（模拟热力图）
+  const activityData = ref(
+    Array.from({ length: 28 }, () => Math.floor(Math.random() * 5))
+  )
+
+  // 设备数据
+  const deviceData = ref({
+    desktop: 55,
+    mobile: 35,
+    tablet: 10,
+  })
+
+  // 热门页面
+  const topPages = ref([
+    {
+      path: '/dashboard',
+      views: 12345,
+      visitors: 8234,
+      bounceRate: 32,
+      avgDuration: '2m 45s',
+    },
+    {
+      path: '/users',
+      views: 8765,
+      visitors: 5432,
+      bounceRate: 28,
+      avgDuration: '3m 12s',
+    },
+    {
+      path: '/settings',
+      views: 6543,
+      visitors: 4321,
+      bounceRate: 45,
+      avgDuration: '1m 30s',
+    },
+    {
+      path: '/messages',
+      views: 5432,
+      visitors: 3210,
+      bounceRate: 22,
+      avgDuration: '4m 05s',
+    },
+    {
+      path: '/analytics',
+      views: 4321,
+      visitors: 2109,
+      bounceRate: 38,
+      avgDuration: '2m 18s',
+    },
+  ])
+
+  const analyticsColumns = [
+    {
+      accessorKey: 'path',
+      header: '页面',
+      cell: ({ row }: { row: { original: { path: string } } }) =>
+        h('span', { class: 'text-primary font-medium' }, row.original.path),
+    },
+    {
+      accessorKey: 'views',
+      header: () => h('div', { class: 'text-right' }, '访问量'),
+      cell: ({ row }: { row: { original: { views: number } } }) =>
+        h('div', { class: 'text-right' }, row.original.views.toLocaleString()),
+    },
+    {
+      accessorKey: 'visitors',
+      header: () => h('div', { class: 'text-right' }, '独立访客'),
+      cell: ({ row }: { row: { original: { visitors: number } } }) =>
+        h(
+          'div',
+          { class: 'text-right' },
+          row.original.visitors.toLocaleString()
+        ),
+    },
+    {
+      accessorKey: 'bounceRate',
+      header: () => h('div', { class: 'text-right' }, '跳出率'),
+      cell: ({ row }: { row: { original: { bounceRate: number } } }) =>
+        h('div', { class: 'text-right' }, `${row.original.bounceRate}%`),
+    },
+    {
+      accessorKey: 'avgDuration',
+      header: () => h('div', { class: 'text-right' }, '平均时长'),
+      cell: ({ row }: { row: { original: { avgDuration: string } } }) =>
+        h('div', { class: 'text-right' }, row.original.avgDuration),
+    },
+  ]
+</script>
 <template>
   <div class="space-y-6">
     <!-- 页面标题 -->
@@ -206,135 +337,3 @@
     </UCard>
   </div>
 </template>
-
-<script setup lang="ts">
-  import { h } from 'vue'
-
-  definePageMeta({
-    layout: 'default',
-    auth: 'user',
-  })
-
-  const timeRange = ref('7d')
-  const timeRangeOptions = [
-    { label: '最近7天', value: '7d' },
-    { label: '最近30天', value: '30d' },
-    { label: '最近90天', value: '90d' },
-    { label: '最近1年', value: '1y' },
-  ]
-
-  // 关键指标
-  const keyMetrics = ref([
-    { label: '总访问量', value: '124,567', trend: 12.5, comparison: '+14,023' },
-    { label: '独立访客', value: '45,678', trend: 8.2, comparison: '+3,456' },
-    { label: '页面浏览', value: '234,567', trend: -2.4, comparison: '-5,789' },
-    { label: '平均时长', value: '3m 24s', trend: 5.7, comparison: '+11s' },
-  ])
-
-  // 访问量数据
-  const visitData = ref([
-    { value: 65 },
-    { value: 78 },
-    { value: 56 },
-    { value: 89 },
-    { value: 92 },
-    { value: 45 },
-    { value: 38 },
-  ])
-
-  // 流量来源
-  const trafficSources = ref([
-    { name: '直接访问', percentage: 35, color: 'bg-blue-500' },
-    { name: '搜索引擎', percentage: 28, color: 'bg-green-500' },
-    { name: '社交媒体', percentage: 22, color: 'bg-yellow-500' },
-    { name: '外部链接', percentage: 15, color: 'bg-purple-500' },
-  ])
-
-  // 活跃度数据（模拟热力图）
-  const activityData = ref(
-    Array.from({ length: 28 }, () => Math.floor(Math.random() * 5))
-  )
-
-  // 设备数据
-  const deviceData = ref({
-    desktop: 55,
-    mobile: 35,
-    tablet: 10,
-  })
-
-  // 热门页面
-  const topPages = ref([
-    {
-      path: '/dashboard',
-      views: 12345,
-      visitors: 8234,
-      bounceRate: 32,
-      avgDuration: '2m 45s',
-    },
-    {
-      path: '/users',
-      views: 8765,
-      visitors: 5432,
-      bounceRate: 28,
-      avgDuration: '3m 12s',
-    },
-    {
-      path: '/settings',
-      views: 6543,
-      visitors: 4321,
-      bounceRate: 45,
-      avgDuration: '1m 30s',
-    },
-    {
-      path: '/messages',
-      views: 5432,
-      visitors: 3210,
-      bounceRate: 22,
-      avgDuration: '4m 05s',
-    },
-    {
-      path: '/analytics',
-      views: 4321,
-      visitors: 2109,
-      bounceRate: 38,
-      avgDuration: '2m 18s',
-    },
-  ])
-
-  const analyticsColumns = [
-    {
-      accessorKey: 'path',
-      header: '页面',
-      cell: ({ row }: { row: { original: { path: string } } }) =>
-        h('span', { class: 'text-primary font-medium' }, row.original.path),
-    },
-    {
-      accessorKey: 'views',
-      header: () => h('div', { class: 'text-right' }, '访问量'),
-      cell: ({ row }: { row: { original: { views: number } } }) =>
-        h('div', { class: 'text-right' }, row.original.views.toLocaleString()),
-    },
-    {
-      accessorKey: 'visitors',
-      header: () => h('div', { class: 'text-right' }, '独立访客'),
-      cell: ({ row }: { row: { original: { visitors: number } } }) =>
-        h(
-          'div',
-          { class: 'text-right' },
-          row.original.visitors.toLocaleString()
-        ),
-    },
-    {
-      accessorKey: 'bounceRate',
-      header: () => h('div', { class: 'text-right' }, '跳出率'),
-      cell: ({ row }: { row: { original: { bounceRate: number } } }) =>
-        h('div', { class: 'text-right' }, `${row.original.bounceRate}%`),
-    },
-    {
-      accessorKey: 'avgDuration',
-      header: () => h('div', { class: 'text-right' }, '平均时长'),
-      cell: ({ row }: { row: { original: { avgDuration: string } } }) =>
-        h('div', { class: 'text-right' }, row.original.avgDuration),
-    },
-  ]
-</script>

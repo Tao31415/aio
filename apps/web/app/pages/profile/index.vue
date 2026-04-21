@@ -1,3 +1,40 @@
+<script setup lang="ts">
+  definePageMeta({
+    layout: 'dashboard',
+    auth: 'user',
+  })
+  const authStore = useAuthStore()
+  const toast = useToast()
+
+  const user = computed(() => authStore.user)
+
+  const form = reactive({
+    name: user.value?.name || '',
+    email: user.value?.email || '',
+    phone: '',
+    city: '',
+    bio: '',
+    github: '',
+    twitter: '',
+    linkedin: '',
+  })
+
+  function resetForm() {
+    form.name = user.value?.name || ''
+    form.email = user.value?.email || ''
+    form.phone = ''
+    form.city = ''
+    form.bio = ''
+    form.github = ''
+    form.twitter = ''
+    form.linkedin = ''
+  }
+
+  function saveProfile() {
+    toast.add({ title: '个人资料已保存', color: 'success' })
+  }
+</script>
+
 <template>
   <div class="space-y-6">
     <!-- 页面标题 -->
@@ -213,41 +250,3 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-  definePageMeta({
-    layout: 'default',
-    auth: 'user',
-  })
-
-  const authStore = useAuthStore()
-  const toast = useToast()
-
-  const user = computed(() => authStore.user)
-
-  const form = reactive({
-    name: user.value?.name || '',
-    email: user.value?.email || '',
-    phone: '',
-    city: '',
-    bio: '',
-    github: '',
-    twitter: '',
-    linkedin: '',
-  })
-
-  function resetForm() {
-    form.name = user.value?.name || ''
-    form.email = user.value?.email || ''
-    form.phone = ''
-    form.city = ''
-    form.bio = ''
-    form.github = ''
-    form.twitter = ''
-    form.linkedin = ''
-  }
-
-  function saveProfile() {
-    toast.add({ title: '个人资料已保存', color: 'success' })
-  }
-</script>

@@ -14,5 +14,7 @@ declare module 'vue' {
   }
 }
 
-// oxlint-disable-next-line unicorn/require-module-specifiers
+export * from './user'
+
+// oxlint-disable-next-line unicorn/require-module-specifiers typescript/no-useless-empty-export
 export {}

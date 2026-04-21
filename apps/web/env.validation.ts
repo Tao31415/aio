@@ -52,12 +52,6 @@ const envSchema = z.object({
     .default(false)
     .describe('是否启用 Mock 数据'),
 
-  // 启用注册功能
-  NUXT_PUBLIC_ENABLE_REGISTRATION: z.coerce
-    .boolean()
-    .default(false)
-    .describe('是否启用用户注册'),
-
   // 演示账号邮箱
   NUXT_PUBLIC_DEMO_USERNAME: z
     .string()
@@ -83,9 +77,6 @@ const envSchema = z.object({
 
   // 品牌名称
   NUXT_PUBLIC_BRAND_NAME: z.string().default('Aio').describe('品牌名称'),
-
-  // Google Analytics ID
-  NUXT_PUBLIC_GA_ID: z.string().default('').describe('Google Analytics ID'),
 })
 
 /**

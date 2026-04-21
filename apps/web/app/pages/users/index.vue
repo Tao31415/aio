@@ -1,151 +1,9 @@
-<template>
-  <div class="space-y-6">
-    <!-- 页面标题 -->
-    <div class="flex items-center justify-between">
-      <div>
-        <h1 class="text-2xl font-bold">用户管理</h1>
-        <p class="text-muted">管理系统中的所有用户账户</p>
-      </div>
-      <UButton
-        icon="i-lucide-plus"
-        color="primary"
-        @click="openAddModal"
-      >
-        添加用户
-      </UButton>
-    </div>
-
-    <!-- 搜索和筛选 -->
-    <div class="flex flex-col sm:flex-row gap-4">
-      <UInput
-        v-model="searchQuery"
-        icon="i-lucide-search"
-        placeholder="搜索用户..."
-        class="flex-1"
-      />
-      <USelect
-        v-model="statusFilterSelection"
-        :items="statusOptions"
-        class="sm:w-40"
-      />
-      <USelect
-        v-model="roleFilterSelection"
-        :items="roleOptions"
-        class="sm:w-40"
-      />
-    </div>
-
-    <!-- 用户列表 -->
-    <UCard :ui="{ body: 'p-0' }">
-      <div class="overflow-x-auto">
-        <UTable
-          :data="paginatedUsers"
-          :columns="tableColumns"
-          class="w-full"
-        />
-      </div>
-
-      <!-- 分页 -->
-      <div
-        class="flex items-center justify-between px-6 py-4 border-t border-default"
-      >
-        <p class="text-sm text-muted">
-          显示 {{ startRow }} -
-          {{ Math.min(currentPage * pageSize, totalUsers) }} /
-          {{ totalUsers }} 条
-        </p>
-        <div class="flex items-center gap-2">
-          <UButton
-            @click="currentPage--"
-            :disabled="currentPage === 1"
-            color="neutral"
-            variant="outline"
-            icon="i-lucide-chevron-left"
-          ></UButton>
-          <span class="text-sm">{{ currentPage }} / {{ totalPages }}</span>
-          <UButton
-            @click="currentPage++"
-            :disabled="currentPage === totalPages"
-            color="neutral"
-            variant="outline"
-            icon="i-lucide-chevron-right"
-          ></UButton>
-        </div>
-      </div>
-    </UCard>
-
-    <!-- 添加/编辑用户弹窗 -->
-    <UModal
-      v-model:open="showAddModal"
-      :title="editingUser ? '编辑用户' : '添加用户'"
-    >
-      <template #body>
-        <UForm
-          :state="formData"
-          class="space-y-4"
-          @submit="handleSubmit"
-        >
-          <UFormField
-            label="用户名"
-            name="name"
-          >
-            <UInput
-              v-model="formData.name"
-              type="text"
-              placeholder="请输入用户名"
-            />
-          </UFormField>
-          <UFormField
-            label="邮箱"
-            name="email"
-          >
-            <UInput
-              v-model="formData.email"
-              type="email"
-              placeholder="请输入邮箱"
-            />
-          </UFormField>
-          <UFormField
-            label="角色"
-            name="role"
-          >
-            <USelect
-              v-model="formRoleSelection"
-              :items="formRoleOptions"
-              class="w-full"
-            />
-          </UFormField>
-          <div class="flex gap-3 pt-4">
-            <UButton
-              type="button"
-              color="neutral"
-              variant="outline"
-              class="flex-1 justify-center"
-              @click="closeModal"
-            >
-              取消
-            </UButton>
-            <UButton
-              type="submit"
-              color="primary"
-              class="flex-1 justify-center"
-            >
-              {{ editingUser ? '保存' : '添加' }}
-            </UButton>
-          </div>
-        </UForm>
-      </template>
-    </UModal>
-  </div>
-</template>
-
 <script setup lang="ts">
-  import { h, resolveComponent } from 'vue'
-
   definePageMeta({
-    layout: 'default',
+    layout: 'dashboard',
     auth: 'user',
   })
+  import { h, resolveComponent } from 'vue'
 
   const toast = useToast()
 
@@ -582,3 +440,144 @@
     }
   })
 </script>
+
+<template>
+  <div class="space-y-6">
+    <!-- 页面标题 -->
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-bold">用户管理</h1>
+        <p class="text-muted">管理系统中的所有用户账户</p>
+      </div>
+      <UButton
+        icon="i-lucide-plus"
+        color="primary"
+        @click="openAddModal"
+      >
+        添加用户
+      </UButton>
+    </div>
+
+    <!-- 搜索和筛选 -->
+    <div class="flex flex-col sm:flex-row gap-4">
+      <UInput
+        v-model="searchQuery"
+        icon="i-lucide-search"
+        placeholder="搜索用户..."
+        class="flex-1"
+      />
+      <USelect
+        v-model="statusFilterSelection"
+        :items="statusOptions"
+        class="sm:w-40"
+      />
+      <USelect
+        v-model="roleFilterSelection"
+        :items="roleOptions"
+        class="sm:w-40"
+      />
+    </div>
+
+    <!-- 用户列表 -->
+    <UCard :ui="{ body: 'p-0' }">
+      <div class="overflow-x-auto">
+        <UTable
+          :data="paginatedUsers"
+          :columns="tableColumns"
+          class="w-full"
+        />
+      </div>
+
+      <!-- 分页 -->
+      <div
+        class="flex items-center justify-between px-6 py-4 border-t border-default"
+      >
+        <p class="text-sm text-muted">
+          显示 {{ startRow }} -
+          {{ Math.min(currentPage * pageSize, totalUsers) }} /
+          {{ totalUsers }} 条
+        </p>
+        <div class="flex items-center gap-2">
+          <UButton
+            @click="currentPage--"
+            :disabled="currentPage === 1"
+            color="neutral"
+            variant="outline"
+            icon="i-lucide-chevron-left"
+          ></UButton>
+          <span class="text-sm">{{ currentPage }} / {{ totalPages }}</span>
+          <UButton
+            @click="currentPage++"
+            :disabled="currentPage === totalPages"
+            color="neutral"
+            variant="outline"
+            icon="i-lucide-chevron-right"
+          ></UButton>
+        </div>
+      </div>
+    </UCard>
+
+    <!-- 添加/编辑用户弹窗 -->
+    <UModal
+      v-model:open="showAddModal"
+      :title="editingUser ? '编辑用户' : '添加用户'"
+    >
+      <template #body>
+        <UForm
+          :state="formData"
+          class="space-y-4"
+          @submit="handleSubmit"
+        >
+          <UFormField
+            label="用户名"
+            name="name"
+          >
+            <UInput
+              v-model="formData.name"
+              type="text"
+              placeholder="请输入用户名"
+            />
+          </UFormField>
+          <UFormField
+            label="邮箱"
+            name="email"
+          >
+            <UInput
+              v-model="formData.email"
+              type="email"
+              placeholder="请输入邮箱"
+            />
+          </UFormField>
+          <UFormField
+            label="角色"
+            name="role"
+          >
+            <USelect
+              v-model="formRoleSelection"
+              :items="formRoleOptions"
+              class="w-full"
+            />
+          </UFormField>
+          <div class="flex gap-3 pt-4">
+            <UButton
+              type="button"
+              color="neutral"
+              variant="outline"
+              class="flex-1 justify-center"
+              @click="closeModal"
+            >
+              取消
+            </UButton>
+            <UButton
+              type="submit"
+              color="primary"
+              class="flex-1 justify-center"
+            >
+              {{ editingUser ? '保存' : '添加' }}
+            </UButton>
+          </div>
+        </UForm>
+      </template>
+    </UModal>
+  </div>
+</template>

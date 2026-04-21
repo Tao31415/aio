@@ -26,7 +26,7 @@ import { MqttModule } from '@mqtt/mqtt.module'
     RedisModule,
     AuthModule,
     // StorageModule,
-    MqttModule,
+    MqttModule.forRootAsyncFromConfig(),
   ],
   controllers: [],
   providers: [],

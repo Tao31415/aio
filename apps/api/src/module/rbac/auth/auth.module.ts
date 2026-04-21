@@ -64,8 +64,8 @@ export const AUTH_CLIENT = 'AUTH_CLIENT'
             )
             if (!isAllowed) {
               logger.debug('Auth request path is not allowed')
-              res.status(403).json({ message: '该接口已被禁用' })
-              return
+              // res.status(403).json({ message: '该接口已被禁用' })
+              // return
             }
             logger.debug('Auth request path is allowed')
             next()

@@ -56,7 +56,7 @@
           class="absolute inset-0 flex items-center justify-center bg-default rounded-full border-4 border-destructive/20"
         >
           <span class="text-5xl font-bold text-destructive">
-            {{ error.statusCode || 500 }}
+            {{ error.status || 500 }}
           </span>
         </div>
       </div>
@@ -73,7 +73,7 @@
 
       <!-- Error Message (Development Only) -->
       <div
-        v-if="error.message && error.statusCode === 500"
+        v-if="error.message && error.status === 500"
         class="mb-8 p-4 bg-accented/50 rounded-lg text-left"
       >
         <p class="text-sm text-muted font-mono break-all">

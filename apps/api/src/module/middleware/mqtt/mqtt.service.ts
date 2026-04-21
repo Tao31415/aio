@@ -1,120 +1,227 @@
-import { Inject, Injectable } from '@nestjs/common'
-import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
-import { ClientProxy } from '@nestjs/microservices'
-import { PinoLogger } from 'nestjs-pino'
-import { MqttMessage } from './entities/mqtt-message.entity'
+/* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-assignment */
 import {
-  TunnelMonitoringData,
-  TunnelMonitoringPayload,
-} from './entities/tunnel-monitoring.entity'
-import { TunnelMonitoringService } from './tunnel-monitoring.service'
+  Injectable,
+  OnModuleInit,
+  OnModuleDestroy,
+  Logger,
+  Inject,
+} from '@nestjs/common'
+import { connect, MqttClient, IClientPublishOptions } from 'mqtt'
+import type { MqttModuleOptions } from './mqtt.interfaces'
 
-export const MQTT_SERVICE = 'MQTT_SERVICE'
+interface Handler {
+  target: any
+  method: string
+}
 
+/**
+ * MQTT Service
+ * 核心连接管理与消息路由，支持 @Subscribe 装饰器声明式订阅
+ */
 @Injectable()
-export class MqttService {
+export class MqttService implements OnModuleInit, OnModuleDestroy {
+  private readonly logger = new Logger(MqttService.name)
+  private mqttClient: MqttClient | null = null
+  private handlerMap = new Map<string, Handler[]>()
+  private pendingSubscriptions: Set<string> = new Set()
+  private isConnected = false
+
   constructor(
-    @InjectRepository(MqttMessage)
-    private readonly mqttMessageRepository: Repository<MqttMessage>,
-    @InjectRepository(TunnelMonitoringData)
-    private readonly tunnelMonitoringRepository: Repository<TunnelMonitoringData>,
-    @Inject(MQTT_SERVICE)
-    private readonly mqttClient: ClientProxy,
-    private readonly logger: PinoLogger,
-    private readonly tunnelMonitoringService: TunnelMonitoringService
-  ) {
-    this.logger.setContext(MqttService.name)
+    @Inject('MQTT_OPTIONS') private readonly options: MqttModuleOptions
+  ) {}
+
+  onModuleInit() {
+    this.connect()
   }
 
-  async saveMessage(data: {
-    topic: string
-    payload: string | null
-    qos?: number
-    retained?: boolean
-  }): Promise<MqttMessage> {
-    const message = this.mqttMessageRepository.create({
-      topic: data.topic,
-      payload: data.payload,
-      qos: data.qos ?? 0,
-      retained: data.retained ?? false,
+  onModuleDestroy() {
+    this.disconnect()
+  }
+
+  private connect() {
+    const {
+      brokerUrl,
+      username,
+      password,
+      clientId,
+      clean,
+      reconnectPeriod,
+      connectTimeout,
+      extra,
+    } = this.options
+
+    this.mqttClient = connect(brokerUrl, {
+      clientId:
+        clientId || `nest-mqtt-${Math.random().toString(16).slice(3, 7)}`,
+      clean: clean ?? true,
+      reconnectPeriod: reconnectPeriod ?? 5000,
+      connectTimeout: connectTimeout ?? 30000,
+      username: username || undefined,
+      password: password || undefined,
+      ...extra,
     })
-    return this.mqttMessageRepository.save(message)
-  }
 
-  publish(topic: string, payload: string, qos: number = 0) {
-    this.mqttClient.emit(topic, {
-      payload,
-      qos,
-      timestamp: new Date().toISOString(),
+    this.mqttClient.on('connect', () => {
+      this.isConnected = true
+      this.logger.log('MQTT client connected')
+      this.resubscribe()
     })
-    this.logger.info({ topic }, 'Published to topic')
+
+    this.mqttClient.on('error', (err) => {
+      this.logger.error({ err }, 'MQTT client error')
+    })
+
+    this.mqttClient.on('reconnect', () => {
+      this.isConnected = false
+      this.logger.warn('MQTT client reconnecting...')
+    })
+
+    this.mqttClient.on('disconnect', () => {
+      this.isConnected = false
+    })
+
+    this.mqttClient.on('message', (topic, payload) => {
+      this.dispatchMessage(topic, payload)
+    })
   }
 
-  async getMessages(
-    topic?: string,
-    limit: number = 100
-  ): Promise<MqttMessage[]> {
-    const query = this.mqttMessageRepository
-      .createQueryBuilder('msg')
-      .orderBy('msg.createdAt', 'DESC')
-      .take(limit)
+  private disconnect() {
+    if (this.mqttClient) {
+      this.mqttClient.end()
+      this.mqttClient = null
+      this.isConnected = false
+      this.logger.log('MQTT client disconnected')
+    }
+  }
 
-    if (topic) {
-      query.where('msg.topic LIKE :topic', { topic: `%${topic}%` })
+  // ============ 路由注册 ============
+
+  /**
+   * 注册一个主题处理器（内部由 MqttExplorer 调用）
+   */
+  addHandler(topic: string, target: any, method: string) {
+    if (!this.handlerMap.has(topic)) {
+      this.handlerMap.set(topic, [])
+      this.pendingSubscriptions.add(topic)
+    }
+    this.handlerMap.get(topic)!.push({ target, method })
+
+    if (this.isConnected && this.mqttClient) {
+      this.doSubscribe(topic)
     }
 
-    return query.getMany()
+    this.logger.debug(`Registered handler for topic: ${topic}`)
+  }
+
+  private doSubscribe(topic: string, qos: 0 | 1 | 2 = 1) {
+    if (!this.mqttClient) return
+    this.mqttClient.subscribe(topic, { qos }, (err) => {
+      if (err) {
+        this.logger.error({ err, topic }, 'MQTT subscribe failed')
+      } else {
+        this.logger.debug(`Subscribed to topic: ${topic} (QoS ${qos})`)
+      }
+    })
+  }
+
+  private resubscribe() {
+    for (const topic of this.pendingSubscriptions) {
+      this.doSubscribe(topic)
+    }
+  }
+
+  // ============ 消息分发 ============
+
+  private dispatchMessage(topic: string, payload: Buffer) {
+    const matched = this.matchHandlers(topic)
+    if (matched.length === 0) {
+      this.logger.debug({ topic }, 'No handler matched, ignoring message')
+      return
+    }
+
+    let message: any
+    try {
+      message = JSON.parse(payload.toString('utf-8'))
+    } catch {
+      message = payload.toString('utf-8')
+    }
+
+    for (const { target, method } of matched) {
+      this.invokeHandler(target, method, topic, message)
+    }
+  }
+
+  private invokeHandler(
+    target: any,
+    method: string,
+    topic: string,
+    message: any
+  ) {
+    try {
+      const methodFn = target[method]
+      methodFn.call(target, topic, message)
+    } catch (err) {
+      this.logger.error({ err, topic }, 'Failed to invoke MQTT handler')
+    }
   }
 
   /**
-   * 处理隧道监测数据
-   * 将 MQTT payload 转换为 entity 并保存
+   * 通配符匹配 + 和 #
+   * + 匹配单级，# 匹配任意级别（只能在末尾）
    */
-  async processTunnelMonitoringData(
-    payload: TunnelMonitoringPayload
-  ): Promise<TunnelMonitoringData[]> {
-    const { timestamp, sn, data } = payload
+  matchHandlers(incomingTopic: string): Handler[] {
+    const matched: Handler[] = []
 
-    this.logger.info(
-      { sn, rings: data.length, timestamp },
-      'Processing tunnel monitoring data'
-    )
-
-    const entities: TunnelMonitoringData[] = []
-
-    for (const item of data) {
-      const entity = this.tunnelMonitoringRepository.create({
-        ringNumber: item.rn,
-        sn: sn,
-        timestamp: new Date(timestamp),
-        p1x: item['1x'] ?? null,
-        p1y: item['1y'] ?? null,
-        p7x: item['7x'] ?? null,
-        p7y: item['7y'] ?? null,
-        p3x: item['3x'] ?? null,
-        p3y: item['3y'] ?? null,
-        p5x: item['5x'] ?? null,
-        p5y: item['5y'] ?? null,
-        p9x: item['9x'] ?? null,
-        p9y: item['9y'] ?? null,
-        coc: item.coc ?? null,
-        hc: item.hc ?? null,
-        sd: item.sd ?? null,
-      })
-
-      entities.push(entity)
+    for (const [subscription, handlers] of this.handlerMap.entries()) {
+      if (this.topicMatch(subscription, incomingTopic)) {
+        matched.push(...handlers)
+      }
     }
 
-    const savedEntities = await this.tunnelMonitoringRepository.save(entities)
-    this.logger.info(
-      { count: savedEntities.length },
-      'Saved tunnel monitoring records'
-    )
+    return matched
+  }
 
-    // 触发后续业务处理
-    this.tunnelMonitoringService.processData(savedEntities)
+  private topicMatch(subscription: string, incoming: string): boolean {
+    if (subscription === '#') return true
+    if (subscription === incoming) return true
 
-    return savedEntities
+    const subParts = subscription.split('/')
+    const incParts = incoming.split('/')
+
+    for (let i = 0; i < subParts.length; i++) {
+      const sub = subParts[i]
+      if (sub === '#') return true
+      if (sub === '+') continue
+      if (sub !== incParts[i]) return false
+    }
+
+    return subParts.length === incParts.length
+  }
+
+  // ============ 发布 ============
+
+  async publish(
+    topic: string,
+    message: string | object,
+    options?: IClientPublishOptions
+  ) {
+    if (!this.mqttClient) {
+      throw new Error('MQTT client not connected')
+    }
+
+    const payload =
+      typeof message === 'string' ? message : JSON.stringify(message)
+
+    return new Promise<void>((resolve, reject) => {
+      this.mqttClient!.publish(
+        topic,
+        payload,
+        { qos: 1, ...options },
+        (err) => {
+          if (err) reject(err)
+          else resolve()
+        }
+      )
+    })
   }
 }

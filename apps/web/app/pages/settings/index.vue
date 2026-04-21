@@ -1,3 +1,90 @@
+<script setup lang="ts">
+  definePageMeta({
+    layout: 'dashboard',
+    auth: 'user',
+  })
+  const authStore = useAuthStore()
+  const uiSettingsStore = useUiSettingsStore()
+  const toast = useToast()
+
+  const user = computed(() => authStore.user)
+  const uiSettings = uiSettingsStore
+
+  const activeTab = ref('profile')
+
+  // 设置导航
+  const settingsTabs = [
+    {
+      id: 'profile',
+      label: '个人资料',
+      icon: 'i-lucide-user-round',
+    },
+    {
+      id: 'appearance',
+      label: '外观设置',
+      icon: 'i-lucide-palette',
+    },
+    {
+      id: 'notifications',
+      label: '通知设置',
+      icon: 'i-lucide-bell',
+    },
+    {
+      id: 'security',
+      label: '安全设置',
+      icon: 'i-lucide-shield-check',
+    },
+  ]
+
+  // 主题模式
+  const themeModes = [
+    {
+      value: 'light',
+      label: '浅色',
+      icon: 'i-lucide-sun',
+    },
+    {
+      value: 'dark',
+      label: '深色',
+      icon: 'i-lucide-moon-star',
+    },
+    {
+      value: 'system',
+      label: '跟随系统',
+      icon: 'i-lucide-monitor',
+    },
+  ]
+
+  // 个人资料表单
+  const profileForm = reactive({
+    name: user.value?.name || '',
+    email: user.value?.email || '',
+    phone: '',
+    city: '',
+    bio: '',
+  })
+
+  // 通知设置
+  const notificationSettings = reactive({
+    email: true,
+    browser: true,
+    marketing: false,
+  })
+
+  // 安全设置
+  const securitySettings = reactive({
+    twoFactor: false,
+  })
+
+  function setTheme(theme: string) {
+    uiSettingsStore.setTheme(theme as 'light' | 'dark' | 'system')
+  }
+
+  function saveProfile() {
+    toast.add({ title: '个人资料已保存', color: 'success' })
+  }
+</script>
+
 <template>
   <div class="space-y-6">
     <!-- 页面标题 -->
@@ -285,91 +372,3 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-  definePageMeta({
-    layout: 'default',
-    auth: 'user',
-  })
-
-  const authStore = useAuthStore()
-  const uiSettingsStore = useUiSettingsStore()
-  const toast = useToast()
-
-  const user = computed(() => authStore.user)
-  const uiSettings = uiSettingsStore
-
-  const activeTab = ref('profile')
-
-  // 设置导航
-  const settingsTabs = [
-    {
-      id: 'profile',
-      label: '个人资料',
-      icon: 'i-lucide-user-round',
-    },
-    {
-      id: 'appearance',
-      label: '外观设置',
-      icon: 'i-lucide-palette',
-    },
-    {
-      id: 'notifications',
-      label: '通知设置',
-      icon: 'i-lucide-bell',
-    },
-    {
-      id: 'security',
-      label: '安全设置',
-      icon: 'i-lucide-shield-check',
-    },
-  ]
-
-  // 主题模式
-  const themeModes = [
-    {
-      value: 'light',
-      label: '浅色',
-      icon: 'i-lucide-sun',
-    },
-    {
-      value: 'dark',
-      label: '深色',
-      icon: 'i-lucide-moon-star',
-    },
-    {
-      value: 'system',
-      label: '跟随系统',
-      icon: 'i-lucide-monitor',
-    },
-  ]
-
-  // 个人资料表单
-  const profileForm = reactive({
-    name: user.value?.name || '',
-    email: user.value?.email || '',
-    phone: '',
-    city: '',
-    bio: '',
-  })
-
-  // 通知设置
-  const notificationSettings = reactive({
-    email: true,
-    browser: true,
-    marketing: false,
-  })
-
-  // 安全设置
-  const securitySettings = reactive({
-    twoFactor: false,
-  })
-
-  function setTheme(theme: string) {
-    uiSettingsStore.setTheme(theme as 'light' | 'dark' | 'system')
-  }
-
-  function saveProfile() {
-    toast.add({ title: '个人资料已保存', color: 'success' })
-  }
-</script>

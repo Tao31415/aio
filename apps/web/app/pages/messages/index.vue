@@ -1,3 +1,157 @@
+<script setup lang="ts">
+  definePageMeta({
+    layout: 'dashboard',
+    auth: 'user',
+  })
+  interface Message {
+    id: number
+    content: string
+    time: string
+    fromMe: boolean
+  }
+
+  interface Conversation {
+    id: number
+    user: {
+      name: string
+      avatar?: string
+    }
+    online: boolean
+    unread: number
+    lastMessage: {
+      content: string
+      time: string
+    }
+    messages: Message[]
+  }
+
+  const searchQuery = ref('')
+  const newMessage = ref('')
+  const selectedConversation = ref<Conversation | null>(null)
+  const messagesContainer = ref<HTMLElement | null>(null)
+
+  // 模拟对话数据
+  const conversations = ref<Conversation[]>([
+    {
+      id: 1,
+      user: { name: '张三' },
+      online: true,
+      unread: 2,
+      lastMessage: { content: '好的，我稍后确认一下', time: '10:30' },
+      messages: [
+        {
+          id: 1,
+          content: '你好，请问项目进度如何？',
+          time: '10:00',
+          fromMe: false,
+        },
+        {
+          id: 2,
+          content: '进度正常，预计下周完成',
+          time: '10:05',
+          fromMe: true,
+        },
+        {
+          id: 3,
+          content: '太好了，有什么需要支持的吗？',
+          time: '10:10',
+          fromMe: false,
+        },
+        { id: 4, content: '暂时没有，感谢关心', time: '10:15', fromMe: true },
+        {
+          id: 5,
+          content: '好的，我稍后确认一下',
+          time: '10:30',
+          fromMe: false,
+        },
+      ],
+    },
+    {
+      id: 2,
+      user: { name: '李四' },
+      online: true,
+      unread: 0,
+      lastMessage: { content: '收到，谢谢！', time: '09:45' },
+      messages: [
+        { id: 1, content: '文档已经发给你了', time: '09:30', fromMe: true },
+        { id: 2, content: '收到，谢谢！', time: '09:45', fromMe: false },
+      ],
+    },
+    {
+      id: 3,
+      user: { name: '王五' },
+      online: false,
+      unread: 5,
+      lastMessage: { content: '明天开会时间确定了吗？', time: '昨天' },
+      messages: [
+        {
+          id: 1,
+          content: '明天开会时间确定了吗？',
+          time: '昨天 18:00',
+          fromMe: false,
+        },
+      ],
+    },
+    {
+      id: 4,
+      user: { name: '赵六' },
+      online: false,
+      unread: 0,
+      lastMessage: { content: '周末有空吗？', time: '周一' },
+      messages: [
+        { id: 1, content: '周末有空吗？', time: '周一 14:00', fromMe: false },
+        { id: 2, content: '有的，什么事？', time: '周一 14:30', fromMe: true },
+      ],
+    },
+  ])
+
+  const filteredConversations = computed(() => {
+    if (!searchQuery.value) return conversations.value
+    return conversations.value.filter((c) =>
+      c.user.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+    )
+  })
+
+  function selectConversation(conversation: Conversation) {
+    selectedConversation.value = conversation
+    conversation.unread = 0
+
+    nextTick(() => {
+      if (messagesContainer.value) {
+        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+      }
+    })
+  }
+
+  function sendMessage() {
+    if (!newMessage.value.trim() || !selectedConversation.value) return
+
+    const message: Message = {
+      id: Date.now(),
+      content: newMessage.value,
+      time: new Date().toLocaleTimeString('zh-CN', {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+      fromMe: true,
+    }
+
+    selectedConversation.value.messages.push(message)
+    selectedConversation.value.lastMessage = {
+      content: newMessage.value,
+      time: message.time,
+    }
+
+    newMessage.value = ''
+
+    nextTick(() => {
+      if (messagesContainer.value) {
+        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+      }
+    })
+  }
+</script>
+
 <template>
   <div class="h-full flex">
     <!-- 消息列表 -->
@@ -198,158 +352,3 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-  definePageMeta({
-    layout: 'default',
-    auth: 'user',
-  })
-
-  interface Message {
-    id: number
-    content: string
-    time: string
-    fromMe: boolean
-  }
-
-  interface Conversation {
-    id: number
-    user: {
-      name: string
-      avatar?: string
-    }
-    online: boolean
-    unread: number
-    lastMessage: {
-      content: string
-      time: string
-    }
-    messages: Message[]
-  }
-
-  const searchQuery = ref('')
-  const newMessage = ref('')
-  const selectedConversation = ref<Conversation | null>(null)
-  const messagesContainer = ref<HTMLElement | null>(null)
-
-  // 模拟对话数据
-  const conversations = ref<Conversation[]>([
-    {
-      id: 1,
-      user: { name: '张三' },
-      online: true,
-      unread: 2,
-      lastMessage: { content: '好的，我稍后确认一下', time: '10:30' },
-      messages: [
-        {
-          id: 1,
-          content: '你好，请问项目进度如何？',
-          time: '10:00',
-          fromMe: false,
-        },
-        {
-          id: 2,
-          content: '进度正常，预计下周完成',
-          time: '10:05',
-          fromMe: true,
-        },
-        {
-          id: 3,
-          content: '太好了，有什么需要支持的吗？',
-          time: '10:10',
-          fromMe: false,
-        },
-        { id: 4, content: '暂时没有，感谢关心', time: '10:15', fromMe: true },
-        {
-          id: 5,
-          content: '好的，我稍后确认一下',
-          time: '10:30',
-          fromMe: false,
-        },
-      ],
-    },
-    {
-      id: 2,
-      user: { name: '李四' },
-      online: true,
-      unread: 0,
-      lastMessage: { content: '收到，谢谢！', time: '09:45' },
-      messages: [
-        { id: 1, content: '文档已经发给你了', time: '09:30', fromMe: true },
-        { id: 2, content: '收到，谢谢！', time: '09:45', fromMe: false },
-      ],
-    },
-    {
-      id: 3,
-      user: { name: '王五' },
-      online: false,
-      unread: 5,
-      lastMessage: { content: '明天开会时间确定了吗？', time: '昨天' },
-      messages: [
-        {
-          id: 1,
-          content: '明天开会时间确定了吗？',
-          time: '昨天 18:00',
-          fromMe: false,
-        },
-      ],
-    },
-    {
-      id: 4,
-      user: { name: '赵六' },
-      online: false,
-      unread: 0,
-      lastMessage: { content: '周末有空吗？', time: '周一' },
-      messages: [
-        { id: 1, content: '周末有空吗？', time: '周一 14:00', fromMe: false },
-        { id: 2, content: '有的，什么事？', time: '周一 14:30', fromMe: true },
-      ],
-    },
-  ])
-
-  const filteredConversations = computed(() => {
-    if (!searchQuery.value) return conversations.value
-    return conversations.value.filter((c) =>
-      c.user.name.toLowerCase().includes(searchQuery.value.toLowerCase())
-    )
-  })
-
-  function selectConversation(conversation: Conversation) {
-    selectedConversation.value = conversation
-    conversation.unread = 0
-
-    nextTick(() => {
-      if (messagesContainer.value) {
-        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
-      }
-    })
-  }
-
-  function sendMessage() {
-    if (!newMessage.value.trim() || !selectedConversation.value) return
-
-    const message: Message = {
-      id: Date.now(),
-      content: newMessage.value,
-      time: new Date().toLocaleTimeString('zh-CN', {
-        hour: '2-digit',
-        minute: '2-digit',
-      }),
-      fromMe: true,
-    }
-
-    selectedConversation.value.messages.push(message)
-    selectedConversation.value.lastMessage = {
-      content: newMessage.value,
-      time: message.time,
-    }
-
-    newMessage.value = ''
-
-    nextTick(() => {
-      if (messagesContainer.value) {
-        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
-      }
-    })
-  }
-</script>

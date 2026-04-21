@@ -14,6 +14,7 @@ export default defineNuxtConfig({
     '@nuxtjs/i18n',
     '@nuxt/ui',
     '@nuxt/image',
+    'nuxt-echarts',
   ],
   devtools: { enabled: true },
   nitro: {
@@ -34,23 +35,45 @@ export default defineNuxtConfig({
       demoPassword: env.NUXT_PUBLIC_DEMO_PASSWORD,
       showDemoHint: env.NUXT_PUBLIC_SHOW_DEMO_HINT,
 
-      // 注册开关配置（默认关闭）
-      ENABLE_REGISTRATION: env.NUXT_PUBLIC_ENABLE_REGISTRATION,
-
       // 应用配置
       appTitle: env.NUXT_PUBLIC_APP_TITLE,
       brandName: env.NUXT_PUBLIC_BRAND_NAME,
-
-      // 分析配置
-      gaId: env.NUXT_PUBLIC_GA_ID,
     },
   },
 
   // 组件自动导入
   components: [
     {
+      path: '~/components/common',
+      pathPrefix: false,
+    },
+    {
+      path: '~/components/dashboard',
+      pathPrefix: false,
+    },
+    {
+      path: '~/components/icons',
+      pathPrefix: false,
+    },
+    {
       path: '~/components',
       pathPrefix: false,
+    },
+    {
+      path: '~/components/customers',
+      pathPrefix: true,
+    },
+    {
+      path: '~/components/home',
+      pathPrefix: true,
+    },
+    {
+      path: '~/components/settings',
+      pathPrefix: true,
+    },
+    {
+      path: '~/components/inbox',
+      pathPrefix: true,
     },
   ],
   vite: {
@@ -62,6 +85,9 @@ export default defineNuxtConfig({
         'better-auth/client',
         'better-auth/client/plugins',
         'zod',
+        'date-fns',
+        '@unovis/vue',
+        '@internationalized/date',
       ],
     },
     server: {
@@ -100,23 +126,20 @@ export default defineNuxtConfig({
     },
   },
 
-  // ==================== Nuxt Modules 配置 ====================
-
   // i18n 配置
-  // i18n: {
-  //   defaultLocale: 'en',
-  //   locales: [
-  //     { code: 'en', language: 'en-US', name: 'English', file: 'en.json' },
-  //     {
-  //       code: 'zh-CN',
-  //       language: 'zh-CN',
-  //       name: '简体中文',
-  //       file: 'zh-CN.json',
-  //     },
-  //     { code: 'ja', language: 'ja-JP', name: '日本語', file: 'ja.json' },
-  //     { code: 'fr', language: 'fr-FR', name: 'Français', file: 'fr.json' },
-  //   ],
-  // },
+  i18n: {
+    defaultLocale: 'zh-CN',
+    locales: [
+      { code: 'en', language: 'en-US', name: 'English', file: 'en.json' },
+      {
+        code: 'zh-CN',
+        language: 'zh-CN',
+        name: '简体中文',
+        file: 'zh-CN.json',
+      },
+    ],
+    restructureDir: './app/i18n',
+  },
 
   // Nuxt UI 配置
   ui: {

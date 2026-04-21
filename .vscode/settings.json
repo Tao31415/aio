@@ -1,7 +1,7 @@
 {
   "editor.defaultFormatter": "oxc.oxc-vscode",
   "oxc.fmt.configPath": "./vite.config.ts",
-  "editor.formatOnSave": true,
+  "editor.formatOnSave": false,
   "editor.insertSpaces": true,
   "editor.tabSize": 2,
   "editor.renderWhitespace": "boundary",
@@ -10,7 +10,8 @@
   "files.encoding": "utf8",
   "files.eol": "\n",
   "editor.codeActionsOnSave": {
-    "source.fixAll.oxc": "explicit"
+    "source.format.oxc": "always",
+    "source.fixAll.oxc": "always"
   },
   "rest-client.defaultHeaders": {
     "Origin": "http://localhost:40000"

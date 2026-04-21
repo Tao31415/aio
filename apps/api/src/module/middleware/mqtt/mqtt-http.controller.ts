@@ -1,6 +1,6 @@
-import { Controller, Post, Get, Body, Query } from '@nestjs/common'
+import { Controller, Get, Query } from '@nestjs/common'
 import { ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger'
-import { MqttService } from './mqtt.service'
+import { MqttMessageService } from './mqtt-message.service'
 import { TunnelMonitoringService } from './tunnel-monitoring.service'
 import type { TunnelMonitoringQueryParams } from './tunnel-monitoring.service'
 import { AllowAnonymous } from '@thallesp/nestjs-better-auth'
@@ -14,20 +14,9 @@ import { AllowAnonymous } from '@thallesp/nestjs-better-auth'
 @Controller('mqtt')
 export class MqttHttpController {
   constructor(
-    private readonly mqttService: MqttService,
+    private readonly mqttMessageService: MqttMessageService,
     private readonly tunnelMonitoringService: TunnelMonitoringService
   ) {}
-
-  /**
-   * 发布 MQTT 消息
-   * POST /api/v1/mqtt/publish
-   */
-  @Post('publish')
-  @ApiOperation({ summary: '发布 MQTT 消息' })
-  publish(@Body() body: { topic: string; payload: string; qos?: number }) {
-    this.mqttService.publish(body.topic, body.payload, body.qos ?? 0)
-    return { success: true, topic: body.topic }
-  }
 
   /**
    * 获取历史 MQTT 消息
@@ -39,7 +28,7 @@ export class MqttHttpController {
     @Query('topic') topic?: string,
     @Query('limit') limit?: string
   ) {
-    const messages = await this.mqttService.getMessages(
+    const messages = await this.mqttMessageService.getMessages(
       topic,
       limit ? parseInt(limit, 10) : 100
     )
@@ -56,16 +45,30 @@ export class MqttHttpController {
   @ApiOperation({ summary: '查询隧道监测数据' })
   @ApiQuery({ name: 'sn', required: false, description: '设备序列号' })
   @ApiQuery({ name: 'ringNumber', required: false, description: '环号' })
-  @ApiQuery({ name: 'startTime', required: false, description: '开始时间 (ISO 8601)' })
-  @ApiQuery({ name: 'endTime', required: false, description: '结束时间 (ISO 8601)' })
+  @ApiQuery({
+    name: 'startTime',
+    required: false,
+    description: '开始时间 (ISO 8601)',
+  })
+  @ApiQuery({
+    name: 'endTime',
+    required: false,
+    description: '结束时间 (ISO 8601)',
+  })
   @ApiQuery({ name: 'limit', required: false, description: '返回条数限制' })
   async getTunnelMonitoringData(@Query() query: TunnelMonitoringQueryParams) {
     const data = await this.tunnelMonitoringService.query({
       sn: query.sn,
       ringNumber: query.ringNumber,
-      startTime: query.startTime ? new Date(query.startTime as unknown as string) : undefined,
-      endTime: query.endTime ? new Date(query.endTime as unknown as string) : undefined,
-      limit: query.limit ? parseInt(query.limit as unknown as string, 10) : undefined,
+      startTime: query.startTime
+        ? new Date(query.startTime as unknown as string)
+        : undefined,
+      endTime: query.endTime
+        ? new Date(query.endTime as unknown as string)
+        : undefined,
+      limit: query.limit
+        ? parseInt(query.limit as unknown as string, 10)
+        : undefined,
     })
     return { data, total: data.length }
   }
@@ -92,18 +95,40 @@ export class MqttHttpController {
   @ApiOperation({ summary: '聚合查询隧道监测数据' })
   @ApiQuery({ name: 'sn', required: false, description: '设备序列号' })
   @ApiQuery({ name: 'ringNumber', required: false, description: '环号' })
-  @ApiQuery({ name: 'startTime', required: false, description: '开始时间 (ISO 8601)' })
-  @ApiQuery({ name: 'endTime', required: false, description: '结束时间 (ISO 8601)' })
-  @ApiQuery({ name: 'interval', required: false, description: '时间间隔（分钟）' })
+  @ApiQuery({
+    name: 'startTime',
+    required: false,
+    description: '开始时间 (ISO 8601)',
+  })
+  @ApiQuery({
+    name: 'endTime',
+    required: false,
+    description: '结束时间 (ISO 8601)',
+  })
+  @ApiQuery({
+    name: 'interval',
+    required: false,
+    description: '时间间隔（分钟）',
+  })
   @ApiQuery({ name: 'limit', required: false, description: '返回条数限制' })
-  async getAggregatedTunnelMonitoringData(@Query() query: TunnelMonitoringQueryParams) {
+  async getAggregatedTunnelMonitoringData(
+    @Query() query: TunnelMonitoringQueryParams
+  ) {
     const data = await this.tunnelMonitoringService.queryAggregated({
       sn: query.sn,
       ringNumber: query.ringNumber,
-      startTime: query.startTime ? new Date(query.startTime as unknown as string) : undefined,
-      endTime: query.endTime ? new Date(query.endTime as unknown as string) : undefined,
-      interval: query.interval ? parseInt(query.interval as unknown as string, 10) : 60,
-      limit: query.limit ? parseInt(query.limit as unknown as string, 10) : undefined,
+      startTime: query.startTime
+        ? new Date(query.startTime as unknown as string)
+        : undefined,
+      endTime: query.endTime
+        ? new Date(query.endTime as unknown as string)
+        : undefined,
+      interval: query.interval
+        ? parseInt(query.interval as unknown as string, 10)
+        : 60,
+      limit: query.limit
+        ? parseInt(query.limit as unknown as string, 10)
+        : undefined,
     })
     return { data, total: data.length }
   }
@@ -126,7 +151,8 @@ export class MqttHttpController {
   @Get('tunnel-monitoring/ring/:ringNumber/latest')
   @ApiOperation({ summary: '获取某环号最新数据' })
   async getLatestByRingNumber(@Query('ringNumber') ringNumber: string) {
-    const data = await this.tunnelMonitoringService.findLatestByRingNumber(ringNumber)
+    const data =
+      await this.tunnelMonitoringService.findLatestByRingNumber(ringNumber)
     return { data }
   }
 }

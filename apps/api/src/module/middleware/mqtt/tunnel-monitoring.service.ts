@@ -1,8 +1,17 @@
 import { Injectable, OnModuleInit } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository, DataSource, LessThanOrEqual, MoreThanOrEqual } from 'typeorm'
+import {
+  Repository,
+  DataSource,
+  LessThanOrEqual,
+  MoreThanOrEqual,
+  SelectQueryBuilder,
+} from 'typeorm'
 import { PinoLogger } from 'nestjs-pino'
-import { TunnelMonitoringData } from './entities/tunnel-monitoring.entity'
+import {
+  TunnelMonitoringData,
+  TunnelMonitoringPayload,
+} from './entities/tunnel-monitoring.entity'
 
 /**
  * 隧道监测数据查询参数
@@ -119,6 +128,51 @@ export class TunnelMonitoringService implements OnModuleInit {
   }
 
   /**
+   * 处理 MQTT payload 并保存到数据库
+   */
+  async processPayload(
+    payload: TunnelMonitoringPayload
+  ): Promise<TunnelMonitoringData[]> {
+    const { timestamp, sn, data } = payload
+
+    this.logger.info(
+      { sn, rings: data.length, timestamp },
+      'Processing tunnel monitoring data'
+    )
+
+    const entities: TunnelMonitoringData[] = []
+
+    for (const item of data) {
+      const entity = this.tunnelMonitoringRepository.create({
+        ringNumber: item.rn,
+        sn: sn,
+        timestamp: new Date(timestamp),
+        p1x: item['1x'] ?? null,
+        p1y: item['1y'] ?? null,
+        p7x: item['7x'] ?? null,
+        p7y: item['7y'] ?? null,
+        p3x: item['3x'] ?? null,
+        p3y: item['3y'] ?? null,
+        p5x: item['5x'] ?? null,
+        p5y: item['5y'] ?? null,
+        p9x: item['9x'] ?? null,
+        p9y: item['9y'] ?? null,
+        coc: item.coc ?? null,
+        hc: item.hc ?? null,
+        sd: item.sd ?? null,
+      })
+
+      entities.push(entity)
+    }
+
+    const saved = await this.tunnelMonitoringRepository.save(entities)
+    this.logger.info({ count: saved.length }, 'Saved tunnel monitoring records')
+
+    this.processData(saved)
+    return saved
+  }
+
+  /**
    * 检查告警阈值
    * 可根据实际需求调整阈值
    */
@@ -176,7 +230,9 @@ export class TunnelMonitoringService implements OnModuleInit {
   /**
    * 通用查询：支持时间范围、环号、设备号筛选
    */
-  async query(params: TunnelMonitoringQueryParams): Promise<TunnelMonitoringData[]> {
+  async query(
+    params: TunnelMonitoringQueryParams
+  ): Promise<TunnelMonitoringData[]> {
     const where: Record<string, unknown> = {}
 
     if (params.ringNumber) {
@@ -212,67 +268,62 @@ export class TunnelMonitoringService implements OnModuleInit {
   ): Promise<TunnelMonitoringAggregate[]> {
     const interval = params.interval || 60 // 默认 60 分钟
 
-    let query = `
-      SELECT
-        time_bucket('${interval} minutes', timestamp) AS bucket,
-        sn,
-        ring_number,
-        AVG(p1x) AS "avgP1x",
-        AVG(p1y) AS "avgP1y",
-        AVG(p9y) AS "avgP9y",
-        AVG(coc) AS "avgCoc",
-        AVG(hc) AS "avgHc",
-        AVG(sd) AS "avgSd",
-        COUNT(*) AS count
-      FROM tunnel_monitoring_data
-      WHERE 1=1
-    `
+    // 使用 SelectQueryBuilder 构建查询（更类型安全）
+    const qb: SelectQueryBuilder<TunnelMonitoringData> =
+      this.tunnelMonitoringRepository.createQueryBuilder('t')
 
-    const queryParams: unknown[] = []
-    let paramIndex = 1
+    // 时间范围
+    const endTime = params.endTime || new Date()
+    const startTime =
+      params.startTime || new Date(endTime.getTime() - 24 * 60 * 60 * 1000)
 
+    // time_bucket 聚合
+    qb.select(`time_bucket('${interval} minutes', t.timestamp)`, 'bucket')
+      .addSelect('t.sn', 'sn')
+      .addSelect('t.ringNumber', 'ringNumber')
+      .addSelect('AVG(t.p1x)', 'avgP1x')
+      .addSelect('AVG(t.p1y)', 'avgP1y')
+      .addSelect('AVG(t.p9y)', 'avgP9y')
+      .addSelect('AVG(t.coc)', 'avgCoc')
+      .addSelect('AVG(t.hc)', 'avgHc')
+      .addSelect('AVG(t.sd)', 'avgSd')
+      .addSelect('COUNT(*)', 'count')
+      .where('t.timestamp >= :startTime', { startTime })
+      .andWhere('t.timestamp <= :endTime', { endTime })
+
+    // 条件筛选
     if (params.sn) {
-      query += ` AND sn = $${paramIndex++}`
-      queryParams.push(params.sn)
+      qb.andWhere('t.sn = :sn', { sn: params.sn })
     }
-
     if (params.ringNumber) {
-      query += ` AND ring_number = $${paramIndex++}`
-      queryParams.push(params.ringNumber)
+      qb.andWhere('t.ringNumber = :ringNumber', {
+        ringNumber: params.ringNumber,
+      })
     }
 
-    if (params.startTime) {
-      query += ` AND timestamp >= $${paramIndex++}`
-      queryParams.push(params.startTime)
-    }
+    // 分组和排序
+    qb.groupBy('bucket')
+      .addGroupBy('t.sn')
+      .addGroupBy('t.ringNumber')
+      .orderBy('bucket', 'DESC')
 
-    if (params.endTime) {
-      query += ` AND timestamp <= $${paramIndex++}`
-      queryParams.push(params.endTime)
-    }
-
-    query += `
-      GROUP BY bucket, sn, ring_number
-      ORDER BY bucket DESC
-    `
-
+    // 限制
     if (params.limit) {
-      query += ` LIMIT $${paramIndex}`
-      queryParams.push(params.limit)
+      qb.take(params.limit)
     }
 
-    const result = await this.dataSource.query(query, queryParams)
+    const result = await qb.getRawMany()
 
     return result.map((row: Record<string, unknown>) => ({
       bucket: new Date(row.bucket as string | number),
       sn: row.sn as string,
-      ringNumber: row.ring_number as string,
-      avgP1x: row.avgP1x ? parseFloat(row.avgP1x as string) : null,
-      avgP1y: row.avgP1y ? parseFloat(row.avgP1y as string) : null,
-      avgP9y: row.avgP9y ? parseFloat(row.avgP9y as string) : null,
-      avgCoc: row.avgCoc ? parseFloat(row.avgCoc as string) : null,
-      avgHc: row.avgHc ? parseFloat(row.avgHc as string) : null,
-      avgSd: row.avgSd ? parseFloat(row.avgSd as string) : null,
+      ringNumber: row.ringNumber as string,
+      avgP1x: row.avgP1x !== null ? parseFloat(row.avgP1x as string) : null,
+      avgP1y: row.avgP1y !== null ? parseFloat(row.avgP1y as string) : null,
+      avgP9y: row.avgP9y !== null ? parseFloat(row.avgP9y as string) : null,
+      avgCoc: row.avgCoc !== null ? parseFloat(row.avgCoc as string) : null,
+      avgHc: row.avgHc !== null ? parseFloat(row.avgHc as string) : null,
+      avgSd: row.avgSd !== null ? parseFloat(row.avgSd as string) : null,
       count: parseInt(row.count as string, 10),
     }))
   }

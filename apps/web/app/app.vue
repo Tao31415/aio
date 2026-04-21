@@ -1,5 +1,6 @@
 <template>
   <UApp :toaster="{ position: 'bottom-right', duration: 4000 }">
+    <NuxtLoadingIndicator />
     <NuxtLayout>
       <NuxtPage v-slot="{ Component }">
         <KeepAlive :include="keepAlive.includeKeys.value">
@@ -14,15 +15,7 @@
 </template>
 
 <script setup lang="ts">
-  import { setupMock } from '~/utils/mock'
-
   const { isAuthenticated } = useAuth()
-
-  // 全局初始化
-  const config = useRuntimeConfig()
-
-  // 初始化主题
-  const { initTheme } = useTheme()
 
   // 初始化 KeepAlive
   const keepAlive = useKeepAlive()
@@ -37,14 +30,6 @@
       !publicRoutes.some((route) => route === useRoute().path)
     ) {
       navigateTo({ path: '/login' })
-    }
-  })
-
-  // 初始化 Mock 数据（客户端）
-  onMounted(() => {
-    initTheme()
-    if (config.public.mock) {
-      setupMock()
     }
   })
 </script>
