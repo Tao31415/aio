@@ -56,7 +56,7 @@ export class MqttExplorer implements OnModuleInit {
       try {
         const prototype = Object.getPrototypeOf(instance) as Record<
           string,
-          Function
+          (...args: unknown[]) => unknown
         >
 
         // Ensure prototype is valid

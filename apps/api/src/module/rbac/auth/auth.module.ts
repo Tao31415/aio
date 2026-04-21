@@ -79,5 +79,6 @@ export const AUTH_CLIENT = 'AUTH_CLIENT'
       },
     }),
   ],
+  exports: [BetterAuthModule],
 })
 export class AuthModule {}

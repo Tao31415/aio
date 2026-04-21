@@ -6,3 +6,9 @@
 
 ### 0.1 Swagger Docs
 GET {{baseUrl}}/docs
+
+
+### 0.2 Seed Tables
+POST {{baseUrl}}/v1/seed
+
+###

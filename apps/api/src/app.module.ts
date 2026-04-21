@@ -13,6 +13,7 @@ import { AuthModule } from '@auth/auth.module'
 import { LogModule } from '@log/log.module'
 import { RedisModule } from '@redis/redis.module'
 import { MqttModule } from '@mqtt/mqtt.module'
+import { SeedModule } from '@src/module/middleware/seed/seed.module'
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { MqttModule } from '@mqtt/mqtt.module'
     AuthModule,
     // StorageModule,
     MqttModule.forRootAsyncFromConfig(),
+    SeedModule,
   ],
   controllers: [],
   providers: [],
