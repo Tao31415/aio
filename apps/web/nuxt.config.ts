@@ -17,9 +17,13 @@ export default defineNuxtConfig({
     'nuxt-echarts',
   ],
   devtools: { enabled: true },
+
   nitro: {
     preset: 'bun', // 或者 'bun-server'
   },
+
+  sourcemap: false,
+
   runtimeConfig: {
     public: {
       logLevel: env.NUXT_PUBLIC_LOG_LEVEL,
@@ -127,19 +131,19 @@ export default defineNuxtConfig({
   },
 
   // i18n 配置
-  i18n: {
-    defaultLocale: 'zh-CN',
-    locales: [
-      { code: 'en', language: 'en-US', name: 'English', file: 'en.json' },
-      {
-        code: 'zh-CN',
-        language: 'zh-CN',
-        name: '简体中文',
-        file: 'zh-CN.json',
-      },
-    ],
-    restructureDir: './app/i18n',
-  },
+  // i18n: {
+  //   defaultLocale: 'zh-CN',
+  //   locales: [
+  //     { code: 'en', language: 'en-US', name: 'English', file: 'en.json' },
+  //     {
+  //       code: 'zh-CN',
+  //       language: 'zh-CN',
+  //       name: '简体中文',
+  //       file: 'zh-CN.json',
+  //     },
+  //   ],
+  //   restructureDir: './app/i18n',
+  // },
 
   // Nuxt UI 配置
   ui: {
