@@ -101,6 +101,8 @@
 </template>
 
 <script setup lang="ts">
+  import { getSidebarRoutes } from '~/utils/route-config'
+
   // 命令面板状态
   const commandMenu = useCommandMenu()
   const isOpen = computed(() => commandMenu.isOpen.value)
@@ -138,50 +140,16 @@
   const uiSettings = useUiSettingsStore()
 
   // 所有命令
+  const navigationCommands = getSidebarRoutes().map<Command>((route) => ({
+    id: `nav-${route.key}`,
+    name: route.title,
+    icon: route.icon || 'i-lucide-arrow-right',
+    action: () => router.push(route.path),
+    group: '导航',
+  }))
+
   const commands: Command[] = [
-    // 导航
-    {
-      id: 'nav-dashboard',
-      name: '仪表板',
-      icon: 'i-lucide-arrow-right',
-      action: () => router.push('/'),
-      group: '导航',
-    },
-    {
-      id: 'nav-users',
-      name: '用户管理',
-      icon: 'i-lucide-arrow-right',
-      action: () => router.push('/users'),
-      group: '导航',
-    },
-    {
-      id: 'nav-messages',
-      name: '消息中心',
-      icon: 'i-lucide-arrow-right',
-      action: () => router.push('/messages'),
-      group: '导航',
-    },
-    {
-      id: 'nav-files',
-      name: '文件管理',
-      icon: 'i-lucide-arrow-right',
-      action: () => router.push('/files'),
-      group: '导航',
-    },
-    {
-      id: 'nav-calendar',
-      name: '日程安排',
-      icon: 'i-lucide-arrow-right',
-      action: () => router.push('/calendar'),
-      group: '导航',
-    },
-    {
-      id: 'nav-settings',
-      name: '系统设置',
-      icon: 'i-lucide-arrow-right',
-      action: () => router.push('/settings'),
-      group: '导航',
-    },
+    ...navigationCommands,
     // 主题
     {
       id: 'theme-toggle',
@@ -213,13 +181,6 @@
       group: '设置',
     },
     // 账户
-    {
-      id: 'profile',
-      name: '个人资料',
-      icon: 'i-lucide-user-round',
-      action: () => router.push('/profile'),
-      group: '账户',
-    },
     {
       id: 'logout',
       name: '退出登录',

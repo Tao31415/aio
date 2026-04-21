@@ -1,6 +1,12 @@
 <script setup lang="ts">
   import * as z from 'zod'
   import type { FormError } from '@nuxt/ui'
+  import { APP_ROUTE_MAP } from '~/utils/route-config'
+
+  definePageMeta({
+    title: APP_ROUTE_MAP['/dashboard-backup/settings/security']!.title,
+    icon: APP_ROUTE_MAP['/dashboard-backup/settings/security']!.icon,
+  })
 
   const passwordSchema = z.object({
     current: z.string().min(8, 'Must be at least 8 characters'),

@@ -1,29 +1,25 @@
 <script setup lang="ts">
   import type { NavigationMenuItem } from '@nuxt/ui'
+  import { APP_ROUTE_MAP, getAppRouteChildren } from '~/utils/route-config'
+
+  definePageMeta({
+    title: APP_ROUTE_MAP['/dashboard-backup/settings']!.title,
+    icon: APP_ROUTE_MAP['/dashboard-backup/settings']!.icon,
+  })
 
   const links = [
     [
       {
-        label: 'General',
-        icon: 'i-lucide-user',
-        to: '/settings',
+        label: APP_ROUTE_MAP['/dashboard-backup/settings']!.title,
+        icon: APP_ROUTE_MAP['/dashboard-backup/settings']!.icon,
+        to: APP_ROUTE_MAP['/dashboard-backup/settings']!.path,
         exact: true,
       },
-      {
-        label: 'Members',
-        icon: 'i-lucide-users',
-        to: '/settings/members',
-      },
-      {
-        label: 'Notifications',
-        icon: 'i-lucide-bell',
-        to: '/settings/notifications',
-      },
-      {
-        label: 'Security',
-        icon: 'i-lucide-shield',
-        to: '/settings/security',
-      },
+      ...getAppRouteChildren('/dashboard-backup/settings').map((child) => ({
+        label: child.title,
+        icon: child.icon,
+        to: child.path,
+      })),
     ],
     [
       {

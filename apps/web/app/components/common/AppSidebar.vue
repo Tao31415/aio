@@ -79,6 +79,8 @@
 </template>
 
 <script setup lang="ts">
+  import { getSidebarRoutes } from '~/utils/route-config'
+
   // Props
   interface Props {
     collapsed?: boolean
@@ -100,28 +102,18 @@
   const brandName = computed(() => config.public.brandName)
   const route = useRoute()
 
-  // 菜单项
-  interface MenuItem {
-    title: string
-    path: string
-    icon: string
-    badge?: string | number
-    permission?: string
+  const menuBadges: Record<string, string | number> = {
+    '/messages': 5,
   }
 
-  const menuItems: MenuItem[] = [
-    { title: '仪表板', path: '/dashboard', icon: 'i-lucide-layout-dashboard' },
-    { title: '用户管理', path: '/users', icon: 'i-lucide-users' },
-    {
-      title: '消息中心',
-      path: '/messages',
-      icon: 'i-lucide-messages-square',
-      badge: 5,
-    },
-    { title: '数据分析', path: '/analytics', icon: 'i-lucide-chart-column' },
-    { title: '个人资料', path: '/profile', icon: 'i-lucide-user-round' },
-    { title: '系统设置', path: '/settings', icon: 'i-lucide-settings' },
-  ]
+  const menuItems = computed(() =>
+    getSidebarRoutes().map((item) => ({
+      title: item.title,
+      path: item.path,
+      icon: item.icon || 'i-lucide-file',
+      badge: menuBadges[item.path],
+    }))
+  )
 
   // 判断是否激活
   function isActive(path: string): boolean {

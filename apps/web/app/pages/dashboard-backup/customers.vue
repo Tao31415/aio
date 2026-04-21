@@ -4,6 +4,12 @@
   import { getPaginationRowModel } from '@tanstack/table-core'
   import type { Row } from '@tanstack/table-core'
   import type { User } from '~/types'
+  import { APP_ROUTE_MAP } from '~/utils/route-config'
+
+  definePageMeta({
+    title: APP_ROUTE_MAP['/dashboard-backup/customers']!.title,
+    icon: APP_ROUTE_MAP['/dashboard-backup/customers']!.icon,
+  })
 
   const UAvatar = resolveComponent('UAvatar')
   const UButton = resolveComponent('UButton')

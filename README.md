@@ -41,8 +41,9 @@ aio/
 ├── packages/
 │   └── utils/        # 共享工具包 (@aio/utils)
 ├── deploy/           # Docker 部署配置
-├── scripts/          # 辅助脚本
+├── scripts/          # 辅助脚本 (kill-ports.sh 等)
 ├── Makefile         # 部署自动化脚本
+├── mise.toml        # Mise 工具版本管理
 ├── .bunfig.toml     # Bun 配置（镜像源、链接器）
 └── .dockerignore    # Docker 构建排除文件
 ```
@@ -280,7 +281,8 @@ Docker 部署完成后，浏览器通常通过 Nginx 入口访问以下路径：
 | ------------------------ | ------------------------ | ----------------------------------- |
 | `/`                      | Web 前端入口             | 后台管理界面主入口                  |
 | `/api/`                  | API 入口                 | 前端请求后端接口的统一前缀          |
-| `/docs`                  | Swagger 文档             | 查看 NestJS API 文档                |
+| `/api/docs`              | Swagger 文档             | 查看 NestJS API 文档 (cookie 认证)  |
+| `/docs`                  | Swagger 文档短链         | 会重定向到 `/api/docs`              |
 | `/api/v1/auth/reference` | Better Auth 文档真实地址 | Better Auth Reference/OpenAPI 页面  |
 | `/docs/auth`             | Better Auth 文档短链     | 会重定向到 `/api/v1/auth/reference` |
 | `/auth`                  | 认证文档短链             | 会重定向到 `/api/v1/auth/reference` |

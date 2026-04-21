@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import type { NavigationMenuItem } from '@nuxt/ui'
+  import { APP_ROUTE_MAP, getSidebarRoutes, getAppRouteChildren } from '~/utils/route-config'
 
   const route = useRoute()
   const toast = useToast()
@@ -20,46 +21,54 @@
       auth.user?.username || auth.user?.name || auth.user?.email
     return displayName?.trim().charAt(0).toUpperCase() || 'U'
   })
-  // 菜单项
-  interface MenuItem {
-    title: string
-    path: string
-    icon: string
-    badge?: string | number
-    permission?: string
-  }
-
-  const menuItems: MenuItem[] = [
-    { title: '仪表板', path: '/dashboard', icon: 'i-lucide-layout-dashboard' },
-    { title: '用户管理', path: '/users', icon: 'i-lucide-users' },
-    {
-      title: '消息中心',
-      path: '/messages',
-      icon: 'i-lucide-messages-square',
-      badge: 5,
-    },
-    { title: '数据分析', path: '/analytics', icon: 'i-lucide-chart-column' },
-    { title: '个人资料', path: '/profile', icon: 'i-lucide-user-round' },
-    { title: '系统设置', path: '/settings', icon: 'i-lucide-settings' },
-  ]
-
-  const links = [
-    menuItems.map((item) => ({
-      label: item.title,
-      icon: item.icon,
-      to: item.path,
-      badge: item.badge,
+  const links = computed<NavigationMenuItem[][]>(() => [
+    getSidebarRoutes().map((routeItem) => ({
+      label: routeItem.title,
+      icon: routeItem.icon,
+      to: routeItem.path,
+      badge: routeItem.path === '/messages' ? 5 : undefined,
+      defaultOpen: routeItem.path === '/settings',
+      type: routeItem.children?.length ? 'trigger' : undefined,
+      children: routeItem.children?.map((child) => ({
+        label: child.title,
+        icon: child.icon,
+        to: child.path,
+        exact: child.path === '/settings/profile',
+        onSelect: () => {
+          open.value = false
+        },
+      })),
       onSelect: () => {
         open.value = false
       },
     })),
-  ] satisfies NavigationMenuItem[][]
+  ])
+
+  const searchableRoutes = computed(() =>
+    getSidebarRoutes().reduce<
+      Array<(typeof getSidebarRoutes extends () => Array<infer T> ? T : never)>
+    >((items, routeItem) => {
+      items.push(routeItem)
+      if (routeItem.children?.length) {
+        items.push(...routeItem.children)
+      }
+      return items
+    }, [])
+  )
 
   const groups = computed(() => [
     {
       id: 'links',
       label: 'Go to',
-      items: links.flat(),
+      items: searchableRoutes.value.map((routeItem) => ({
+        id: routeItem.key,
+        label: routeItem.title,
+        icon: routeItem.icon,
+        to: routeItem.path,
+        onSelect: () => {
+          open.value = false
+        },
+      })),
     },
     {
       id: 'code',
@@ -118,12 +127,19 @@
     ],
     [
       {
-        label: '个人资料',
-        icon: 'i-lucide-user-round',
+        label: APP_ROUTE_MAP['/profile']!.title,
+        icon: APP_ROUTE_MAP['/profile']!.icon,
+        to: APP_ROUTE_MAP['/profile']!.path,
       },
       {
-        label: '系统设置',
-        icon: 'i-lucide-settings',
+        label: APP_ROUTE_MAP['/settings']!.title,
+        icon: APP_ROUTE_MAP['/settings']!.icon,
+        to: APP_ROUTE_MAP['/settings']!.path,
+        children: getAppRouteChildren('/settings').map((child) => ({
+          label: child.title,
+          icon: child.icon,
+          to: child.path,
+        })),
       },
     ],
     [
@@ -159,10 +175,13 @@
       <template #default="{ collapsed }">
         <UNavigationMenu
           :collapsed="collapsed"
-          :items="links[0]"
+          :items="links"
           orientation="vertical"
           tooltip
           popover
+          highlight
+          color="neutral"
+          highlight-color="primary"
         />
       </template>
     </UDashboardSidebar>

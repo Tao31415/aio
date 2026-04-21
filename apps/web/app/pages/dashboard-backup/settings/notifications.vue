@@ -1,4 +1,11 @@
 <script setup lang="ts">
+  import { APP_ROUTE_MAP } from '~/utils/route-config'
+
+  definePageMeta({
+    title: APP_ROUTE_MAP['/dashboard-backup/settings/notifications']!.title,
+    icon: APP_ROUTE_MAP['/dashboard-backup/settings/notifications']!.icon,
+  })
+
   const state = reactive<{ [key: string]: boolean }>({
     email: true,
     desktop: false,

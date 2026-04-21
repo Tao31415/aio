@@ -1,7 +1,10 @@
 <script setup lang="ts">
   import { h } from 'vue'
+  import { APP_ROUTE_MAP } from '~/utils/route-config'
 
   definePageMeta({
+    title: APP_ROUTE_MAP['/analytics']!.title,
+    icon: APP_ROUTE_MAP['/analytics']!.icon,
     layout: 'dashboard',
     auth: 'user',
   })

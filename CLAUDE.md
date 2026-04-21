@@ -16,19 +16,19 @@ A Bun-based monorepo with three workspaces:
 # Install dependencies
 bun install
 
-# Run all projects concurrently (api on 30000, web on 40000, utils in watch mode)
+# Run all projects (api on 30000, web on 40000, utils in watch mode)
 bun run dev
+
+# Preview production build
+bun run preview
+
+# Build all
+bun run build        # utils + api + web in parallel
 
 # Run individual projects
 bun run dev:api      # NestJS API on port 30000
 bun run dev:web      # Nuxt web on port 40000
 bun run dev:utils    # Utils package in watch mode
-
-# Build
-bun run build        # Build all (utils + api + web in parallel)
-bun run build:utils  # Build @aio/utils package
-bun run build:api    # Build NestJS API
-bun run build:web    # Build Nuxt Web
 
 # Kill dev servers
 bun run kill        # Kill processes on ports 30000/40000
@@ -42,8 +42,8 @@ bun run test:api
 
 # Lint/format/check
 bun run check        # Type-check all projects
-bun run fmt         # Format code
-bun run lint        # Lint code
+bun run clean       # Clean build outputs
+bun run cleanAll    # Clean + node_modules
 ```
 
 ## Build Outputs

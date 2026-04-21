@@ -2,6 +2,12 @@
   import { sub } from 'date-fns'
   import type { DropdownMenuItem } from '@nuxt/ui'
   import type { Period, Range } from '~/types'
+  import { APP_ROUTE_MAP } from '~/utils/route-config'
+
+  definePageMeta({
+    title: APP_ROUTE_MAP['/dashboard-backup']!.title,
+    icon: APP_ROUTE_MAP['/dashboard-backup']!.icon,
+  })
 
   const { isNotificationsSlideoverOpen } = useDashboard()
 

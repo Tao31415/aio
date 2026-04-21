@@ -147,6 +147,7 @@
 
 <script setup lang="ts">
   import type { Tab } from '~/stores/tabs'
+  import { getAppRouteTitle } from '~/utils/route-config'
 
   const tabs = useTabsStore()
   const route = useRoute()
@@ -291,11 +292,16 @@
   watch(
     () => route.path,
     (newPath) => {
+      const routeTitle = (route.meta.title as string) || getAppRouteTitle(newPath)
       const existingTab = tabs.tabs.find((t) => t.path === newPath)
-      if (!existingTab) {
+      if (existingTab) {
+        if (existingTab.title !== routeTitle) {
+          tabs.updateTabTitle(newPath, routeTitle)
+        }
+      } else {
         tabs.addTab({
           id: generateId(),
-          title: (route.meta.title as string) || getRouteTitle(newPath),
+          title: routeTitle,
           path: newPath,
           closable: newPath !== '/',
         })
@@ -330,21 +336,6 @@
     nextTick(checkScroll)
   })
 
-  // 根据路径获取标题
-  function getRouteTitle(path: string): string {
-    const titles: Record<string, string> = {
-      '/': '仪表板',
-      '/users': '用户管理',
-      '/messages': '消息中心',
-      '/files': '文件管理',
-      '/calendar': '日程安排',
-      '/analytics': '数据分析',
-      '/settings': '系统设置',
-      '/profile': '个人资料',
-      '/notifications': '通知中心',
-    }
-    return titles[path] || '页面'
-  }
 </script>
 
 <style scoped>

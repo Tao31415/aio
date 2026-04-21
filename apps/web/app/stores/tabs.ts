@@ -2,6 +2,8 @@
  * 标签页状态管理
  */
 
+import { APP_ROUTE_MAP } from '~/utils/route-config'
+
 export interface Tab {
   id: string
   title: string
@@ -16,7 +18,7 @@ export const useTabsStore = defineStore('tabs', {
     tabs: [
       {
         id: 'home',
-        title: '仪表板',
+        title: APP_ROUTE_MAP['/']!.title,
         path: '/',
         closable: false,
       },
@@ -50,7 +52,8 @@ export const useTabsStore = defineStore('tabs', {
     // 关闭标签
     closeTab(id: string) {
       const index = this.tabs.findIndex((tab) => tab.id === id)
-      if (index !== -1 && this.tabs[index].closable !== false) {
+    const tab = index !== -1 ? this.tabs[index] : undefined
+    if (tab && tab.closable !== false) {
         this.tabs.splice(index, 1)
       }
     },

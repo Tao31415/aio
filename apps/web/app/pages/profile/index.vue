@@ -1,5 +1,9 @@
 <script setup lang="ts">
+  import { APP_ROUTE_MAP } from '~/utils/route-config'
+
   definePageMeta({
+    title: APP_ROUTE_MAP['/profile']!.title,
+    icon: APP_ROUTE_MAP['/profile']!.icon,
     layout: 'dashboard',
     auth: 'user',
   })

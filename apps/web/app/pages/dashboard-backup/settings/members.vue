@@ -1,5 +1,11 @@
 <script setup lang="ts">
   import type { Member } from '~/types'
+  import { APP_ROUTE_MAP } from '~/utils/route-config'
+
+  definePageMeta({
+    title: APP_ROUTE_MAP['/dashboard-backup/settings/members']!.title,
+    icon: APP_ROUTE_MAP['/dashboard-backup/settings/members']!.icon,
+  })
 
   const { data: members } = await useFetch<Member[]>('/api/members', {
     default: () => [],

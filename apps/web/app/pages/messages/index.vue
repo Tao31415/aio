@@ -1,5 +1,9 @@
 <script setup lang="ts">
+  import { APP_ROUTE_MAP } from '~/utils/route-config'
+
   definePageMeta({
+    title: APP_ROUTE_MAP['/messages']!.title,
+    icon: APP_ROUTE_MAP['/messages']!.icon,
     layout: 'dashboard',
     auth: 'user',
   })

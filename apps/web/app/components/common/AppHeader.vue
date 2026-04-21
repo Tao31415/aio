@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import type { DropdownMenuItem } from '@nuxt/ui'
+  import { APP_ROUTE_MAP } from '~/utils/route-config'
   // 事件定义
   defineEmits<{
     toggleSidebar: []
@@ -43,14 +44,14 @@
     ],
     [
       {
-        label: '个人资料',
-        icon: 'i-lucide-user-round',
-        onSelect: () => router.push('/profile'),
+        label: APP_ROUTE_MAP['/profile']!.title,
+        icon: APP_ROUTE_MAP['/profile']!.icon,
+        onSelect: () => router.push(APP_ROUTE_MAP['/profile']!.path),
       },
       {
-        label: '系统设置',
-        icon: 'i-lucide-settings',
-        onSelect: () => router.push('/settings'),
+        label: APP_ROUTE_MAP['/settings']!.title,
+        icon: APP_ROUTE_MAP['/settings']!.icon,
+        onSelect: () => router.push(APP_ROUTE_MAP['/settings']!.path),
       },
     ],
     [

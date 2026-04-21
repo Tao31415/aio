@@ -2,6 +2,12 @@
   import { computed, ref, watch } from 'vue'
   import { breakpointsTailwind } from '@vueuse/core'
   import type { Mail } from '~/types'
+  import { APP_ROUTE_MAP } from '~/utils/route-config'
+
+  definePageMeta({
+    title: APP_ROUTE_MAP['/dashboard-backup/inbox']!.title,
+    icon: APP_ROUTE_MAP['/dashboard-backup/inbox']!.icon,
+  })
 
   const tabItems = [
     {

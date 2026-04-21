@@ -1,7 +1,14 @@
 <script setup lang="ts">
   import { ensureSession } from '~/composables/auth/session-manager'
   import { type SignInForm, signInSchema } from '~/types/auth'
-  definePageMeta({ layout: 'auth', auth: 'guest' })
+  import { APP_ROUTE_MAP } from '~/utils/route-config'
+
+  definePageMeta({
+    title: APP_ROUTE_MAP['/login']!.title,
+    icon: APP_ROUTE_MAP['/login']!.icon,
+    layout: 'auth',
+    auth: 'guest',
+  })
 
   const auth = useAuth()
   const { signIn } = auth

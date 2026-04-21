@@ -1,6 +1,12 @@
 <script setup lang="ts">
   import * as z from 'zod'
   import type { FormSubmitEvent } from '@nuxt/ui'
+  import { APP_ROUTE_MAP } from '~/utils/route-config'
+
+  definePageMeta({
+    title: APP_ROUTE_MAP['/dashboard-backup/settings']!.title,
+    icon: APP_ROUTE_MAP['/dashboard-backup/settings']!.icon,
+  })
 
   const fileRef = ref<HTMLInputElement>()
 
