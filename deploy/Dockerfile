@@ -30,6 +30,13 @@ COPY . .
 # [optional] tests & build
 ENV NODE_ENV=production
 # RUN bun test
+WORKDIR /usr/src/app/packages/utils
+RUN bun run build
+
+WORKDIR /usr/src/app/apps/api
+RUN bun run build
+
+WORKDIR /usr/src/app/apps/web
 RUN bun run build
 
 FROM base AS api
