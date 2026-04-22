@@ -1,150 +1,3 @@
-<template>
-  <div
-    v-if="tabs.tabs.length > 1"
-    class="h-10 border-b border-default bg-default flex items-center gap-1 shrink-0 relative"
-  >
-    <!-- 左滚动按钮 -->
-    <UButton
-      v-if="canScrollLeft"
-      color="neutral"
-      variant="ghost"
-      size="xs"
-      icon="i-lucide-chevron-left"
-      class="h-full rounded-none shrink-0"
-      @click="scroll('left')"
-    />
-
-    <!-- 标签列表 -->
-    <div
-      ref="tabsContainerRef"
-      class="flex-1 flex items-center gap-0.5 px-2 overflow-x-auto scrollbar-hide"
-    >
-      <button
-        v-for="tab in tabs.tabs"
-        :key="tab.id"
-        :data-tab-id="tab.id"
-        :class="[
-          'flex items-center gap-2 px-3 h-8 text-sm cursor-pointer transition-all shrink-0 relative group rounded-t-md',
-          tab.path === route.path
-            ? 'text-default font-medium bg-accented/40'
-            : 'text-muted hover:text-default hover:bg-accented/20',
-        ]"
-        @click="navigateTo(tab.path)"
-        @contextmenu.prevent="openContextMenu($event, tab)"
-      >
-        <span class="max-w-32 truncate">{{ tab.title }}</span>
-        <span
-          v-if="tab.closable !== false"
-          :class="[
-            'flex items-center justify-center w-4 h-4 rounded transition-all',
-            tab.path === route.path
-              ? 'opacity-80 hover:opacity-100'
-              : 'opacity-0 group-hover:opacity-60 hover:opacity-100',
-          ]"
-          @click.stop="closeTab(tab.id)"
-        >
-          <UIcon
-            name="i-lucide-x"
-            class="w-3 h-3"
-          />
-        </span>
-        <!-- 底部激活指示器 -->
-        <div
-          v-if="tab.path === route.path"
-          class="absolute bottom-0 left-2 right-2 h-0.5 bg-primary rounded-full"
-        />
-      </button>
-    </div>
-
-    <!-- 右滚动按钮 -->
-    <UButton
-      v-if="canScrollRight"
-      color="neutral"
-      variant="ghost"
-      size="xs"
-      icon="i-lucide-chevron-right"
-      class="h-full rounded-none shrink-0"
-      @click="scroll('right')"
-    />
-
-    <!-- 标签操作 -->
-    <div class="flex items-center gap-1 shrink-0 px-2 border-l border-default">
-      <!-- 关闭其他 -->
-      <UButton
-        color="neutral"
-        variant="ghost"
-        size="xs"
-        icon="i-lucide-trash"
-        title="关闭其他标签"
-        @click="closeOtherTabs"
-      />
-      <!-- 刷新当前 -->
-      <UButton
-        color="neutral"
-        variant="ghost"
-        size="xs"
-        icon="i-lucide-refresh-cw"
-        title="刷新当前页面"
-        @click="refreshCurrentTab"
-      />
-    </div>
-
-    <!-- 右键菜单 -->
-    <Transition name="fade">
-      <div
-        v-if="contextMenu.visible"
-        class="absolute z-50 w-44 rounded-lg border border-default bg-elevated shadow-lg py-1 text-sm"
-        :style="{ left: `${contextMenu.x}px`, top: `${contextMenu.y}px` }"
-        @click.stop
-      >
-        <UButton
-          color="neutral"
-          variant="ghost"
-          class="w-full justify-start rounded-none px-3"
-          @click="refreshTab(contextMenu.tab!)"
-        >
-          刷新页面
-        </UButton>
-        <div class="h-px bg-border my-1" />
-        <UButton
-          v-if="contextMenu.tab?.closable !== false"
-          color="neutral"
-          variant="ghost"
-          class="w-full justify-start rounded-none px-3"
-          @click="closeTab(contextMenu.tab!.id)"
-        >
-          关闭标签
-        </UButton>
-        <UButton
-          color="neutral"
-          variant="ghost"
-          class="w-full justify-start rounded-none px-3"
-          @click="closeOtherTabsFrom(contextMenu.tab!)"
-        >
-          关闭其他
-        </UButton>
-        <UButton
-          color="neutral"
-          variant="ghost"
-          class="w-full justify-start rounded-none px-3"
-          @click="closeRightTabs(contextMenu.tab!)"
-        >
-          关闭右侧
-        </UButton>
-        <div class="h-px bg-border my-1" />
-        <UButton
-          color="neutral"
-          variant="ghost"
-          class="w-full justify-start rounded-none px-3"
-          @click="closeAllTabs"
-        >
-          关闭所有
-        </UButton>
-      </div>
-    </Transition>
-  </div>
-</template>
-
 <script setup lang="ts">
   import type { Tab } from '~/stores/tabs'
   import { getAppRouteTitle } from '~/utils/route-config'
@@ -337,6 +190,153 @@
     nextTick(checkScroll)
   })
 </script>
+
+<template>
+  <div
+    v-if="tabs.tabs.length > 1"
+    class="h-10 border-b border-default bg-default flex items-center gap-1 shrink-0 relative"
+  >
+    <!-- 左滚动按钮 -->
+    <UButton
+      v-if="canScrollLeft"
+      color="neutral"
+      variant="ghost"
+      size="xs"
+      icon="i-lucide-chevron-left"
+      class="h-full rounded-none shrink-0"
+      @click="scroll('left')"
+    />
+
+    <!-- 标签列表 -->
+    <div
+      ref="tabsContainerRef"
+      class="flex-1 flex items-center gap-0.5 px-2 overflow-x-auto scrollbar-hide"
+    >
+      <button
+        v-for="tab in tabs.tabs"
+        :key="tab.id"
+        :data-tab-id="tab.id"
+        :class="[
+          'flex items-center gap-2 px-3 h-8 text-sm cursor-pointer transition-all shrink-0 relative group rounded-t-md',
+          tab.path === route.path
+            ? 'text-default font-medium bg-accented/40'
+            : 'text-muted hover:text-default hover:bg-accented/20',
+        ]"
+        @click="navigateTo(tab.path)"
+        @contextmenu.prevent="openContextMenu($event, tab)"
+      >
+        <span class="max-w-32 truncate">{{ tab.title }}</span>
+        <span
+          v-if="tab.closable !== false"
+          :class="[
+            'flex items-center justify-center w-4 h-4 rounded transition-all',
+            tab.path === route.path
+              ? 'opacity-80 hover:opacity-100'
+              : 'opacity-0 group-hover:opacity-60 hover:opacity-100',
+          ]"
+          @click.stop="closeTab(tab.id)"
+        >
+          <UIcon
+            name="i-lucide-x"
+            class="w-3 h-3"
+          />
+        </span>
+        <!-- 底部激活指示器 -->
+        <div
+          v-if="tab.path === route.path"
+          class="absolute bottom-0 left-2 right-2 h-0.5 bg-primary rounded-full"
+        />
+      </button>
+    </div>
+
+    <!-- 右滚动按钮 -->
+    <UButton
+      v-if="canScrollRight"
+      color="neutral"
+      variant="ghost"
+      size="xs"
+      icon="i-lucide-chevron-right"
+      class="h-full rounded-none shrink-0"
+      @click="scroll('right')"
+    />
+
+    <!-- 标签操作 -->
+    <div class="flex items-center gap-1 shrink-0 px-2 border-l border-default">
+      <!-- 关闭其他 -->
+      <UButton
+        color="neutral"
+        variant="ghost"
+        size="xs"
+        icon="i-lucide-trash"
+        title="关闭其他标签"
+        @click="closeOtherTabs"
+      />
+      <!-- 刷新当前 -->
+      <UButton
+        color="neutral"
+        variant="ghost"
+        size="xs"
+        icon="i-lucide-refresh-cw"
+        title="刷新当前页面"
+        @click="refreshCurrentTab"
+      />
+    </div>
+
+    <!-- 右键菜单 -->
+    <Transition name="fade">
+      <div
+        v-if="contextMenu.visible"
+        class="absolute z-50 w-44 rounded-lg border border-default bg-elevated shadow-lg py-1 text-sm"
+        :style="{ left: `${contextMenu.x}px`, top: `${contextMenu.y}px` }"
+        @click.stop
+      >
+        <UButton
+          color="neutral"
+          variant="ghost"
+          class="w-full justify-start rounded-none px-3"
+          @click="refreshTab(contextMenu.tab!)"
+        >
+          刷新页面
+        </UButton>
+        <div class="h-px bg-border my-1" />
+        <UButton
+          v-if="contextMenu.tab?.closable !== false"
+          color="neutral"
+          variant="ghost"
+          class="w-full justify-start rounded-none px-3"
+          @click="closeTab(contextMenu.tab!.id)"
+        >
+          关闭标签
+        </UButton>
+        <UButton
+          color="neutral"
+          variant="ghost"
+          class="w-full justify-start rounded-none px-3"
+          @click="closeOtherTabsFrom(contextMenu.tab!)"
+        >
+          关闭其他
+        </UButton>
+        <UButton
+          color="neutral"
+          variant="ghost"
+          class="w-full justify-start rounded-none px-3"
+          @click="closeRightTabs(contextMenu.tab!)"
+        >
+          关闭右侧
+        </UButton>
+        <div class="h-px bg-border my-1" />
+        <UButton
+          color="neutral"
+          variant="ghost"
+          class="w-full justify-start rounded-none px-3"
+          @click="closeAllTabs"
+        >
+          关闭所有
+        </UButton>
+      </div>
+    </Transition>
+  </div>
+</template>
 
 <style scoped>
   .scrollbar-hide {

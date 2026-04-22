@@ -49,14 +49,6 @@ export const APP_ROUTE_TREE: AppRouteConfig[] = [
     showInSidebar: true,
   },
   {
-    key: 'profile',
-    path: '/profile',
-    title: '个人资料',
-    description: '管理您的个人信息和账户设置',
-    icon: 'i-lucide-user-round',
-    showInSidebar: true,
-  },
-  {
     key: 'settings',
     path: '/settings',
     title: '系统设置',
@@ -100,59 +92,6 @@ export const APP_ROUTE_TREE: AppRouteConfig[] = [
     title: '登录',
     description: '登录您的账户',
     icon: 'i-lucide-log-in',
-  },
-  {
-    key: 'dashboard-backup',
-    path: '/dashboard-backup',
-    title: 'Home',
-    description: 'Dashboard template home page',
-    icon: 'i-lucide-layout-dashboard',
-    children: [
-      {
-        key: 'dashboard-backup-customers',
-        path: '/dashboard-backup/customers',
-        title: 'Customers',
-        description: 'Manage customer records',
-        icon: 'i-lucide-users',
-      },
-      {
-        key: 'dashboard-backup-inbox',
-        path: '/dashboard-backup/inbox',
-        title: 'Inbox',
-        description: 'Review inbox messages and threads',
-        icon: 'i-lucide-inbox',
-      },
-      {
-        key: 'dashboard-backup-settings',
-        path: '/dashboard-backup/settings',
-        title: 'Settings',
-        description: 'Manage dashboard template settings',
-        icon: 'i-lucide-settings',
-        children: [
-          {
-            key: 'dashboard-backup-settings-members',
-            path: '/dashboard-backup/settings/members',
-            title: 'Members',
-            description: 'Invite and manage workspace members',
-            icon: 'i-lucide-users',
-          },
-          {
-            key: 'dashboard-backup-settings-notifications',
-            path: '/dashboard-backup/settings/notifications',
-            title: 'Notifications',
-            description: 'Manage notification preferences',
-            icon: 'i-lucide-bell',
-          },
-          {
-            key: 'dashboard-backup-settings-security',
-            path: '/dashboard-backup/settings/security',
-            title: 'Security',
-            description: 'Update password and account security',
-            icon: 'i-lucide-shield',
-          },
-        ],
-      },
-    ],
   },
 ]
 

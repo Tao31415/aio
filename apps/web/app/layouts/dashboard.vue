@@ -131,9 +131,9 @@
     ],
     [
       {
-        label: APP_ROUTE_MAP['/profile']!.title,
-        icon: APP_ROUTE_MAP['/profile']!.icon,
-        to: APP_ROUTE_MAP['/profile']!.path,
+        label: APP_ROUTE_MAP['/settings/profile']!.title,
+        icon: APP_ROUTE_MAP['/settings/profile']!.icon,
+        to: APP_ROUTE_MAP['/settings/profile']!.path,
       },
       {
         label: APP_ROUTE_MAP['/settings']!.title,
