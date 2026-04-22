@@ -215,5 +215,5 @@ make deploy-prune          # 清空 Docker 构建缓存
 
 make ex preview           # 相当于 bun run preview
 make ex test:api          # 相当于 bun run test:api
-make ex check --fix       # 相当于 bun run check --fix
+make ex check --fix
 ```

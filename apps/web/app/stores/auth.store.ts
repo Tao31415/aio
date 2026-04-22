@@ -1,4 +1,4 @@
-import type { Session, User } from '~/plugins/auth.plugin'
+import type { Session, User } from '~/types'
 
 export type AuthStatus =
   | 'unknown'

@@ -186,3 +186,31 @@ const { data, error } = await useFetch('/api/v1/resource', {
   headers: useAuthHeaders(),
 })
 ```
+
+## 开发规范
+
+### 表单 autocomplete
+
+为防止浏览器自动填充表单数据，表单输入框需要添加 `autocomplete` 属性：
+
+| 字段类型 | autocomplete 值 | 说明 |
+|---------|----------------|------|
+| 不需要自动填充的文本输入 | `off` | 如用户名、昵称等 |
+| 密码/新密码字段 | `new-password` | 提示浏览器这是新密码 |
+
+示例：
+
+```vue
+<UInput
+  v-model="formData.username"
+  type="text"
+  placeholder="请输入用户名"
+  autocomplete="off"
+/>
+<UInput
+  v-model="formData.password"
+  type="password"
+  placeholder="请输入密码"
+  autocomplete="new-password"
+/>
+```

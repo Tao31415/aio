@@ -1,4 +1,4 @@
-import type { AuthClient, Session, User } from '~/plugins/auth.plugin'
+import type { AuthClient, Session, User } from '~/types'
 
 interface EnsureSessionOptions {
   force?: boolean

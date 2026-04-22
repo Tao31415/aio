@@ -10,34 +10,6 @@ import {
 } from 'better-auth/client/plugins'
 import { ensureSession } from '~/composables/auth/session-manager'
 
-export type AuthClient = ReturnType<typeof createAuthClient<typeof _typeConfig>>
-export type Session = AuthClient['$Infer']['Session']['session']
-export type User = AuthClient['$Infer']['Session']['user']
-
-// need improve
-const _typeConfig = {
-  baseURL: '',
-  basePath: '',
-  appName: 'aio',
-  logger: {
-    disabled: false,
-    disableColors: false,
-    level: 'debug',
-    log: (level: any, message: any, ...args: any) => {
-      // Custom logging implementation
-      console.log(`[${level}] ${message}`, ...args)
-    },
-  },
-  session: {
-    storageKey: 'better-auth-session',
-    fetchDataOnMount: true,
-  },
-  fetchOptions: {
-    credentials: 'include' as const,
-  },
-  plugins: [adminClient(), usernameClient(), multiSessionClient()],
-}
-
 export default defineNuxtPlugin(async (_) => {
   const config = useRuntimeConfig()
   const logger = useLogger('auth')
