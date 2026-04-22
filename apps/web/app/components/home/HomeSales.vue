@@ -86,6 +86,8 @@
     {
       accessorKey: 'email',
       header: 'Email',
+      cell: ({ row }) =>
+        h('span', { class: 'text-muted' }, row.getValue('email')),
     },
     {
       accessorKey: 'amount',
@@ -98,7 +100,11 @@
           currency: 'EUR',
         }).format(amount)
 
-        return h('div', { class: 'text-right font-medium' }, formatted)
+        return h(
+          'div',
+          { class: 'text-right font-medium text-foreground' },
+          formatted
+        )
       },
     },
   ]
@@ -113,8 +119,8 @@
       base: 'table-fixed border-separate border-spacing-0',
       thead: '[&>tr]:bg-elevated/50 [&>tr]:after:content-none',
       tbody: '[&>tr]:last:[&>td]:border-b-0',
-      th: 'first:rounded-l-lg last:rounded-r-lg border-y border-default first:border-l last:border-r',
-      td: 'border-b border-default',
+      th: 'first:rounded-l-lg last:rounded-r-lg border-y border-border first:border-l last:border-r',
+      td: 'border-b border-border',
     }"
   />
 </template>

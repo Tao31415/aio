@@ -52,8 +52,8 @@ export const useTabsStore = defineStore('tabs', {
     // 关闭标签
     closeTab(id: string) {
       const index = this.tabs.findIndex((tab) => tab.id === id)
-    const tab = index !== -1 ? this.tabs[index] : undefined
-    if (tab && tab.closable !== false) {
+      const tab = index !== -1 ? this.tabs[index] : undefined
+      if (tab && tab.closable !== false) {
         this.tabs.splice(index, 1)
       }
     },

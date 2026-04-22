@@ -1,15 +1,15 @@
 <template>
   <div
-    class="bg-elevated border border-default rounded-xl p-6 space-y-4 h-full flex flex-col"
+    class="bg-elevated border border-border rounded-xl p-5 space-y-4 h-full flex flex-col shadow-sm hover:shadow-md transition-shadow duration-200"
   >
     <div class="flex items-center justify-between">
-      <h3 class="font-semibold">日程</h3>
+      <h3 class="font-semibold text-foreground">日程</h3>
       <span class="text-xs text-muted">今日日程</span>
     </div>
 
     <!-- Today's Events List -->
     <div
-      class="flex-1 overflow-auto rounded-md border border-default bg-accented/30 p-3"
+      class="flex-1 overflow-auto rounded-lg border border-border bg-muted/30 p-3"
     >
       <div
         v-if="loading"
@@ -30,17 +30,21 @@
         <li
           v-for="event in displayList"
           :key="event.id"
-          class="flex items-start justify-between gap-2 rounded-md bg-default p-2 shadow-sm hover:shadow-md transition-shadow"
+          class="flex items-start justify-between gap-2 rounded-lg bg-elevated p-3 shadow-sm hover:shadow-md transition-shadow duration-150 border border-border"
         >
-          <div class="flex-1">
-            <p class="text-sm font-medium leading-tight">
+          <div class="flex-1 min-w-0">
+            <p
+              class="text-sm font-medium leading-tight text-foreground truncate"
+            >
               {{ event.title || '未命名事件' }}
             </p>
-            <p class="text-[11px] text-muted leading-tight">
+            <p class="text-[11px] text-muted leading-tight mt-0.5">
               {{ formatRange(event.start, event.end) }}
             </p>
           </div>
-          <span class="text-[11px] text-muted">日程</span>
+          <span class="text-[11px] text-primary font-medium shrink-0">
+            日程
+          </span>
         </li>
       </ul>
     </div>

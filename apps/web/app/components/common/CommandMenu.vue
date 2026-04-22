@@ -11,7 +11,7 @@
     }"
   >
     <template #body>
-      <div class="border-b border-default px-4 py-3">
+      <div class="border-b border-border px-4 py-3">
         <div class="flex items-center gap-3">
           <UInput
             v-model="query"
@@ -26,7 +26,7 @@
             @keydown.escape="close"
           />
           <kbd
-            class="hidden sm:inline-flex h-5 select-none items-center gap-1 rounded border border-default bg-accented px-1.5 font-mono text-xs font-medium text-muted"
+            class="hidden sm:inline-flex h-5 select-none items-center gap-1 rounded border border-border bg-muted px-1.5 font-mono text-xs font-medium text-muted"
           >
             ESC
           </kbd>
@@ -78,19 +78,30 @@
     <template #footer>
       <div class="flex items-center gap-4 text-xs text-muted">
         <span class="flex items-center gap-1">
-          <kbd class="px-1 py-0.5 rounded border border-default bg-accented">
-            ↑↓
+          <kbd
+            class="px-1.5 py-0.5 rounded border border-border bg-muted font-mono text-[10px]"
+          >
+            ↑
+          </kbd>
+          <kbd
+            class="px-1.5 py-0.5 rounded border border-border bg-muted font-mono text-[10px]"
+          >
+            ↓
           </kbd>
           选择
         </span>
         <span class="flex items-center gap-1">
-          <kbd class="px-1 py-0.5 rounded border border-default bg-accented">
+          <kbd
+            class="px-1.5 py-0.5 rounded border border-border bg-muted font-mono text-[10px]"
+          >
             ↵
           </kbd>
           执行
         </span>
         <span class="flex items-center gap-1">
-          <kbd class="px-1 py-0.5 rounded border border-default bg-accented">
+          <kbd
+            class="px-1.5 py-0.5 rounded border border-border bg-muted font-mono text-[10px]"
+          >
             ESC
           </kbd>
           关闭
@@ -154,7 +165,7 @@
     {
       id: 'theme-toggle',
       name: '切换主题',
-      icon: 'i-lucide-moon-star',
+      icon: 'i-lucide-moon',
       action: () => uiSettings.toggleTheme(),
       shortcut: '⌘T',
       group: '设置',
@@ -169,7 +180,7 @@
     {
       id: 'theme-dark',
       name: '深色模式',
-      icon: 'i-lucide-moon-star',
+      icon: 'i-lucide-moon',
       action: () => uiSettings.setTheme('dark'),
       group: '设置',
     },

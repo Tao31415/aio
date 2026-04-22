@@ -1,6 +1,10 @@
 <script setup lang="ts">
   import type { NavigationMenuItem } from '@nuxt/ui'
-  import { APP_ROUTE_MAP, getSidebarRoutes, getAppRouteChildren } from '~/utils/route-config'
+  import {
+    APP_ROUTE_MAP,
+    getSidebarRoutes,
+    getAppRouteChildren,
+  } from '~/utils/route-config'
 
   const route = useRoute()
   const toast = useToast()
@@ -46,7 +50,7 @@
 
   const searchableRoutes = computed(() =>
     getSidebarRoutes().reduce<
-      Array<(typeof getSidebarRoutes extends () => Array<infer T> ? T : never)>
+      Array<typeof getSidebarRoutes extends () => Array<infer T> ? T : never>
     >((items, routeItem) => {
       items.push(routeItem)
       if (routeItem.children?.length) {

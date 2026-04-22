@@ -98,7 +98,7 @@
     </UDashboardNavbar>
 
     <div
-      class="flex flex-col sm:flex-row justify-between gap-1 p-4 sm:px-6 border-b border-default"
+      class="flex flex-col sm:flex-row justify-between gap-1 p-4 sm:px-6 border-b border-border"
     >
       <div class="flex items-start gap-4 sm:my-1.5">
         <UAvatar
@@ -108,10 +108,10 @@
         />
 
         <div class="min-w-0">
-          <p class="font-semibold text-highlighted">
+          <p class="font-semibold text-foreground">
             {{ mail.from.name }}
           </p>
-          <p class="text-muted">
+          <p class="text-muted text-sm">
             {{ mail.from.email }}
           </p>
         </div>
@@ -123,7 +123,7 @@
     </div>
 
     <div class="flex-1 p-4 sm:p-6 overflow-y-auto">
-      <p class="whitespace-pre-wrap">
+      <p class="whitespace-pre-wrap text-foreground">
         {{ mail.body }}
       </p>
     </div>
@@ -132,7 +132,7 @@
       <UCard
         variant="subtle"
         class="mt-auto"
-        :ui="{ header: 'flex items-center gap-1.5 text-dimmed' }"
+        :ui="{ header: 'flex items-center gap-1.5 text-muted' }"
       >
         <template #header>
           <UIcon
@@ -176,7 +176,6 @@
               />
               <UButton
                 type="submit"
-                color="neutral"
                 :loading="loading"
                 label="Send"
                 icon="i-lucide-send"

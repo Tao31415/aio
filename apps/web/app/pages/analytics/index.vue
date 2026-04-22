@@ -38,10 +38,10 @@
 
   // 流量来源
   const trafficSources = ref([
-    { name: '直接访问', percentage: 35, color: 'bg-blue-500' },
-    { name: '搜索引擎', percentage: 28, color: 'bg-green-500' },
-    { name: '社交媒体', percentage: 22, color: 'bg-yellow-500' },
-    { name: '外部链接', percentage: 15, color: 'bg-purple-500' },
+    { name: '直接访问', percentage: 35, colorClass: 'bg-[var(--chart-1)]' },
+    { name: '搜索引擎', percentage: 28, colorClass: 'bg-[var(--chart-2)]' },
+    { name: '社交媒体', percentage: 22, colorClass: 'bg-[var(--chart-3)]' },
+    { name: '外部链接', percentage: 15, colorClass: 'bg-[var(--chart-4)]' },
   ])
 
   // 活跃度数据（模拟热力图）
@@ -163,6 +163,7 @@
         v-for="metric in keyMetrics"
         :key="metric.label"
         :ui="{ body: 'p-6' }"
+        class="shadow-sm hover:shadow-md transition-shadow duration-200"
       >
         <div class="flex items-center justify-between">
           <span class="text-sm text-muted">{{ metric.label }}</span>
@@ -173,7 +174,9 @@
             {{ metric.trend >= 0 ? '+' : '' }}{{ metric.trend }}%
           </UBadge>
         </div>
-        <p class="text-3xl font-bold mt-2">{{ metric.value }}</p>
+        <p class="text-3xl font-bold mt-2 text-foreground">
+          {{ metric.value }}
+        </p>
         <p class="text-sm text-muted mt-1">较上期 {{ metric.comparison }}</p>
       </UCard>
     </div>
@@ -181,7 +184,10 @@
     <!-- 图表区域 -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- 访问量趋势 -->
-      <UCard :ui="{ body: 'p-6' }">
+      <UCard
+        :ui="{ body: 'p-6' }"
+        class="shadow-sm hover:shadow-md transition-shadow duration-200"
+      >
         <h3 class="font-semibold mb-4">访问量趋势</h3>
         <div class="h-64 flex items-end justify-between gap-1">
           <div
@@ -209,7 +215,10 @@
       </UCard>
 
       <!-- 用户来源 -->
-      <UCard :ui="{ body: 'p-6' }">
+      <UCard
+        :ui="{ body: 'p-6' }"
+        class="shadow-sm hover:shadow-md transition-shadow duration-200"
+      >
         <h3 class="font-semibold mb-4">用户来源</h3>
         <div class="space-y-4">
           <div
@@ -224,7 +233,7 @@
             <div class="h-2 bg-accented rounded-full overflow-hidden">
               <div
                 class="h-full rounded-full transition-all"
-                :class="source.color"
+                :class="source.colorClass"
                 :style="{ width: `${source.percentage}%` }"
               />
             </div>
@@ -233,7 +242,10 @@
       </UCard>
 
       <!-- 用户活跃度 -->
-      <UCard :ui="{ body: 'p-6' }">
+      <UCard
+        :ui="{ body: 'p-6' }"
+        class="shadow-sm hover:shadow-md transition-shadow duration-200"
+      >
         <h3 class="font-semibold mb-4">用户活跃度</h3>
         <div class="grid grid-cols-7 gap-1">
           <div
@@ -266,7 +278,10 @@
       </UCard>
 
       <!-- 设备分布 -->
-      <UCard :ui="{ body: 'p-6' }">
+      <UCard
+        :ui="{ body: 'p-6' }"
+        class="shadow-sm hover:shadow-md transition-shadow duration-200"
+      >
         <h3 class="font-semibold mb-4">设备分布</h3>
         <div class="flex items-center justify-center h-48">
           <div class="relative w-40 h-40">
@@ -282,7 +297,7 @@
                 fill="transparent"
                 stroke="currentColor"
                 stroke-width="20"
-                class="text-blue-500"
+                class="text-[var(--chart-1)]"
                 :stroke-dasharray="`${deviceData.desktop * 2.51} 251`"
               />
               <circle
@@ -292,7 +307,7 @@
                 fill="transparent"
                 stroke="currentColor"
                 stroke-width="20"
-                class="text-green-500"
+                class="text-[var(--chart-2)]"
                 :stroke-dasharray="`${deviceData.mobile * 2.51} 251`"
                 :stroke-dashoffset="`-${deviceData.desktop * 2.51}`"
               />
@@ -303,7 +318,7 @@
                 fill="transparent"
                 stroke="currentColor"
                 stroke-width="20"
-                class="text-yellow-500"
+                class="text-[var(--chart-3)]"
                 :stroke-dasharray="`${deviceData.tablet * 2.51} 251`"
                 :stroke-dashoffset="`-${(deviceData.desktop + deviceData.mobile) * 2.51}`"
               />
@@ -312,15 +327,15 @@
         </div>
         <div class="flex items-center justify-center gap-6 mt-4">
           <div class="flex items-center gap-2">
-            <div class="w-3 h-3 rounded-full bg-blue-500" />
+            <div class="w-3 h-3 rounded-full bg-[var(--chart-1)]" />
             <span class="text-sm">桌面 {{ deviceData.desktop }}%</span>
           </div>
           <div class="flex items-center gap-2">
-            <div class="w-3 h-3 rounded-full bg-green-500" />
+            <div class="w-3 h-3 rounded-full bg-[var(--chart-2)]" />
             <span class="text-sm">移动 {{ deviceData.mobile }}%</span>
           </div>
           <div class="flex items-center gap-2">
-            <div class="w-3 h-3 rounded-full bg-yellow-500" />
+            <div class="w-3 h-3 rounded-full bg-[var(--chart-3)]" />
             <span class="text-sm">平板 {{ deviceData.tablet }}%</span>
           </div>
         </div>
@@ -328,7 +343,10 @@
     </div>
 
     <!-- 热门页面 -->
-    <UCard :ui="{ body: 'p-6' }">
+    <UCard
+      :ui="{ body: 'p-6' }"
+      class="shadow-sm hover:shadow-md transition-shadow duration-200"
+    >
       <h3 class="font-semibold mb-4">热门页面</h3>
       <div class="overflow-x-auto">
         <UTable

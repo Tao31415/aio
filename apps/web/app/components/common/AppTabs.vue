@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="tabs.tabs.length > 1"
-    class="h-10 border-b border-default bg-default flex items-center gap-1 shrink-0 relative"
+    class="h-10 border-b border-border bg-elevated flex items-center gap-1 shrink-0 relative"
   >
     <!-- 左滚动按钮 -->
     <UButton
@@ -24,10 +24,10 @@
         :key="tab.id"
         :data-tab-id="tab.id"
         :class="[
-          'flex items-center gap-2 px-3 h-8 text-sm cursor-pointer transition-all shrink-0 relative group rounded-t-md',
+          'flex items-center gap-2 px-3 h-8 text-sm cursor-pointer transition-all duration-150 shrink-0 relative group rounded-t-md',
           tab.path === route.path
-            ? 'text-default font-medium bg-accented/40'
-            : 'text-muted hover:text-default hover:bg-accented/20',
+            ? 'text-foreground font-medium bg-accented/50'
+            : 'text-muted hover:text-foreground hover:bg-accented/30',
         ]"
         @click="navigateTo(tab.path)"
         @contextmenu.prevent="openContextMenu($event, tab)"
@@ -38,8 +38,8 @@
           :class="[
             'flex items-center justify-center w-4 h-4 rounded transition-all',
             tab.path === route.path
-              ? 'opacity-80 hover:opacity-100'
-              : 'opacity-0 group-hover:opacity-60 hover:opacity-100',
+              ? 'opacity-80 hover:opacity-100 text-muted hover:text-foreground'
+              : 'opacity-0 group-hover:opacity-60 hover:opacity-100 text-muted',
           ]"
           @click.stop="closeTab(tab.id)"
         >
@@ -68,7 +68,7 @@
     />
 
     <!-- 标签操作 -->
-    <div class="flex items-center gap-1 shrink-0 px-2 border-l border-default">
+    <div class="flex items-center gap-1 shrink-0 px-2 border-l border-border">
       <!-- 关闭其他 -->
       <UButton
         color="neutral"
@@ -93,7 +93,7 @@
     <Transition name="fade">
       <div
         v-if="contextMenu.visible"
-        class="absolute z-50 w-44 rounded-lg border border-default bg-elevated shadow-lg py-1 text-sm"
+        class="absolute z-50 w-44 rounded-lg border border-border bg-elevated shadow-lg py-1 text-sm"
         :style="{ left: `${contextMenu.x}px`, top: `${contextMenu.y}px` }"
         @click.stop
       >
@@ -292,7 +292,8 @@
   watch(
     () => route.path,
     (newPath) => {
-      const routeTitle = (route.meta.title as string) || getAppRouteTitle(newPath)
+      const routeTitle =
+        (route.meta.title as string) || getAppRouteTitle(newPath)
       const existingTab = tabs.tabs.find((t) => t.path === newPath)
       if (existingTab) {
         if (existingTab.title !== routeTitle) {
@@ -335,7 +336,6 @@
     // 初始检查
     nextTick(checkScroll)
   })
-
 </script>
 
 <style scoped>

@@ -1,33 +1,33 @@
 <template>
   <div
-    class="bg-elevated border border-default rounded-xl p-6 space-y-4 h-full flex flex-col"
+    class="bg-elevated border border-border rounded-xl p-5 space-y-4 h-full flex flex-col shadow-sm hover:shadow-md transition-shadow duration-200"
   >
     <div class="flex items-center justify-between">
-      <h3 class="font-semibold">快速操作</h3>
+      <h3 class="font-semibold text-foreground">快速操作</h3>
       <span class="text-xs text-muted">常用入口</span>
     </div>
 
-    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 flex-1">
+    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 flex-1">
       <UButton
         v-for="action in actions"
         :key="action.label"
         color="neutral"
         variant="ghost"
-        class="flex min-h-[88px] flex-col items-center justify-center gap-2 rounded-lg border border-default bg-default p-3 text-center transition-all hover:bg-accented/80"
+        class="flex min-h-[88px] flex-col items-center justify-center gap-2 rounded-xl border border-border bg-default p-3 text-center transition-all duration-150 hover:bg-accented hover:border-primary/20 hover:shadow-sm hover:-translate-y-0.5 active:translate-y-0"
         @click="handleAction(action)"
       >
         <span
-          class="h-10 w-10 rounded-lg flex items-center justify-center"
+          class="h-10 w-10 rounded-lg flex items-center justify-center transition-colors"
           :class="getActionToneBg(action.tone)"
         >
           <component
             :is="action.icon"
-            class="w-5 h-5"
+            class="w-5 h-5 transition-colors"
             :class="getActionToneText(action.tone)"
           />
         </span>
         <div class="text-center">
-          <p class="font-medium text-sm">{{ action.label }}</p>
+          <p class="font-medium text-sm text-foreground">{{ action.label }}</p>
           <p class="text-xs text-muted">{{ action.hint }}</p>
         </div>
       </UButton>
@@ -49,7 +49,7 @@
     label: string
     hint: string
     icon: Component
-    tone: 'info' | 'success' | 'warning' | 'secondary' | 'error' | 'neutral'
+    tone: 'info' | 'success' | 'warning' | 'primary' | 'error' | 'neutral'
     href: string
   }
 
@@ -85,7 +85,7 @@
       label: '数据分析',
       hint: '查看报表',
       icon: IconBarChart3,
-      tone: 'secondary',
+      tone: 'primary',
       href: '/analytics',
     },
     {
@@ -114,9 +114,9 @@
       info: 'bg-info/10',
       success: 'bg-success/10',
       warning: 'bg-warning/10',
-      secondary: 'bg-secondary/10',
+      primary: 'bg-primary/10',
       error: 'bg-error/10',
-      neutral: 'bg-accented',
+      neutral: 'bg-muted',
     } as const
 
     return map[tone]
@@ -127,7 +127,7 @@
       info: 'text-info',
       success: 'text-success',
       warning: 'text-warning',
-      secondary: 'text-secondary',
+      primary: 'text-primary',
       error: 'text-error',
       neutral: 'text-muted',
     } as const

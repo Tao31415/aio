@@ -1,27 +1,27 @@
 <template>
   <aside
     :class="[
-      'h-full bg-default border-r border-default flex flex-col transition-all duration-300',
+      'h-full bg-elevated border-r border-default flex flex-col transition-all duration-300',
       collapsed && !isMobile ? 'w-16' : 'w-56',
     ]"
   >
     <!-- Logo 区域 -->
     <div
-      class="h-14 border-b border-default flex items-center justify-center px-4 shrink-0"
+      class="h-14 border-b border-border flex items-center justify-center px-4 shrink-0"
     >
       <NuxtLink
         to="/"
         class="flex items-center gap-2"
       >
         <div
-          class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shrink-0"
+          class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shrink-0 shadow-sm"
         >
           <span class="text-primary-foreground font-bold text-lg">H</span>
         </div>
         <Transition name="fade">
           <span
             v-if="!collapsed || isMobile"
-            class="text-lg font-bold whitespace-nowrap"
+            class="text-lg font-bold text-foreground whitespace-nowrap"
           >
             {{ brandName }}
           </span>
@@ -40,16 +40,21 @@
           <NuxtLink
             :to="item.path"
             :class="[
-              'flex items-center gap-3 px-3 py-2 rounded-md transition-colors',
+              'flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-150 group',
               isActive(item.path)
-                ? 'bg-primary text-white font-medium'
-                : 'hover:bg-accented text-muted hover:text-default',
+                ? 'bg-primary/10 text-primary font-medium shadow-sm'
+                : 'hover:bg-accented text-muted hover:text-foreground',
             ]"
             :title="collapsed && !isMobile ? item.title : undefined"
           >
             <UIcon
               :name="item.icon"
-              class="w-5 h-5 shrink-0"
+              :class="[
+                'w-5 h-5 shrink-0 transition-colors duration-150',
+                isActive(item.path)
+                  ? 'text-primary'
+                  : 'text-muted group-hover:text-foreground',
+              ]"
             />
             <Transition name="fade">
               <span
