@@ -111,7 +111,7 @@
       color="neutral"
       variant="ghost"
       icon="i-lucide-calendar"
-      class="data-[state=open]:bg-accented group transition-colors"
+      class="data-[state=open]:bg-elevated group"
     >
       <span class="truncate">
         <template v-if="selected.start">

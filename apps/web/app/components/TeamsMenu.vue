@@ -70,10 +70,10 @@
       variant="ghost"
       block
       :square="collapsed"
-      class="data-[state=open]:bg-accented transition-colors"
+      class="data-[state=open]:bg-elevated"
       :class="[!collapsed && 'py-2']"
       :ui="{
-        trailingIcon: 'text-muted',
+        trailingIcon: 'text-dimmed',
       }"
     />
   </UDropdownMenu>

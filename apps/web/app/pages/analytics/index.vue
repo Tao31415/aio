@@ -163,7 +163,6 @@
         v-for="metric in keyMetrics"
         :key="metric.label"
         :ui="{ body: 'p-6' }"
-        class="shadow-sm hover:shadow-md transition-shadow duration-200"
       >
         <div class="flex items-center justify-between">
           <span class="text-sm text-muted">{{ metric.label }}</span>
@@ -174,9 +173,7 @@
             {{ metric.trend >= 0 ? '+' : '' }}{{ metric.trend }}%
           </UBadge>
         </div>
-        <p class="text-3xl font-bold mt-2 text-foreground">
-          {{ metric.value }}
-        </p>
+        <p class="text-3xl font-bold mt-2">{{ metric.value }}</p>
         <p class="text-sm text-muted mt-1">较上期 {{ metric.comparison }}</p>
       </UCard>
     </div>
@@ -184,10 +181,7 @@
     <!-- 图表区域 -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- 访问量趋势 -->
-      <UCard
-        :ui="{ body: 'p-6' }"
-        class="shadow-sm hover:shadow-md transition-shadow duration-200"
-      >
+      <UCard :ui="{ body: 'p-6' }">
         <h3 class="font-semibold mb-4">访问量趋势</h3>
         <div class="h-64 flex items-end justify-between gap-1">
           <div
@@ -215,10 +209,7 @@
       </UCard>
 
       <!-- 用户来源 -->
-      <UCard
-        :ui="{ body: 'p-6' }"
-        class="shadow-sm hover:shadow-md transition-shadow duration-200"
-      >
+      <UCard :ui="{ body: 'p-6' }">
         <h3 class="font-semibold mb-4">用户来源</h3>
         <div class="space-y-4">
           <div
@@ -242,10 +233,7 @@
       </UCard>
 
       <!-- 用户活跃度 -->
-      <UCard
-        :ui="{ body: 'p-6' }"
-        class="shadow-sm hover:shadow-md transition-shadow duration-200"
-      >
+      <UCard :ui="{ body: 'p-6' }">
         <h3 class="font-semibold mb-4">用户活跃度</h3>
         <div class="grid grid-cols-7 gap-1">
           <div
@@ -278,10 +266,7 @@
       </UCard>
 
       <!-- 设备分布 -->
-      <UCard
-        :ui="{ body: 'p-6' }"
-        class="shadow-sm hover:shadow-md transition-shadow duration-200"
-      >
+      <UCard :ui="{ body: 'p-6' }">
         <h3 class="font-semibold mb-4">设备分布</h3>
         <div class="flex items-center justify-center h-48">
           <div class="relative w-40 h-40">
@@ -343,10 +328,7 @@
     </div>
 
     <!-- 热门页面 -->
-    <UCard
-      :ui="{ body: 'p-6' }"
-      class="shadow-sm hover:shadow-md transition-shadow duration-200"
-    >
+    <UCard :ui="{ body: 'p-6' }">
       <h3 class="font-semibold mb-4">热门页面</h3>
       <div class="overflow-x-auto">
         <UTable

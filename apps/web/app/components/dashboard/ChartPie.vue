@@ -1,9 +1,9 @@
 <template>
   <div
-    class="bg-elevated border border-border rounded-xl p-5 space-y-4 h-full flex flex-col shadow-sm hover:shadow-md transition-shadow duration-200"
+    class="bg-elevated border border-default rounded-xl p-6 space-y-4 h-full flex flex-col"
   >
     <div class="flex items-center justify-between">
-      <h3 class="font-semibold text-foreground">渠道占比</h3>
+      <h3 class="font-semibold">渠道占比</h3>
       <span class="text-xs text-muted">实时</span>
     </div>
 
@@ -28,7 +28,6 @@
           :stroke-dasharray="`${slice.percent * 4.4} 440`"
           :stroke-dashoffset="offsets[idx] * 4.4"
           stroke-linecap="round"
-          class="transition-all duration-300"
         />
         <text
           x="100"
@@ -57,13 +56,11 @@
         class="flex items-center gap-2"
       >
         <span
-          class="h-2.5 w-2.5 rounded-full shrink-0 transition-transform hover:scale-110"
+          class="h-2 w-2 rounded-full shrink-0"
           :style="{ background: slice.color }"
         />
         <span class="text-muted truncate">{{ slice.name }}</span>
-        <span class="ml-auto font-medium text-foreground">
-          {{ slice.percent }}%
-        </span>
+        <span class="ml-auto font-medium">{{ slice.percent }}%</span>
       </div>
     </div>
   </div>
@@ -90,13 +87,7 @@
     { name: '社交', value: 180 },
   ]
 
-  // 使用 CSS 变量以支持暗色模式
-  const colors = [
-    'rgb(var(--color-sky-500) / 1)',
-    'rgb(var(--color-emerald-500) / 1)',
-    'rgb(var(--color-amber-500) / 1)',
-    'rgb(var(--color-violet-500) / 1)',
-  ]
+  const colors = ['#6366f1', '#22c55e', '#f59e0b', '#06b6d4']
 
   const slices = computed<PieSlice[]>(() => {
     const data = props.data || defaultData

@@ -5,13 +5,13 @@
   --font-sans: 'Roboto', 'Noto Sans Simplified Chinese', sans-serif;
 
   /* ========== 品牌色板：浅蓝色 (sky) ========== */
-  /* oklch( lightness, chroma, hue ) — hue 235 天空蓝 */
+  /* oklch( lightness, chroma, hue ) — hue 235 偏蓝 */
   --color-sky-50: oklch(0.97 0.01 235);
   --color-sky-100: oklch(0.94 0.02 235);
   --color-sky-200: oklch(0.9 0.04 235);
   --color-sky-300: oklch(0.82 0.08 235);
   --color-sky-400: oklch(0.72 0.13 235);
-  --color-sky-500: oklch(0.62 0.17 235); /* Light 主色 */
+  --color-sky-500: oklch(0.62 0.17 235); /* Light 模式主色 */
   --color-sky-600: oklch(0.52 0.18 235);
   --color-sky-700: oklch(0.43 0.14 235);
   --color-sky-800: oklch(0.35 0.1 235);
@@ -19,25 +19,29 @@
   --color-sky-950: oklch(0.18 0.04 235);
 }
 
-/* ========== 图表配色（适配亮/暗模式） ========== */
+/* ========== 图表配色（用于数据可视化，同时适配亮/暗模式） ========== */
 :root {
-  --chart-1: oklch(0.62 0.17 235); /* 蓝色 */
-  --chart-2: oklch(0.55 0.15 155); /* 绿色 */
-  --chart-3: oklch(0.7 0.16 70); /* 琥珀色 */
-  --chart-4: oklch(0.6 0.18 280); /* 紫罗兰 */
+  --chart-1: oklch(0.62 0.17 235); /* 蓝色 — 直接访问 */
+  --chart-2: oklch(0.55 0.15 155); /* 绿色 — 搜索引擎 */
+  --chart-3: oklch(0.72 0.15 85); /* 黄色 — 社交媒体 */
+  --chart-4: oklch(0.58 0.18 300); /* 紫色 — 外部链接 */
 }
 
 /* ========== 暗色模式覆盖 ========== */
+/* Nuxt UI v4: primary 在暗色模式自动使用 sky-400，此处只覆盖项目特定值 */
 .dark {
-  /* 自定义暗色背景 */
+  /* 自定义暗色背景（非默认 neutral-900） */
   --ui-bg: oklch(0.15 0.03 260);
   --ui-bg-elevated: oklch(0.22 0.03 260);
 
-  /* 图表配色 — 暗色模式调整饱和度 */
+  /* 亮色 ring offset 背景 */
+  --ui-ring-offset: oklch(0.99 0.005 250);
+
+  /* 图表配色 — 暗色模式下调整饱和度 */
   --chart-1: oklch(0.55 0.17 235);
   --chart-2: oklch(0.6 0.15 155);
-  --chart-3: oklch(0.72 0.16 70);
-  --chart-4: oklch(0.62 0.18 280);
+  --chart-3: oklch(0.75 0.15 85);
+  --chart-4: oklch(0.6 0.18 300);
 }
 
 /* ========== 全局样式 ========== */

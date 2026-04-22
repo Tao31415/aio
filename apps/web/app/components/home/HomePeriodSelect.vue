@@ -35,7 +35,7 @@
     v-model="model"
     :items="periods"
     variant="ghost"
-    class="data-[state=open]:bg-accented transition-colors"
+    class="data-[state=open]:bg-elevated"
     :ui="{
       value: 'capitalize',
       itemLabel: 'capitalize',

@@ -1,7 +1,6 @@
 <script setup lang="ts">
   import type { DropdownMenuItem } from '@nuxt/ui'
   import { APP_ROUTE_MAP } from '~/utils/route-config'
-
   // 事件定义
   defineEmits<{
     toggleSidebar: []
@@ -14,7 +13,6 @@
   const commandMenu = useCommandMenu()
   const { signOut } = useAuthActions()
   const router = useRouter()
-
   const userInitial = computed(() => {
     const displayName =
       auth.user?.username || auth.user?.name || auth.user?.email
@@ -69,10 +67,10 @@
 
 <template>
   <header
-    class="h-14 border-b border-border bg-elevated flex items-center justify-between px-4 lg:px-6 shrink-0"
+    class="h-14 border-b border-default bg-default flex items-center justify-between px-4 lg:px-6 shrink-0"
   >
     <!-- 左侧区域 -->
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-4">
       <!-- 移动端菜单按钮 -->
       <UButton
         color="neutral"
@@ -100,12 +98,12 @@
           variant="soft"
           size="sm"
           icon="i-lucide-search"
-          class="text-muted hover:text-foreground transition-colors"
+          class="text-muted"
           @click="openCommandMenu"
         >
           <span>搜索...</span>
           <kbd
-            class="hidden md:inline-flex h-5 select-none items-center gap-1 rounded border border-border bg-muted px-1.5 font-mono text-xs font-medium text-muted"
+            class="hidden md:inline-flex h-5 select-none items-center gap-1 rounded border border-default bg-accented px-1.5 font-mono text-xs font-medium text-muted"
           >
             <span class="text-xs">⌘</span>
             K
@@ -115,17 +113,17 @@
     </div>
 
     <!-- 右侧区域 -->
-    <div class="flex items-center gap-1">
+    <div class="flex items-center gap-2">
       <!-- 通知按钮 -->
       <UButton
         color="neutral"
         variant="ghost"
         size="sm"
         icon="i-lucide-bell"
-        class="relative transition-colors hover:text-foreground"
+        class="relative"
       >
         <span
-          class="absolute top-1.5 right-1.5 w-2 h-2 bg-destructive rounded-full ring-2 ring-elevated"
+          class="absolute top-1 right-1 w-2 h-2 bg-destructive rounded-full"
         ></span>
       </UButton>
 
@@ -134,8 +132,7 @@
         color="neutral"
         variant="ghost"
         size="sm"
-        :icon="uiSettings.isDark ? 'i-lucide-sun' : 'i-lucide-moon'"
-        class="transition-colors hover:text-foreground"
+        :icon="uiSettings.isDark ? 'i-lucide-sun' : 'i-lucide-moon-star'"
         @click="toggleTheme"
       />
 
@@ -145,21 +142,21 @@
           color="neutral"
           variant="ghost"
           size="sm"
-          class="gap-2 px-1.5 hover:bg-accented transition-colors"
+          class="gap-2 px-1.5"
         >
           <div
-            class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-sm"
+            class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"
           >
             <span class="text-primary-foreground text-sm font-medium">
               {{ userInitial }}
             </span>
           </div>
-          <span class="hidden md:inline text-sm font-medium text-foreground">
+          <span class="hidden md:inline text-sm font-medium">
             {{ auth.user?.name }}
           </span>
           <UIcon
             name="i-lucide-chevron-down"
-            class="hidden md:inline size-4 text-muted"
+            class="hidden md:inline size-4"
           />
         </UButton>
       </UDropdownMenu>

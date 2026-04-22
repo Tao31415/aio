@@ -47,7 +47,7 @@
 </script>
 
 <template>
-  <div class="overflow-y-auto divide-y divide-border">
+  <div class="overflow-y-auto divide-y divide-default">
     <div
       v-for="(mail, index) in mails"
       :key="index"
@@ -58,12 +58,12 @@
       "
     >
       <div
-        class="p-4 sm:px-6 text-sm cursor-pointer border-l-2 transition-all duration-150"
+        class="p-4 sm:px-6 text-sm cursor-pointer border-l-2 transition-colors"
         :class="[
-          mail.unread ? 'text-foreground' : 'text-muted',
+          mail.unread ? 'text-highlighted' : 'text-toned',
           selectedMail && selectedMail.id === mail.id
             ? 'border-primary bg-primary/10'
-            : 'border-transparent hover:border-primary/30 hover:bg-accented/50',
+            : 'border-bg hover:border-primary hover:bg-primary/5',
         ]"
         @click="selectedMail = mail"
       >
@@ -77,7 +77,7 @@
             <UChip v-if="mail.unread" />
           </div>
 
-          <span class="text-muted text-xs">
+          <span>
             {{
               isToday(new Date(mail.date))
                 ? format(new Date(mail.date), 'HH:mm')
@@ -91,7 +91,7 @@
         >
           {{ mail.subject }}
         </p>
-        <p class="text-muted line-clamp-1">
+        <p class="text-dimmed line-clamp-1">
           {{ mail.body }}
         </p>
       </div>
