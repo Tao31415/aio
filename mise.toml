@@ -63,6 +63,13 @@ run = "bun run check"
 description = "自动修复类型问题"
 run = "bun run check --fix"
 
+[tasks.ex]
+description = "执行动态任务 (相当于 bun run <task>)"
+run = "bun run $ARG1 $ARG2"
+
+# ================================
+# kill
+# ================================
 [tasks.kill]
 description = "跨平台强杀指定端口的进程 (默认清理 30000 和 40000 端口)"
 usage = """

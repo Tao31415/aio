@@ -181,6 +181,11 @@ mise run deploy-stop       # 停止 Docker 容器
 mise run deploy-restart    # 重启 Docker 容器
 mise run deploy-down       # 删除 Docker 容器
 mise run deploy-prune     # 清空 Docker 构建缓存
+
+# 动态任务 (执行 bun run <task>)
+mise run ex preview       # 相当于 bun run preview
+mise run ex test:api      # 相当于 bun run test:api
+mise run ex check --fix   # 相当于 bun run check --fix
 ```
 
 ## Makefile
@@ -207,4 +212,8 @@ make deploy-stop           # 停止 Docker 容器
 make deploy-restart        # 重启 Docker 容器
 make deploy-down           # 删除 Docker 容器
 make deploy-prune          # 清空 Docker 构建缓存
+
+make ex preview           # 相当于 bun run preview
+make ex test:api          # 相当于 bun run test:api
+make ex check --fix       # 相当于 bun run check --fix
 ```

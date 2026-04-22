@@ -1,4 +1,4 @@
-.PHONY: help init build dev check fix kill clean cleanAll reinstall deploy deploy-build deploy-build-api deploy-build deploy-build-web deploy-pull deploy-start deploy-stop deploy-restart deploy-down deploy-prune
+.PHONY: help init build dev check fix kill clean cleanAll reinstall deploy deploy-build deploy-build-api deploy-build deploy-build-web deploy-pull deploy-start deploy-stop deploy-restart deploy-down deploy-prune ex
 
 # ================================
 # 变量
@@ -38,6 +38,8 @@ help:
 	@echo "  make deploy-restart   # 重启 Docker 容器"
 	@echo "  make deploy-down      # 删除 Docker 容器"
 	@echo "  make deploy-prune     # 清空 Docker 构建缓存"
+	@echo ""
+	@echo "  make ex <task>        # 执行动态任务 (如 make ex preview)"
 
 # ================================
 # 1. 初始化项目
@@ -200,3 +202,9 @@ deploy-prune:
 	@echo "==> 清空 Docker 构建缓存..."
 	@$(DOCKER) builder prune -af
 	@echo "✓ Docker 构建缓存已清空"
+
+# ================================
+# 7. 动态任务
+# ================================
+ex:
+	@$(BUN) run $(filter-out ex,$(MAKECMDGOALS))
