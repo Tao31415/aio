@@ -15,14 +15,7 @@ export interface Tab {
 export const useTabsStore = defineStore('tabs', {
   state: () => ({
     // 标签列表
-    tabs: [
-      {
-        id: 'home',
-        title: APP_ROUTE_MAP['/']!.title,
-        path: '/',
-        closable: false,
-      },
-    ] as Tab[],
+    tabs: [] as Tab[],
   }),
 
   getters: {
@@ -56,6 +49,12 @@ export const useTabsStore = defineStore('tabs', {
       if (tab && tab.closable !== false) {
         this.tabs.splice(index, 1)
       }
+    },
+
+    // 初始化时移除固定的首页标签
+    init() {
+      // 过滤掉首页固定标签
+      this.tabs = this.tabs.filter((tab) => tab.path !== '/')
     },
 
     // 关闭其他标签

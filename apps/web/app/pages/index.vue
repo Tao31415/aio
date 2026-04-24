@@ -9,7 +9,7 @@
   })
 
   onMounted(() => {
-    navigateTo('/dashboard')
+    navigateTo('/dashboard', { replace: true })
   })
 </script>
 

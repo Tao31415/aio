@@ -32,12 +32,42 @@
     username: '',
     displayUsername: '',
     password: '',
+    confirmPassword: '',
     role: 'user' as 'admin' | 'user',
   })
+
+  // 用户名可用性状态
+  const usernameStatus = ref<'idle' | 'checking' | 'available' | 'unavailable'>(
+    'idle'
+  )
+  const usernameError = ref('')
 
   const statusOptions = ['全部状态', '正常', '禁用']
   const roleOptions = ['全部角色', '管理员', '普通用户']
   const formRoleOptions = ['管理员', '普通用户']
+
+  // 密码验证规则
+  const passwordValidation = computed(() => {
+    const p = formData.password
+    return {
+      hasMinLength: p.length >= 8,
+      hasUpperCase: /[A-Z]/.test(p),
+      hasLowerCase: /[a-z]/.test(p),
+      hasNumber: /\d/.test(p),
+    }
+  })
+  const isPasswordValid = computed(
+    () =>
+      passwordValidation.value.hasMinLength &&
+      passwordValidation.value.hasUpperCase &&
+      passwordValidation.value.hasLowerCase &&
+      passwordValidation.value.hasNumber
+  )
+  const isConfirmPasswordMatch = computed(
+    () =>
+      formData.confirmPassword !== '' &&
+      formData.password === formData.confirmPassword
+  )
 
   const statusLabelMap = {
     false: '正常',
@@ -365,13 +395,61 @@
     formData.username = ''
     formData.displayUsername = ''
     formData.password = ''
+    formData.confirmPassword = ''
     formData.role = 'user'
+    usernameStatus.value = 'idle'
+    usernameError.value = ''
   }
 
   function openAddModal() {
     editingUser.value = null
     resetFormData()
     showAddModal.value = true
+  }
+
+  let usernameCheckTimer: ReturnType<typeof setTimeout> | null = null
+
+  async function checkUsernameAvailability() {
+    // 清除之前的定时器
+    if (usernameCheckTimer) {
+      clearTimeout(usernameCheckTimer)
+    }
+
+    if (!formData.username || formData.username.length < 3) {
+      usernameStatus.value = 'idle'
+      usernameError.value = ''
+      return
+    }
+
+    // 延迟设置 checking 状态，避免输入时闪烁
+    usernameCheckTimer = setTimeout(async () => {
+      usernameStatus.value = 'checking'
+      usernameError.value = ''
+
+      try {
+        const { client } = useAuth()
+        const { data, error } = await client.isUsernameAvailable({
+          username: formData.username,
+        })
+
+        if (error) {
+          usernameStatus.value = 'unavailable'
+          usernameError.value = error.message || '检查失败'
+          return
+        }
+
+        if (data?.available) {
+          usernameStatus.value = 'available'
+          usernameError.value = ''
+        } else {
+          usernameStatus.value = 'unavailable'
+          usernameError.value = '用户名已被使用'
+        }
+      } catch {
+        usernameStatus.value = 'unavailable'
+        usernameError.value = '检查失败，请重试'
+      }
+    }, 300)
   }
 
   function closeModal() {
@@ -385,7 +463,10 @@
     formData.username = user.username
     formData.displayUsername = user.displayUsername ?? ''
     formData.password = ''
+    formData.confirmPassword = ''
     formData.role = user.role
+    usernameStatus.value = 'idle'
+    usernameError.value = ''
     await nextTick()
     showAddModal.value = true
   }
@@ -459,9 +540,26 @@
       return
     }
 
-    if (!editingUser.value && !formData.password) {
-      toast.add({ title: '请输入密码', color: 'error' })
+    // 检查用户名是否可用
+    if (!editingUser.value && usernameStatus.value !== 'available') {
+      toast.add({ title: '请检查用户名是否可用', color: 'error' })
       return
+    }
+
+    // 密码验证
+    if (!editingUser.value) {
+      if (!formData.password) {
+        toast.add({ title: '请输入密码', color: 'error' })
+        return
+      }
+      if (!isPasswordValid.value) {
+        toast.add({ title: '密码不符合要求', color: 'error' })
+        return
+      }
+      if (!isConfirmPasswordMatch.value) {
+        toast.add({ title: '两次输入的密码不一致', color: 'error' })
+        return
+      }
     }
 
     try {
@@ -655,13 +753,48 @@
             label="用户名"
             name="username"
           >
-            <UInput
-              v-model="formData.username"
-              type="text"
-              placeholder="请输入用户名"
-              :disabled="!!editingUser"
-              autocomplete="off"
-            />
+            <div class="relative">
+              <UInput
+                v-model="formData.username"
+                type="text"
+                placeholder="请输入用户名"
+                :disabled="!!editingUser"
+                autocomplete="off"
+                class="pr-10"
+                @blur="!editingUser && checkUsernameAvailability()"
+              />
+              <div class="absolute right-3 top-1/2 -translate-y-1/2">
+                <UIcon
+                  v-if="usernameStatus === 'checking'"
+                  name="i-lucide-loader-2"
+                  class="w-4 h-4 animate-spin text-muted"
+                />
+                <UIcon
+                  v-else-if="usernameStatus === 'available'"
+                  name="i-lucide-check"
+                  class="w-4 h-4 text-success"
+                />
+                <UIcon
+                  v-else-if="usernameStatus === 'unavailable'"
+                  name="i-lucide-x"
+                  class="w-4 h-4 text-error"
+                />
+              </div>
+            </div>
+            <p
+              v-if="usernameError"
+              class="text-sm text-error mt-1"
+            >
+              {{ usernameError }}
+            </p>
+            <p
+              v-else-if="
+                usernameStatus === 'available' && formData.username.length >= 3
+              "
+              class="text-sm text-success mt-1"
+            >
+              用户名可用
+            </p>
           </UFormField>
           <UFormField
             label="昵称"
@@ -683,8 +816,66 @@
               type="password"
               placeholder="请输入密码"
               autocomplete="new-password"
+              :key="`password-${showAddModal}`"
             />
           </UFormField>
+          <!-- 密码强度提示 -->
+          <div
+            v-if="!editingUser && formData.password"
+            class="text-sm space-y-1"
+          >
+            <div
+              :class="
+                passwordValidation.hasMinLength ? 'text-success' : 'text-muted'
+              "
+            >
+              • 至少 8 个字符
+            </div>
+            <div
+              :class="
+                passwordValidation.hasUpperCase ? 'text-success' : 'text-muted'
+              "
+            >
+              • 包含大写字母
+            </div>
+            <div
+              :class="
+                passwordValidation.hasLowerCase ? 'text-success' : 'text-muted'
+              "
+            >
+              • 包含小写字母
+            </div>
+            <div
+              :class="
+                passwordValidation.hasNumber ? 'text-success' : 'text-muted'
+              "
+            >
+              • 包含数字
+            </div>
+          </div>
+          <UFormField
+            v-if="!editingUser"
+            label="确认密码"
+            name="confirmPassword"
+          >
+            <UInput
+              v-model="formData.confirmPassword"
+              type="password"
+              placeholder="请再次输入密码"
+              autocomplete="new-password"
+              :key="`confirm-${showAddModal}`"
+            />
+          </UFormField>
+          <p
+            v-if="
+              !editingUser &&
+              formData.confirmPassword &&
+              !isConfirmPasswordMatch
+            "
+            class="text-sm text-error"
+          >
+            两次输入的密码不一致
+          </p>
           <UFormField
             v-if="editingUser"
             label="新密码"
@@ -695,6 +886,7 @@
               type="password"
               placeholder="留空则不修改密码"
               autocomplete="new-password"
+              :key="`newpass-${showAddModal}`"
             />
           </UFormField>
           <UFormField

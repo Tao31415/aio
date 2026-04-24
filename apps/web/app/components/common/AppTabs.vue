@@ -145,6 +145,11 @@
   watch(
     () => route.path,
     (newPath) => {
+      // 跳过首页重定向
+      if (newPath === '/') {
+        return
+      }
+
       const routeTitle =
         (route.meta.title as string) || getAppRouteTitle(newPath)
       const existingTab = tabs.tabs.find((t) => t.path === newPath)
@@ -167,6 +172,9 @@
 
   // 监听滚动
   onMounted(() => {
+    // 初始化时移除固定的首页标签
+    tabs.init()
+
     const container = tabsContainerRef.value
     if (container) {
       container.addEventListener('scroll', checkScroll)
@@ -193,7 +201,7 @@
 
 <template>
   <div
-    v-if="tabs.tabs.length > 1"
+    v-if="tabs.tabs.length > 0"
     class="h-10 border-b border-default bg-default flex items-center gap-1 shrink-0 relative"
   >
     <!-- 左滚动按钮 -->
