@@ -321,6 +321,15 @@ import { UserRole } from '@/module/rbac/auth/entities/user.entity'
 someAdminRoute() { ... }
 ```
 
+### Admin 用户创建说明
+
+Better Auth 的 `admin.createUser` 要求 `email` 字段，但实际业务中不需要使用 email。
+
+**创建 admin 用户的方式**：
+
+1. **通过 seed 接口**：调用 `POST /api/v1/seed` 会自动创建一个 admin 用户（`admin@example.com`）
+2. **手动创建用户**：注册用户后，需要手动通过数据库将 `role` 字段设置为 `'admin'`，因为 Better Auth 不支持通过注册接口创建 admin 用户
+
 ### Add a new middleware module
 
 1. Create `src/module/middleware/<name>/<name>.module.ts`

@@ -65,7 +65,11 @@ run = "bun run check --fix"
 
 [tasks.ex]
 description = "执行动态任务 (相当于 bun run <task>)"
-run = "bun run $ARG1 $ARG2"
+usage = '''
+arg "<task>" help="要执行的 bun/npm 任务名称"
+arg "[args]..." help="传递给任务的额外参数"
+'''
+run = "bun run {{ usage.task }}{% if usage.args | length > 0 %} {{ usage.args | join(sep=' ') }}{% endif %}"
 
 # ================================
 # kill

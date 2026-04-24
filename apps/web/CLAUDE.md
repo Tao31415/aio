@@ -154,6 +154,15 @@ toast.clear()
 | `NUXT_PUBLIC_LOG_LEVEL` | `debug`                  | 日志级别     |
 | `NUXT_PUBLIC_ENV`       | `local`                  | 环境标识     |
 
+## Better Auth API 响应处理
+
+详细规范见 [`rules.md`](./rules.md)，包含完整的 API 返回值结构表和代码示例。
+
+核心原则：
+- 直接解构：`const { data, error } = await client.admin.method()`
+- 先检查 error，再检查 data 存在性
+- 不同 API 返回结构不同：`listUsers` 返回 `{ users: [], total }`，`createUser` 返回 `{ user: User }` 等
+
 ## Common Tasks
 
 ### Add a new page
@@ -193,10 +202,10 @@ const { data, error } = await useFetch('/api/v1/resource', {
 
 为防止浏览器自动填充表单数据，表单输入框需要添加 `autocomplete` 属性：
 
-| 字段类型 | autocomplete 值 | 说明 |
-|---------|----------------|------|
-| 不需要自动填充的文本输入 | `off` | 如用户名、昵称等 |
-| 密码/新密码字段 | `new-password` | 提示浏览器这是新密码 |
+| 字段类型                 | autocomplete 值 | 说明                 |
+| ------------------------ | --------------- | -------------------- |
+| 不需要自动填充的文本输入 | `off`           | 如用户名、昵称等     |
+| 密码/新密码字段          | `new-password`  | 提示浏览器这是新密码 |
 
 示例：
 

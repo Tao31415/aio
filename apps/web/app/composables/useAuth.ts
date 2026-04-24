@@ -1,4 +1,3 @@
-import type { RouteLocationRaw } from 'vue-router'
 import { useAuthStatus } from './auth/useAuthStatus'
 import { useAuthActions } from './auth/useAuthActions'
 import { ensureSession, getAuthClient } from './auth/session-manager'

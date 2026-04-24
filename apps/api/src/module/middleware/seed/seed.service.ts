@@ -2,7 +2,7 @@ import { ForbiddenException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { AuthService } from '@thallesp/nestjs-better-auth'
 import { DataSource, Repository } from 'typeorm'
-import { User } from '@auth/entities/user.entity'
+import { User, UserRole } from '@auth/entities/user.entity'
 
 interface AuthApiSignupEmailInput {
   email: string
@@ -51,6 +51,12 @@ export class SeedService {
     if (!existingUser) {
       const authApi = this.authService.api as unknown as AuthApiWithSignUpEmail
       await authApi.signUpEmail({ body: seedUser })
+
+      // signUpEmail 无法创建 admin 用户，需要手动更新 role
+      await this.userRepo.update(
+        { email: seedUser.email },
+        { role: UserRole.ADMIN }
+      )
       userCreated = true
     }
 

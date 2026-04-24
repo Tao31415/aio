@@ -56,14 +56,13 @@ export interface Range {
   end: Date
 }
 
-export interface AdminUser {
+export interface UserProfile {
   id: string
   username: string
   displayUsername: string | null
   role: 'admin' | 'user'
   banned: boolean
-  emailVerified: boolean
-  image: string | null
+  permissions: string[]
   createdAt: string
   updatedAt: string
 }
