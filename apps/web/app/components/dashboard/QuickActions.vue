@@ -75,13 +75,6 @@
       href: '/documents',
     },
     {
-      label: '发送通知',
-      hint: '推送消息',
-      icon: IconBell,
-      tone: 'warning',
-      href: '/notifications',
-    },
-    {
       label: '数据分析',
       hint: '查看报表',
       icon: IconBarChart3,

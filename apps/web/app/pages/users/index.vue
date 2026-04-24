@@ -281,7 +281,11 @@
               icon: row.original.banned
                 ? 'i-lucide-user-check'
                 : 'i-lucide-ban',
-              title: isCurrentUser ? '不能操作当前用户' : (row.original.banned ? '解封' : '封禁'),
+              title: isCurrentUser
+                ? '不能操作当前用户'
+                : row.original.banned
+                  ? '解封'
+                  : '封禁',
               disabled: isCurrentUser,
               onClick: () => toggleBanUser(row.original),
             }),
@@ -388,7 +392,7 @@
 
   async function toggleBanUser(user: UserProfile) {
     const isBanning = !user.banned
-    const index = userListData.value.findIndex(u => u.id === user.id)
+    const index = userListData.value.findIndex((u) => u.id === user.id)
 
     try {
       if (isBanning) {
@@ -429,7 +433,7 @@
         await authAdmin.deleteUser(user.id)
 
         // 从列表中移除
-        const index = userListData.value.findIndex(u => u.id === user.id)
+        const index = userListData.value.findIndex((u) => u.id === user.id)
         if (index !== -1) {
           userListData.value.splice(index, 1)
         }
@@ -492,7 +496,9 @@
         }
 
         // 客户端更新用户数据
-        const index = userListData.value.findIndex(u => u.id === editingUser.value!.id)
+        const index = userListData.value.findIndex(
+          (u) => u.id === editingUser.value!.id
+        )
         if (index !== -1) {
           userListData.value[index] = {
             ...userListData.value[index],

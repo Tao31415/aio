@@ -159,6 +159,7 @@ toast.clear()
 详细规范见 [`rules.md`](./rules.md)，包含完整的 API 返回值结构表和代码示例。
 
 核心原则：
+
 - 直接解构：`const { data, error } = await client.admin.method()`
 - 先检查 error，再检查 data 存在性
 - 不同 API 返回结构不同：`listUsers` 返回 `{ users: [], total }`，`createUser` 返回 `{ user: User }` 等

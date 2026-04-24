@@ -8,18 +8,38 @@
 
   const authStore = useAuthStore()
   const toast = useToast()
+  const { updateProfile } = useAuthActions()
 
   const user = computed(() => authStore.user)
-  // 个人资料表单
+
+  // 昵称表单
   const profileForm = reactive({
     name: user.value?.name || '',
-    email: user.value?.email || '',
-    phone: '',
-    city: '',
-    bio: '',
   })
-  function saveProfile() {
-    toast.add({ title: '个人资料已保存', color: 'success' })
+
+  async function saveProfile() {
+    if (profileForm.name === user.value?.name) {
+      toast.add({ title: '没有需要保存的更改', color: 'info' })
+      return
+    }
+
+    const { user: updatedUser, error } = await updateProfile({
+      name: profileForm.name,
+    })
+
+    if (error) {
+      toast.add({
+        title: '更新昵称失败',
+        description: (error as Error).message,
+        color: 'error',
+      })
+      return
+    }
+
+    if (updatedUser) {
+      authStore.setUser(updatedUser)
+      toast.add({ title: '昵称已更新', color: 'success' })
+    }
   }
 </script>
 <template>
@@ -29,69 +49,19 @@
     <UCard :ui="{ body: 'space-y-6 p-6' }">
       <h2 class="text-lg font-semibold">个人资料</h2>
 
-      <div class="flex items-center gap-6">
-        <div
-          class="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center"
-        >
-          <span class="text-2xl font-bold text-primary">
-            {{ user?.name?.charAt(0) || 'U' }}
-          </span>
-        </div>
-        <div>
-          <UButton color="primary">上传头像</UButton>
-          <p class="text-sm text-muted mt-2">支持 JPG、PNG 格式，最大 2MB</p>
-        </div>
-      </div>
-
       <UForm
         :state="profileForm"
         class="grid grid-cols-1 md:grid-cols-2 gap-4"
       >
         <UFormField
-          label="用户名"
+          label="昵称"
           name="name"
         >
           <UInput
             v-model="profileForm.name"
             type="text"
-          />
-        </UFormField>
-        <UFormField
-          label="邮箱"
-          name="email"
-        >
-          <UInput
-            v-model="profileForm.email"
-            type="email"
-          />
-        </UFormField>
-        <UFormField
-          label="手机号"
-          name="phone"
-        >
-          <UInput
-            v-model="profileForm.phone"
-            type="tel"
-          />
-        </UFormField>
-        <UFormField
-          label="所在城市"
-          name="city"
-        >
-          <UInput
-            v-model="profileForm.city"
-            type="text"
-          />
-        </UFormField>
-        <UFormField
-          label="个人简介"
-          name="bio"
-          class="md:col-span-2"
-        >
-          <UTextarea
-            v-model="profileForm.bio"
-            :rows="4"
-            class="w-full"
+            placeholder="请输入昵称"
+            autocomplete="off"
           />
         </UFormField>
       </UForm>

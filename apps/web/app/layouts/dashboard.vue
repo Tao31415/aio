@@ -124,8 +124,8 @@
   const userMenuItems = computed<DropdownMenuItem[][]>(() => [
     [
       {
-        label: auth.user?.name || '用户',
-        description: auth.user?.email,
+        label: auth.user?.name || '昵称',
+        description: auth.user?.username || '用户名',
         disabled: true,
       },
     ],
@@ -134,16 +134,6 @@
         label: APP_ROUTE_MAP['/settings/profile']!.title,
         icon: APP_ROUTE_MAP['/settings/profile']!.icon,
         to: APP_ROUTE_MAP['/settings/profile']!.path,
-      },
-      {
-        label: APP_ROUTE_MAP['/settings']!.title,
-        icon: APP_ROUTE_MAP['/settings']!.icon,
-        to: APP_ROUTE_MAP['/settings']!.path,
-        children: getAppRouteChildren('/settings').map((child) => ({
-          label: child.title,
-          icon: child.icon,
-          to: child.path,
-        })),
       },
     ],
     [
@@ -190,18 +180,24 @@
       </template>
     </UDashboardSidebar>
 
-    <UDashboardSearch :groups="groups" />
+    <UDashboardSearch
+      class="hidden"
+      :groups="groups"
+    />
 
     <UDashboardPanel id="home">
       <template #header>
         <UDashboardNavbar :ui="{ right: 'gap-3' }">
           <template #leading>
             <UDashboardSidebarCollapse />
-            <UDashboardSearchButton class="bg-transparent ring-default" />
+            <UDashboardSearchButton
+              class="bg-transparent ring-default hidden"
+            />
           </template>
           <template #right>
             <UTooltip
               text="Notifications"
+              class="hidden"
               :shortcuts="['N']"
             >
               <UButton
@@ -225,7 +221,7 @@
             <UButton
               color="neutral"
               variant="ghost"
-              size="sm"
+              size="md"
               :icon="uiSettings.isDark ? 'i-lucide-sun' : 'i-lucide-moon-star'"
               @click="toggleTheme"
             />

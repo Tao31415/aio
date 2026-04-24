@@ -38,7 +38,7 @@ export const APP_ROUTE_TREE: AppRouteConfig[] = [
     title: '消息中心',
     description: '查看会话消息与沟通记录',
     icon: 'i-lucide-messages-square',
-    showInSidebar: true,
+    showInSidebar: false,
   },
   {
     key: 'analytics',
@@ -76,13 +76,6 @@ export const APP_ROUTE_TREE: AppRouteConfig[] = [
         title: '安全设置',
         description: '密码、设备与验证方式',
         icon: 'i-lucide-shield',
-      },
-      {
-        key: 'settings-notifications',
-        path: '/settings/notifications',
-        title: '通知设置',
-        description: '配置邮件与浏览器通知',
-        icon: 'i-lucide-bell',
       },
     ],
   },

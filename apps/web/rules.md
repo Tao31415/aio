@@ -9,17 +9,17 @@
 
 ## API 返回值结构表
 
-| 方法 | data 结构 | 成功判断 | 说明 |
-|------|-----------|----------|------|
-| `listUsers` | `{ users: User[], total: number }` | 检查 `error` | 需访问 `data.users` 和 `data.total` |
-| `getUser` | `User` (直接对象) | `data !== null` | 失败时 `data: null` |
-| `createUser` | `{ user: User }` | `data?.user` | 需访问 `data.user` |
-| `updateUser` | `{ user: User }` | `data?.user` | 需访问 `data.user` |
-| `setRole` | `{ user: User }` | `data?.user` | 需访问 `data.user` |
-| `banUser` | `{ user: User }` | `data?.user` | 需访问 `data.user` |
-| `unbanUser` | `{ user: User }` | `data?.user` | 需访问 `data.user` |
-| `removeUser` | `{ success: boolean }` | `data?.success` | 删除操作结果 |
-| `setUserPassword` | `{ status: boolean }` | `data?.status` | 密码设置结果 |
+| 方法              | data 结构                          | 成功判断        | 说明                                |
+| ----------------- | ---------------------------------- | --------------- | ----------------------------------- |
+| `listUsers`       | `{ users: User[], total: number }` | 检查 `error`    | 需访问 `data.users` 和 `data.total` |
+| `getUser`         | `User` (直接对象)                  | `data !== null` | 失败时 `data: null`                 |
+| `createUser`      | `{ user: User }`                   | `data?.user`    | 需访问 `data.user`                  |
+| `updateUser`      | `{ user: User }`                   | `data?.user`    | 需访问 `data.user`                  |
+| `setRole`         | `{ user: User }`                   | `data?.user`    | 需访问 `data.user`                  |
+| `banUser`         | `{ user: User }`                   | `data?.user`    | 需访问 `data.user`                  |
+| `unbanUser`       | `{ user: User }`                   | `data?.user`    | 需访问 `data.user`                  |
+| `removeUser`      | `{ success: boolean }`             | `data?.success` | 删除操作结果                        |
+| `setUserPassword` | `{ status: boolean }`              | `data?.status`  | 密码设置结果                        |
 
 ## 标准代码模式
 
@@ -189,13 +189,13 @@ return true
 
 ## 关键区别：直接对象 vs 包装对象
 
-| 类型 | API 方法 | data 结构 | 访问方式 |
-|------|----------|-----------|----------|
-| 直接对象 | `getUser`, `updateUser` | `User` | `data` 直接使用 |
-| 包装对象 | `createUser`, `setRole`, `banUser`, `unbanUser` | `{ user: User }` | `data.user` |
-| 列表 | `listUsers` | `{ users: [], total }` | `data.users`, `data.total` |
-| 布尔标志 | `removeUser` | `{ success: boolean }` | `data.success` |
-| 布尔标志 | `setUserPassword` | `{ status: boolean }` | `data.status` |
+| 类型     | API 方法                                        | data 结构              | 访问方式                   |
+| -------- | ----------------------------------------------- | ---------------------- | -------------------------- |
+| 直接对象 | `getUser`, `updateUser`                         | `User`                 | `data` 直接使用            |
+| 包装对象 | `createUser`, `setRole`, `banUser`, `unbanUser` | `{ user: User }`       | `data.user`                |
+| 列表     | `listUsers`                                     | `{ users: [], total }` | `data.users`, `data.total` |
+| 布尔标志 | `removeUser`                                    | `{ success: boolean }` | `data.success`             |
+| 布尔标志 | `setUserPassword`                               | `{ status: boolean }`  | `data.status`              |
 
 ## 错误处理原则
 
@@ -225,6 +225,7 @@ logger.info({ userId }, 'Method succeeded')
 ```
 
 **注意**：
+
 - 第一个参数必须是对象（metadata），第二个参数是字符串（message）
 - 使用 `err` 作为 error 对象的 key 会被 pino 特殊处理
 - Context 命名约定：使用点号分隔，如 `auth.admin`、`api.users`
