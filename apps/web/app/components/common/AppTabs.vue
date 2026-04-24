@@ -251,8 +251,11 @@
         </span>
         <!-- 底部激活指示器 -->
         <div
-          v-if="tab.path === route.path"
-          class="absolute bottom-0 left-2 right-2 h-0.5 bg-primary rounded-full"
+          v-if="tab.path === route.path || tab.closable === false"
+          :class="[
+            'absolute bottom-0 left-2 right-2 h-0.5 rounded-full',
+            tab.path === route.path ? 'bg-primary' : 'bg-muted/40',
+          ]"
         />
       </button>
     </div>

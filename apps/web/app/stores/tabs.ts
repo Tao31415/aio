@@ -12,6 +12,9 @@ export interface Tab {
   closable?: boolean
 }
 
+// 固定标签路径（不可关闭）
+const FIXED_TAB_PATHS = ['/dashboard']
+
 export const useTabsStore = defineStore('tabs', {
   state: () => ({
     // 标签列表
@@ -21,6 +24,10 @@ export const useTabsStore = defineStore('tabs', {
   getters: {
     // 当前标签数量
     count: (state) => state.tabs.length,
+
+    // 获取固定标签
+    fixedTabs: (state) =>
+      state.tabs.filter((tab) => FIXED_TAB_PATHS.includes(tab.path)),
 
     // 根据路径获取标签
     getTabByPath: (state) => (path: string) => {
@@ -34,11 +41,20 @@ export const useTabsStore = defineStore('tabs', {
   },
 
   actions: {
+    // 检查路径是否为固定标签
+    isFixedPath(path: string): boolean {
+      return FIXED_TAB_PATHS.includes(path)
+    },
+
     // 添加标签
     addTab(tab: Tab) {
       const existingTab = this.tabs.find((t) => t.path === tab.path)
       if (!existingTab) {
-        this.tabs.push(tab)
+        // 如果是固定路径，强制设置 closable: false
+        const finalTab = this.isFixedPath(tab.path)
+          ? { ...tab, closable: false }
+          : tab
+        this.tabs.push(finalTab)
       }
     },
 
@@ -51,10 +67,21 @@ export const useTabsStore = defineStore('tabs', {
       }
     },
 
-    // 初始化时移除固定的首页标签
+    // 初始化标签
     init() {
-      // 过滤掉首页固定标签
-      this.tabs = this.tabs.filter((tab) => tab.path !== '/')
+      // 确保固定标签存在
+      FIXED_TAB_PATHS.forEach((path) => {
+        const existing = this.tabs.find((t) => t.path === path)
+        if (!existing) {
+          const title = APP_ROUTE_MAP[path]?.title || path
+          this.tabs.push({
+            id: `fixed-${path.replace('/', '')}`,
+            title,
+            path,
+            closable: false,
+          })
+        }
+      })
     },
 
     // 关闭其他标签
@@ -64,7 +91,7 @@ export const useTabsStore = defineStore('tabs', {
       )
     },
 
-    // 关闭所有标签（除了首页）
+    // 关闭所有标签（除了固定标签）
     closeAllTabs() {
       this.tabs = this.tabs.filter((tab) => tab.closable === false)
     },
@@ -104,6 +131,8 @@ export const useTabsStore = defineStore('tabs', {
     // 重置标签
     reset() {
       this.$reset()
+      // 重新初始化固定标签
+      this.init()
     },
   },
 
