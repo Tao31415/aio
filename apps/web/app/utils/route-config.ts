@@ -17,6 +17,13 @@ export const APP_ROUTE_TREE: AppRouteConfig[] = [
     icon: 'i-lucide-house',
   },
   {
+    key: 'monitor',
+    path: '/home',
+    title: '主页',
+    description: '设备监控与数据查看',
+    icon: 'i-lucide-monitor',
+  },
+  {
     key: 'dashboard',
     path: '/dashboard',
     title: '仪表板',
@@ -55,29 +62,6 @@ export const APP_ROUTE_TREE: AppRouteConfig[] = [
     description: '管理您的账户和系统偏好设置',
     icon: 'i-lucide-settings',
     showInSidebar: true,
-    children: [
-      {
-        key: 'settings-profile',
-        path: '/settings/profile',
-        title: '个人资料',
-        description: '管理账户基本信息',
-        icon: 'i-lucide-user-round',
-      },
-      {
-        key: 'settings-appearance',
-        path: '/settings/appearance',
-        title: '外观设置',
-        description: '调整主题与界面显示',
-        icon: 'i-lucide-palette',
-      },
-      {
-        key: 'settings-security',
-        path: '/settings/security',
-        title: '安全设置',
-        description: '密码、设备与验证方式',
-        icon: 'i-lucide-shield',
-      },
-    ],
   },
   {
     key: 'login',

@@ -1,10 +1,6 @@
 <script setup lang="ts">
   import type { NavigationMenuItem } from '@nuxt/ui'
-  import {
-    APP_ROUTE_MAP,
-    getSidebarRoutes,
-    getAppRouteChildren,
-  } from '~/utils/route-config'
+  import { APP_ROUTE_MAP, getSidebarRoutes } from '~/utils/route-config'
 
   const route = useRoute()
   const toast = useToast()
@@ -20,11 +16,7 @@
       colorMode.preference = 'light'
     }
   }
-  const userInitial = computed(() => {
-    const displayName =
-      auth.user?.username || auth.user?.name || auth.user?.email
-    return displayName?.trim().charAt(0).toUpperCase() || 'U'
-  })
+
   const links = computed<NavigationMenuItem[][]>(() => [
     getSidebarRoutes().map((routeItem) => ({
       label: routeItem.title,
@@ -124,16 +116,9 @@
   const userMenuItems = computed<DropdownMenuItem[][]>(() => [
     [
       {
-        label: auth.user?.name || '昵称',
-        description: auth.user?.username || '用户名',
-        disabled: true,
-      },
-    ],
-    [
-      {
-        label: APP_ROUTE_MAP['/settings/profile']!.title,
-        icon: APP_ROUTE_MAP['/settings/profile']!.icon,
-        to: APP_ROUTE_MAP['/settings/profile']!.path,
+        label: APP_ROUTE_MAP['/home']!.title,
+        icon: APP_ROUTE_MAP['/home']!.icon,
+        to: APP_ROUTE_MAP['/home']!.path,
       },
     ],
     [
@@ -219,6 +204,7 @@
             </UTooltip>
             <!-- 主题切换 -->
             <UButton
+              class="hidden"
               color="neutral"
               variant="ghost"
               size="md"
@@ -234,13 +220,6 @@
                 size="sm"
                 class="gap-2 px-1.5"
               >
-                <div
-                  class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"
-                >
-                  <span class="text-primary-foreground text-sm font-medium">
-                    {{ userInitial }}
-                  </span>
-                </div>
                 <span class="hidden md:inline text-sm font-medium">
                   {{ auth.user?.name }}
                 </span>

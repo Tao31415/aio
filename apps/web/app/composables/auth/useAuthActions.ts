@@ -83,6 +83,41 @@ export const useAuthActions = () => {
     }
   }
 
+  /**
+   * 删除当前用户账户
+   */
+  async function deleteAccount(): Promise<{
+    success: boolean
+    error?: unknown
+  }> {
+    try {
+      const userId = store.user?.id
+      if (!userId) {
+        logger.error('No user id found for deleteAccount')
+        return { success: false, error: new Error('未登录，无法删除账户') }
+      }
+
+      logger.debug({ userId }, 'deleteAccount called')
+      const { data, error } = await client.admin.removeUser({ userId })
+
+      if (error) {
+        logger.error({ err: error }, 'Failed to delete account')
+        return { success: false, error }
+      }
+
+      if (!data?.success) {
+        logger.error({ userId }, 'Failed to delete account: unknown error')
+        return { success: false, error: new Error('删除账户失败') }
+      }
+
+      logger.info({ userId }, 'Account deleted successfully')
+      return { success: true }
+    } catch (err) {
+      logger.error({ err }, 'Failed to delete account')
+      return { success: false, error: err }
+    }
+  }
+
   return {
     signIn: client.signIn,
     signUp: client.signUp,
@@ -91,5 +126,6 @@ export const useAuthActions = () => {
     signOut,
     updateProfile,
     changePassword,
+    deleteAccount,
   }
 }

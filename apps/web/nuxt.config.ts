@@ -159,4 +159,17 @@ export default defineNuxtConfig({
     quality: 80,
     format: ['webp', 'avif', 'jpeg'],
   },
+
+  // Nuxt ECharts 配置
+  echarts: {
+    renderer: 'svg',
+    charts: ['LineChart', 'BarChart', 'PieChart', 'ScatterChart'],
+    components: [
+      'GridComponent',
+      'TooltipComponent',
+      'LegendComponent',
+      'TitleComponent',
+      'GeoComponent',
+    ],
+  },
 })

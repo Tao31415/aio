@@ -56,6 +56,34 @@
     tablet: 10,
   })
 
+  // 设备分布饼图配置
+  const deviceChartOption = computed(() => ({
+    tooltip: {
+      trigger: 'item',
+      formatter: '{b}: {c}%',
+    },
+    series: [
+      {
+        type: 'pie',
+        radius: ['50%', '75%'],
+        center: ['50%', '50%'],
+        data: [
+          { name: '桌面', value: deviceData.value.desktop, itemStyle: { color: 'var(--chart-1)' } },
+          { name: '移动', value: deviceData.value.mobile, itemStyle: { color: 'var(--chart-2)' } },
+          { name: '平板', value: deviceData.value.tablet, itemStyle: { color: 'var(--chart-3)' } },
+        ],
+        label: {
+          show: false,
+        },
+        emphasis: {
+          label: {
+            show: false,
+          },
+        },
+      },
+    ],
+  }))
+
   // 热门页面
   const topPages = ref([
     {
@@ -269,46 +297,11 @@
       <UCard :ui="{ body: 'p-6' }">
         <h3 class="font-semibold mb-4">设备分布</h3>
         <div class="flex items-center justify-center h-48">
-          <div class="relative w-40 h-40">
-            <!-- 简易饼图 -->
-            <svg
-              viewBox="0 0 100 100"
-              class="transform -rotate-90"
-            >
-              <circle
-                cx="50"
-                cy="50"
-                r="40"
-                fill="transparent"
-                stroke="currentColor"
-                stroke-width="20"
-                class="text-[var(--chart-1)]"
-                :stroke-dasharray="`${deviceData.desktop * 2.51} 251`"
-              />
-              <circle
-                cx="50"
-                cy="50"
-                r="40"
-                fill="transparent"
-                stroke="currentColor"
-                stroke-width="20"
-                class="text-[var(--chart-2)]"
-                :stroke-dasharray="`${deviceData.mobile * 2.51} 251`"
-                :stroke-dashoffset="`-${deviceData.desktop * 2.51}`"
-              />
-              <circle
-                cx="50"
-                cy="50"
-                r="40"
-                fill="transparent"
-                stroke="currentColor"
-                stroke-width="20"
-                class="text-[var(--chart-3)]"
-                :stroke-dasharray="`${deviceData.tablet * 2.51} 251`"
-                :stroke-dashoffset="`-${(deviceData.desktop + deviceData.mobile) * 2.51}`"
-              />
-            </svg>
-          </div>
+          <VChart
+            :option="deviceChartOption"
+            autoresize
+            class="w-40 h-40"
+          />
         </div>
         <div class="flex items-center justify-center gap-6 mt-4">
           <div class="flex items-center gap-2">

@@ -1,9 +1,7 @@
 <script setup lang="ts">
-  import { SETTINGS_ROUTE_CONFIG } from '~/utils/route-config'
-
   definePageMeta({
-    title: SETTINGS_ROUTE_CONFIG.appearance!.title,
-    icon: SETTINGS_ROUTE_CONFIG.appearance!.icon,
+    title: '外观设置',
+    icon: 'i-lucide-palette',
   })
 
   const uiSettingsStore = useUiSettingsStore()

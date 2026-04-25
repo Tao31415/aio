@@ -21,7 +21,7 @@
 
   const redirectTo = computed(() => {
     const redirect = route.query.redirect as string
-    return localePath(redirect || '/')
+    return localePath(redirect || '/home')
   })
 
   const demoUsername = computed(() => config.public.demoUsername)
