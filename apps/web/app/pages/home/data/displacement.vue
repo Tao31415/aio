@@ -3,77 +3,159 @@
 
   import { sub } from 'date-fns'
 
-  // 时间范围选择
+  // ==================== Config & Selected Device Store ====================
+  const config = useRuntimeConfig()
+  const apiBase = config.public.apiBase as string
+  const selectedDeviceStore = useSelectedDeviceStore()
+
+  // ==================== Types ====================
+  interface TunnelMonitoringData {
+    timestamp: string
+    sn: string
+    ringNumber: string
+    p1x: number | null
+    p1y: number | null
+    p7x: number | null
+    p7y: number | null
+    p3x: number | null
+    p3y: number | null
+    p5x: number | null
+    p5y: number | null
+    p9x: number | null
+    p9y: number | null
+    coc: number | null
+    hc: number | null
+    sd: number | null
+  }
+
+  // ==================== State ====================
   const dateRange = ref({
     start: sub(new Date(), { days: 7 }),
     end: new Date(),
   })
 
-  // 点位选择
   const selectedPoint = ref('')
-  const pointOptions = [
+  const pointOptions = ref<Array<{ label: string; value: string }>>([
     { label: '全部点位', value: '' },
-    { label: '监测点 A1', value: 'a1' },
-    { label: '监测点 A2', value: 'a2' },
-    { label: '监测点 B1', value: 'b1' },
-  ]
+  ])
 
-  // 搜索
   const searchQuery = ref('')
 
-  // 分页
   const pagination = ref({
     page: 1,
     pageSize: 10,
-    total: 50,
+    total: 0,
   })
 
-  // 数据列表
-  const dataList = ref([
-    {
-      id: 1,
-      index: 1,
-      pointName: '监测点 A1-1',
-      time: '2024-03-15 08:00',
-      horizontal: 2.5,
-      vertical: 1.3,
-    },
-    {
-      id: 2,
-      index: 2,
-      pointName: '监测点 A1-2',
-      time: '2024-03-15 08:00',
-      horizontal: -1.2,
-      vertical: 3.1,
-    },
-    {
-      id: 3,
-      index: 3,
-      pointName: '监测点 A1-3',
-      time: '2024-03-15 08:00',
-      horizontal: 0.8,
-      vertical: -2.4,
-    },
-    {
-      id: 4,
-      index: 4,
-      pointName: '监测点 A1-4',
-      time: '2024-03-15 08:00',
-      horizontal: 1.5,
-      vertical: 0.9,
-    },
-    {
-      id: 5,
-      index: 5,
-      pointName: '监测点 A1-5',
-      time: '2024-03-15 08:00',
-      horizontal: -0.3,
-      vertical: 1.8,
-    },
-  ])
+  const dataList = ref<
+    Array<{
+      id: number
+      index: number
+      pointName: string
+      time: string
+      horizontal: number
+      vertical: number
+    }>
+  >([])
 
-  // 折线图配置
-  const chartOption = ref({
+  const monitoringData = ref<TunnelMonitoringData[]>([])
+  const isLoading = ref(false)
+
+  // ==================== API ====================
+  async function fetchMonitoringData() {
+    if (!selectedDeviceStore.selectedDevice?.code) {
+      dataList.value = []
+      pagination.value.total = 0
+      return
+    }
+
+    isLoading.value = true
+    try {
+      const res = await $fetch<{ data: TunnelMonitoringData[] }>(
+        `${apiBase}/api/v1/mqtt/tunnel-monitoring`,
+        {
+          query: {
+            sn: selectedDeviceStore.selectedDevice.code,
+            limit: 1000,
+          },
+        }
+      )
+      monitoringData.value = res.data || []
+
+      // 生成点位选项
+      const ringNumbers = [
+        ...new Set(
+          monitoringData.value.map((d) => d.ringNumber).filter(Boolean)
+        ),
+      ]
+      pointOptions.value = [
+        { label: '全部点位', value: '' },
+        ...ringNumbers.map((ring) => ({
+          label: ring,
+          value: ring,
+        })),
+      ]
+
+      // 更新数据列表
+      updateDataList()
+    } catch (e) {
+      console.error('Failed to fetch monitoring data:', e)
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  function updateDataList() {
+    const filtered = monitoringData.value.filter((d) => {
+      // 按点位筛选
+      if (selectedPoint.value && d.ringNumber !== selectedPoint.value) {
+        return false
+      }
+      // 按搜索查询筛选
+      if (searchQuery.value) {
+        const query = searchQuery.value.toLowerCase()
+        const matchesRing = d.ringNumber?.toLowerCase().includes(query)
+        return matchesRing
+      }
+      return true
+    })
+
+    pagination.value.total = filtered.length
+
+    // 分页处理
+    const start = (pagination.value.page - 1) * pagination.value.pageSize
+    const end = start + pagination.value.pageSize
+    const pageData = filtered.slice(start, end)
+
+    dataList.value = pageData.map((item, idx) => ({
+      id: start + idx,
+      index: start + idx + 1,
+      pointName: item.ringNumber || '-',
+      time: new Date(item.timestamp).toLocaleString('zh-CN'),
+      horizontal: item.p9x ?? 0,
+      vertical: item.p9y ?? 0,
+    }))
+  }
+
+  // ==================== Watchers ====================
+  watch(
+    () => selectedDeviceStore.selectedDevice,
+    () => {
+      fetchMonitoringData()
+    },
+    { immediate: true }
+  )
+
+  watch([selectedPoint, searchQuery, pagination.page], () => {
+    updateDataList()
+  })
+
+  function onPageChange(page: number) {
+    pagination.value.page = page
+  }
+
+  // ==================== Chart Option ====================
+  const chartOption = computed(() => ({
     tooltip: {
       trigger: 'axis',
       axisPointer: {
@@ -94,7 +176,14 @@
     xAxis: {
       type: 'category',
       boundaryGap: false,
-      data: ['08:00', '10:00', '12:00', '14:00', '16:00'],
+      data: monitoringData.value
+        .slice(0, 20)
+        .map((d) =>
+          new Date(d.timestamp).toLocaleTimeString('zh-CN', {
+            hour: '2-digit',
+            minute: '2-digit',
+          })
+        ),
     },
     yAxis: {
       type: 'value',
@@ -110,7 +199,7 @@
         smooth: true,
         symbol: 'circle',
         symbolSize: 8,
-        data: [2.5, 2.8, 3.1, 2.9, 3.2],
+        data: monitoringData.value.slice(0, 20).map((d) => d.p9x ?? 0),
         lineStyle: {
           color: '#3b82f6',
           width: 2,
@@ -125,7 +214,7 @@
         smooth: true,
         symbol: 'circle',
         symbolSize: 8,
-        data: [1.3, 1.5, 1.8, 1.6, 1.9],
+        data: monitoringData.value.slice(0, 20).map((d) => d.p9y ?? 0),
         lineStyle: {
           color: '#f97316',
           width: 2,
@@ -135,11 +224,7 @@
         },
       },
     ],
-  })
-
-  function onPageChange(page: number) {
-    pagination.value.page = page
-  }
+  }))
 </script>
 
 <template>

@@ -16,16 +16,32 @@
   const deviceList = ref<Device[]>([])
   const isLoading = ref(false)
 
+  // ==================== Selected Device Store ====================
+  const selectedDeviceStore = useSelectedDeviceStore()
+
   // ==================== API ====================
   async function fetchDevices() {
     isLoading.value = true
+    selectedDeviceStore.setLoading(true)
     try {
       const data = await $fetch<Device[]>(`${apiBase}/api/v1/device`)
       deviceList.value = data || []
+      selectedDeviceStore.setDeviceList(data || [])
+
+      // 自动选中第一个设备
+      if (deviceList.value.length > 0 && !selectedDeviceStore.selectedDevice) {
+        const firstDevice = deviceList.value[0]
+        selectedDeviceStore.setSelectedDevice(firstDevice)
+        // 导航到第一个设备
+        await navigateTo(`/home/device?deviceId=${firstDevice.id}`, {
+          replace: true,
+        })
+      }
     } catch (e) {
       console.error('Failed to fetch devices:', e)
     } finally {
       isLoading.value = false
+      selectedDeviceStore.setLoading(false)
     }
   }
 
@@ -44,6 +60,17 @@
     const queryId = route.query.deviceId as string | undefined
     return pathId === id || queryId === id
   }
+
+  // 监听路由中的 deviceId 变化，更新 selectedDeviceStore
+  watch(
+    () => route.query.deviceId as string | undefined,
+    (newDeviceId) => {
+      if (newDeviceId) {
+        selectedDeviceStore.setSelectedDeviceById(newDeviceId)
+      }
+    },
+    { immediate: true }
+  )
 
   // 状态图标和颜色
   function getStatusIcon(status: string): string {
@@ -182,6 +209,7 @@
                     ? 'bg-primary text-primary-foreground font-medium'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50',
                 ]"
+                @click="selectedDeviceStore.setSelectedDevice(device)"
               >
                 <UIcon
                   :name="getStatusIcon(device.status)"

@@ -3,132 +3,200 @@
 
   import { sub } from 'date-fns'
 
-  // 预警数据列表
-  const warningData = ref([
-    {
-      id: 1,
-      index: 1,
-      pointName: '监测点 A1-1',
-      time: '2024-03-15 08:00',
-      horizontal: 5.2,
-      vertical: 3.8,
-    },
-    {
-      id: 2,
-      index: 2,
-      pointName: '监测点 A1-2',
-      time: '2024-03-15 08:00',
-      horizontal: 4.1,
-      vertical: 2.9,
-    },
-    {
-      id: 3,
-      index: 3,
-      pointName: '监测点 B1-1',
-      time: '2024-03-15 08:00',
-      horizontal: 6.3,
-      vertical: 4.2,
-    },
-    {
-      id: 4,
-      index: 4,
-      pointName: '监测点 B2-1',
-      time: '2024-03-15 08:00',
-      horizontal: 3.5,
-      vertical: 5.1,
-    },
-    {
-      id: 5,
-      index: 5,
-      pointName: '监测点 C1-1',
-      time: '2024-03-15 08:00',
-      horizontal: 7.2,
-      vertical: 6.4,
-    },
-  ])
+  // ==================== Config & Selected Device Store ====================
+  const config = useRuntimeConfig()
+  const apiBase = config.public.apiBase as string
+  const selectedDeviceStore = useSelectedDeviceStore()
 
-  // 饼状图数据
+  // ==================== Types ====================
+  interface TunnelMonitoringData {
+    timestamp: string
+    sn: string
+    ringNumber: string
+    p1x: number | null
+    p1y: number | null
+    p7x: number | null
+    p7y: number | null
+    p3x: number | null
+    p3y: number | null
+    p5x: number | null
+    p5y: number | null
+    p9x: number | null
+    p9y: number | null
+    coc: number | null
+    hc: number | null
+    sd: number | null
+  }
+
+  // ==================== State ====================
+  const warningData = ref<
+    Array<{
+      id: number
+      index: number
+      pointName: string
+      time: string
+      horizontal: number
+      vertical: number
+    }>
+  >([])
+
   const pieData = ref([
-    { name: '正常', value: 108, color: '#22c55e' },
-    { name: '预警', value: 12, color: '#f59e0b' },
-    { name: '报警', value: 8, color: '#ef4444' },
+    { name: '正常', value: 0, color: '#22c55e' },
+    { name: '预警', value: 0, color: '#f59e0b' },
+    { name: '报警', value: 0, color: '#ef4444' },
   ])
 
-  // 历史预警列表
-  const historyData = ref([
-    {
-      id: 1,
-      index: 1,
-      pointName: '监测点 A1-1',
-      time: '2024-03-15 08:00',
-      detail: '水平位移超阈值',
-      reason: '连续降雨导致土体含水量增加',
-      type: '预警',
-    },
-    {
-      id: 2,
-      index: 2,
-      pointName: '监测点 A1-2',
-      time: '2024-03-14 16:00',
-      detail: '竖直位移超阈值',
-      reason: '设备周边施工影响',
-      type: '报警',
-    },
-    {
-      id: 3,
-      index: 3,
-      pointName: '监测点 B1-1',
-      time: '2024-03-14 08:00',
-      detail: '水平位移超阈值',
-      reason: '地质条件变化',
-      type: '预警',
-    },
-    {
-      id: 4,
-      index: 4,
-      pointName: '监测点 B2-1',
-      time: '2024-03-13 14:00',
-      detail: '双重位移超阈值',
-      reason: '地震活动影响',
-      type: '报警',
-    },
-    {
-      id: 5,
-      index: 5,
-      pointName: '监测点 C1-1',
-      time: '2024-03-12 10:00',
-      detail: '水平位移超阈值',
-      reason: '长期累积变形',
-      type: '预警',
-    },
-  ])
+  const historyData = ref<
+    Array<{
+      id: number
+      index: number
+      pointName: string
+      time: string
+      detail: string
+      reason: string
+      type: string
+    }>
+  >([])
 
-  // 分页
   const pagination = ref({
     page: 1,
     pageSize: 10,
-    total: 50,
+    total: 0,
   })
 
-  // 历史预警分页
   const historyPagination = ref({
     page: 1,
     pageSize: 10,
-    total: 30,
+    total: 0,
   })
 
-  // 时间筛选
   const dateRange = ref({
     start: sub(new Date(), { days: 30 }),
     end: new Date(),
   })
 
-  // 计算饼图
+  const monitoringData = ref<TunnelMonitoringData[]>([])
+  const isLoading = ref(false)
+
+  // ==================== API ====================
+  async function fetchAlarmData() {
+    if (!selectedDeviceStore.selectedDevice?.code) {
+      warningData.value = []
+      historyData.value = []
+      updatePieData()
+      return
+    }
+
+    isLoading.value = true
+    try {
+      // 获取监测数据
+      const res = await $fetch<{ data: TunnelMonitoringData[] }>(
+        `${apiBase}/api/v1/mqtt/tunnel-monitoring`,
+        {
+          query: {
+            sn: selectedDeviceStore.selectedDevice.code,
+            limit: 1000,
+          },
+        }
+      )
+      monitoringData.value = res.data || []
+
+      // 处理预警数据
+      updateWarningData()
+
+      // 更新饼图数据
+      updatePieData()
+    } catch (e) {
+      console.error('Failed to fetch alarm data:', e)
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  function updateWarningData() {
+    // 筛选超过阈值的数据作为预警数据
+    const threshold = 3.0 // 示例阈值，单位mm
+    const filtered = monitoringData.value
+      .filter((d) => {
+        const horizontal = Math.abs(d.p9x ?? 0)
+        const vertical = Math.abs(d.p9y ?? 0)
+        return horizontal > threshold || vertical > threshold
+      })
+      .slice(0, 20)
+
+    warningData.value = filtered.map((item, idx) => ({
+      id: idx,
+      index: idx + 1,
+      pointName: item.ringNumber || '-',
+      time: new Date(item.timestamp).toLocaleString('zh-CN'),
+      horizontal: item.p9x ?? 0,
+      vertical: item.p9y ?? 0,
+    }))
+
+    pagination.value.total = warningData.value.length
+
+    // 更新历史数据
+    historyData.value = filtered.map((item, idx) => ({
+      id: idx,
+      index: idx + 1,
+      pointName: item.ringNumber || '-',
+      time: new Date(item.timestamp).toLocaleString('zh-CN'),
+      detail: '水平/垂直位移超阈值',
+      reason: '根据实时监测数据判定',
+      type:
+        Math.abs(item.p9x ?? 0) > 5 || Math.abs(item.p9y ?? 0) > 5
+          ? '报警'
+          : '预警',
+    }))
+
+    historyPagination.value.total = historyData.value.length
+  }
+
+  function updatePieData() {
+    const total = monitoringData.value.length || 0
+    const warningCount = warningData.value.length
+    const alarmCount = warningData.value.filter(
+      (d) => Math.abs(d.horizontal) > 5 || Math.abs(d.vertical) > 5
+    ).length
+    const normalCount = Math.max(0, total - warningCount)
+
+    pieData.value = [
+      { name: '正常', value: normalCount, color: '#22c55e' },
+      { name: '预警', value: warningCount - alarmCount, color: '#f59e0b' },
+      { name: '报警', value: alarmCount, color: '#ef4444' },
+    ]
+  }
+
+  // ==================== Watchers ====================
+  watch(
+    () => selectedDeviceStore.selectedDevice,
+    () => {
+      fetchAlarmData()
+    },
+    { immediate: true }
+  )
+
+  function onPageChange(page: number) {
+    pagination.value.page = page
+  }
+
+  function onHistoryPageChange(page: number) {
+    historyPagination.value.page = page
+  }
+
+  // ==================== Computed ====================
   const total = computed(() =>
     pieData.value.reduce((sum, item) => sum + item.value, 0)
   )
 
   const pieSlices = computed(() => {
+    if (total.value === 0)
+      return pieData.value.map((item) => ({
+        ...item,
+        percent: 0,
+        offset: 0,
+      }))
+
     let cumulative = 0
     return pieData.value.map((item) => {
       const percent = Math.round((item.value / total.value) * 100)
@@ -141,14 +209,6 @@
       return slice
     })
   })
-
-  function onPageChange(page: number) {
-    pagination.value.page = page
-  }
-
-  function onHistoryPageChange(page: number) {
-    historyPagination.value.page = page
-  }
 </script>
 
 <template>

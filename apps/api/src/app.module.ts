@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
+import { ScheduleModule } from '@nestjs/schedule'
 import { DatabaseModule } from '@database/database.module'
 import {
   databaseConfig,
@@ -25,6 +26,7 @@ import { DeviceModule } from '@src/module/device/device.module'
       validate: validationEnv,
       load: [appConfig, databaseConfig, redisConfig, mqttConfig, minioConfig],
     }),
+    ScheduleModule.forRoot(),
     LogModule,
     DatabaseModule,
     RedisModule,

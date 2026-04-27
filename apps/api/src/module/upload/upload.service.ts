@@ -26,7 +26,7 @@ export class UploadService {
     private readonly logger: PinoLogger
   ) {
     this.logger.setContext(UploadService.name)
-    this.defaultExpiry = 3600 // 1 hour
+    this.defaultExpiry = 259200 // 3 days
   }
 
   /**
@@ -83,7 +83,7 @@ export class UploadService {
       )
 
       this.logger.info(
-        { objectName, expiresIn },
+        { objectName, expiresIn, presignedUrl },
         'Presigned download URL generated'
       )
 

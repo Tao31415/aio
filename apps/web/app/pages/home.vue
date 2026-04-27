@@ -1,53 +1,94 @@
 <script setup lang="ts">
+  import { useDeviceStatsStore } from '~/stores/device-stats.store'
+
   definePageMeta({
     layout: 'home',
-    middleware: (to: { path: string }) => {
-      if (to.path === '/home' || to.path === '/home/') {
-        return navigateTo('/home/device')
-      }
-    },
   })
 
-  // 注意：此页面作为父级路由组件，渲染统计卡片、标签栏和 NuxtPage
+  const deviceStatsStore = useDeviceStatsStore()
+  const selectedDeviceStore = useSelectedDeviceStore()
 
-  // 统计数据
-  const stats = ref([
+  // 如果有选中设备且当前不在 /home/device 页面，自动导航
+  const route = useRoute()
+  onMounted(() => {
+    deviceStatsStore.fetchDashboardStats()
+    deviceStatsStore.startAutoRefresh(30000)
+
+    // 延迟导航，等待 layouts/home.vue 加载设备列表
+    setTimeout(() => {
+      if (
+        selectedDeviceStore.firstDevice &&
+        !route.path.includes('/home/device')
+      ) {
+        navigateTo(
+          `/home/device?deviceId=${selectedDeviceStore.firstDevice.id}`,
+          {
+            replace: true,
+          }
+        )
+      }
+    }, 500)
+  })
+
+  const stats = computed(() => [
     {
       title: '设备总数',
-      value: 128,
+      value: deviceStatsStore.stats.totalDevices,
       icon: 'i-lucide-server',
       bgColor: 'bg-blue-500',
     },
     {
       title: '在线设备',
-      value: 108,
+      value: deviceStatsStore.stats.onlineDevices,
       icon: 'i-lucide-circle-check',
       bgColor: 'bg-green-500',
     },
     {
       title: '预警设备',
-      value: 12,
+      value: deviceStatsStore.stats.warningDevices,
       icon: 'i-lucide-alert-triangle',
       bgColor: 'bg-yellow-500',
     },
     {
       title: '报警设备',
-      value: 8,
+      value: deviceStatsStore.stats.alarmDevices,
       icon: 'i-lucide-alert-circle',
       bgColor: 'bg-red-500',
     },
   ])
 
-  // 标签页配置
-  const tabs = [
-    { label: '设备信息', path: '/home/device', icon: 'i-lucide-info' },
-    { label: '数据查看', path: '/home/data', icon: 'i-lucide-chart-line' },
-    { label: '数据预警', path: '/home/alarm', icon: 'i-lucide-bell' },
-  ]
+  const currentDeviceId = computed(() => {
+    return (
+      selectedDeviceStore.selectedDevice?.id ||
+      (route.query.deviceId as string | undefined) ||
+      ''
+    )
+  })
 
-  const route = useRoute()
+  const tabs = computed(() => [
+    {
+      label: '设备信息',
+      path: currentDeviceId.value
+        ? `/home/device?deviceId=${currentDeviceId.value}`
+        : '/home/device',
+      icon: 'i-lucide-info',
+    },
+    {
+      label: '数据查看',
+      path: currentDeviceId.value
+        ? `/home/data?deviceId=${currentDeviceId.value}`
+        : '/home/data',
+      icon: 'i-lucide-chart-line',
+    },
+    {
+      label: '数据预警',
+      path: currentDeviceId.value
+        ? `/home/alarm?deviceId=${currentDeviceId.value}`
+        : '/home/alarm',
+      icon: 'i-lucide-bell',
+    },
+  ])
 
-  // 判断当前激活的标签
   const activeTab = computed(() => {
     const path = route.path
     if (path.startsWith('/home/device')) return '/home/device'
@@ -55,12 +96,32 @@
     if (path.startsWith('/home/alarm')) return '/home/alarm'
     return '/home/device'
   })
+
+  onUnmounted(() => {
+    deviceStatsStore.stopAutoRefresh()
+  })
 </script>
 
 <template>
   <div class="h-full flex flex-col">
-    <!-- 统计卡片区域 -->
     <div class="p-4 border-b border-default">
+      <UAlert
+        v-if="deviceStatsStore.error"
+        color="error"
+        variant="soft"
+        title="加载失败"
+        :description="deviceStatsStore.error"
+        class="mb-4"
+        :actions="[
+          {
+            label: '重试',
+            color: 'error',
+            variant: 'solid',
+            onClick: () => deviceStatsStore.fetchDashboardStats(),
+          },
+        ]"
+      />
+
       <UPageGrid class="lg:grid-cols-4 gap-4">
         <div
           v-for="(stat, index) in stats"
@@ -79,11 +140,47 @@
               {{ stat.value }}
             </span>
           </div>
+          <p
+            v-if="index === 0"
+            class="text-xs text-white/70 mt-1"
+          >
+            离线设备: {{ deviceStatsStore.stats.offlineDevices }}
+          </p>
+          <p
+            v-if="index === 1"
+            class="text-xs text-white/70 mt-1"
+          >
+            正常设备: {{ deviceStatsStore.stats.normalDevices }}
+          </p>
         </div>
       </UPageGrid>
+      <div
+        v-if="deviceStatsStore.lastRefresh"
+        class="text-xs text-gray-500 mt-2 text-center"
+      >
+        最后更新: {{ deviceStatsStore.lastRefresh.toLocaleTimeString() }}
+        <span
+          v-if="deviceStatsStore.loading"
+          class="ml-2"
+        >
+          <UIcon
+            name="i-lucide-loader-2"
+            class="w-3 h-3 animate-spin inline-block"
+          />
+        </span>
+      </div>
+      <div
+        v-if="!deviceStatsStore.lastRefresh && !deviceStatsStore.error"
+        class="text-xs text-gray-500 mt-2 text-center"
+      >
+        <UIcon
+          name="i-lucide-loader-2"
+          class="w-3 h-3 animate-spin inline-block mr-1"
+        />
+        正在加载数据...
+      </div>
     </div>
 
-    <!-- 固定标签栏 -->
     <div
       class="h-10 border-b border-default bg-default flex items-center px-4 shrink-0"
     >
@@ -108,7 +205,6 @@
       </div>
     </div>
 
-    <!-- 子页面内容区域 -->
     <div class="flex-1 overflow-auto">
       <NuxtPage />
     </div>

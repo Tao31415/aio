@@ -35,7 +35,6 @@ class UpdateDeviceDto {
 
 class CreateMeasurementPointDto {
   deviceId!: string
-  index!: number
   name!: string
   coordX?: number
   coordY?: number
@@ -51,7 +50,6 @@ class CreateMeasurementPointDto {
 class CreateMeasurementPointsBatchDto {
   deviceId!: string
   points!: Array<{
-    index: number
     name: string
     coordX?: number
     coordY?: number
@@ -66,7 +64,6 @@ class CreateMeasurementPointsBatchDto {
 }
 
 class UpdateMeasurementPointDto {
-  index?: number
   name?: string
   coordX?: number
   coordY?: number

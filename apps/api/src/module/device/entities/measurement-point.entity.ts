@@ -25,9 +25,6 @@ export class MeasurementPoint {
   @JoinColumn({ name: 'device_id' })
   device!: Device
 
-  @Column({ name: 'index', type: 'int' })
-  index!: number
-
   @Column({ name: 'name', type: 'varchar', length: 255 })
   name!: string
 

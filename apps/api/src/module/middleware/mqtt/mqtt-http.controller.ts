@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common'
+import { Controller, Get, Param, Query } from '@nestjs/common'
 import { ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger'
 import { MqttMessageService } from './mqtt-message.service'
 import { TunnelMonitoringService } from './tunnel-monitoring.service'
@@ -154,5 +154,28 @@ export class MqttHttpController {
     const data =
       await this.tunnelMonitoringService.findLatestByRingNumber(ringNumber)
     return { data }
+  }
+
+  /**
+   * 获取所有不重复的设备序列号
+   * GET /api/v1/mqtt/tunnel-monitoring/sn
+   */
+  @Get('tunnel-monitoring/sn')
+  @ApiOperation({ summary: '获取所有不重复的设备序列号' })
+  async getAllDistinctSn() {
+    const sns = await this.tunnelMonitoringService.findAllDistinctSn()
+    return { data: sns, total: sns.length }
+  }
+
+  /**
+   * 获取指定 SN 的所有不重复环号
+   * GET /api/v1/mqtt/tunnel-monitoring/sn/:sn/ring-numbers
+   */
+  @Get('tunnel-monitoring/sn/:sn/ring-numbers')
+  @ApiOperation({ summary: '获取指定 SN 的所有不重复环号' })
+  async getDistinctRingNumbersBySn(@Param('sn') sn: string) {
+    const ringNumbers =
+      await this.tunnelMonitoringService.findDistinctRingNumbersBySn(sn)
+    return { data: ringNumbers, total: ringNumbers.length }
   }
 }

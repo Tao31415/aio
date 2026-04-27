@@ -92,7 +92,6 @@ export class DeviceService {
 
   async createMeasurementPoint(data: {
     deviceId: string
-    index: number
     name: string
     coordX?: number
     coordY?: number
@@ -116,7 +115,6 @@ export class DeviceService {
   async createMeasurementPoints(
     deviceId: string,
     points: Array<{
-      index: number
       name: string
       coordX?: number
       coordY?: number
@@ -146,7 +144,7 @@ export class DeviceService {
     return this.measurementPointRepository.find({
       where: { deviceId },
       relations: ['pointThumbnails'],
-      order: { index: 'ASC' },
+      order: { createdAt: 'ASC' },
     })
   }
 
@@ -160,7 +158,6 @@ export class DeviceService {
   async updateMeasurementPoint(
     id: string,
     data: Partial<{
-      index: number
       name: string
       coordX: number
       coordY: number

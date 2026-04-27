@@ -353,4 +353,33 @@ export class TunnelMonitoringService implements OnModuleInit {
     })
     return result[0] || null
   }
+
+  /**
+   * 获取所有不重复的设备序列号
+   */
+  async findAllDistinctSn(): Promise<string[]> {
+    const result = await this.tunnelMonitoringRepository
+      .createQueryBuilder('t')
+      .select('DISTINCT t.sn', 'sn')
+      .orderBy('t.sn', 'ASC')
+      .getRawMany()
+
+    return result.map((row: Record<string, unknown>) => row.sn as string)
+  }
+
+  /**
+   * 获取指定 SN 的所有不重复环号
+   */
+  async findDistinctRingNumbersBySn(sn: string): Promise<string[]> {
+    const result = await this.tunnelMonitoringRepository
+      .createQueryBuilder('t')
+      .select('DISTINCT t.ring_number', 'ringNumber')
+      .where('t.sn = :sn', { sn })
+      .orderBy('t.ring_number', 'ASC')
+      .getRawMany()
+
+    return result.map(
+      (row: Record<string, unknown>) => row.ringNumber as string
+    )
+  }
 }

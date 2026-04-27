@@ -75,11 +75,14 @@ export class StorageService implements OnModuleInit {
     })
   }
 
-  getPresignedUrl(objectName: string, expiry = 3600): Promise<string> {
+  getPresignedUrl(objectName: string, expiry = 259200): Promise<string> {
     return this.client.presignedGetObject(this.bucket, objectName, expiry)
   }
 
-  getPresignedPutObjectUrl(objectName: string, expiry = 3600): Promise<string> {
+  getPresignedPutObjectUrl(
+    objectName: string,
+    expiry = 259200
+  ): Promise<string> {
     return this.client.presignedPutObject(this.bucket, objectName, expiry)
   }
 
