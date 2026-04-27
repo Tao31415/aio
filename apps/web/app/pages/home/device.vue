@@ -1,18 +1,139 @@
 <script setup lang="ts">
-  // 子页面
+  const route = useRoute()
+  const config = useRuntimeConfig()
+  const toast = useToast()
+  const apiBase = config.public.apiBase as string
 
-  // 设备基本信息 - 二桥中学坐标
-  const deviceInfo = ref({
-    name: '监测点 A1',
-    code: 'A1-2024-001',
-    project: '山区滑坡监测项目',
-    longitude: 114.27,
-    latitude: 30.57,
-    elevation: 123.5,
-    x: 100.5,
-    y: 200.3,
-    z: 50.2,
-  })
+  // ==================== Types ====================
+  interface MeasurementPoint {
+    id: string
+    deviceId: string
+    index: number
+    name: string
+    coordX: number | null
+    coordY: number | null
+    coordZ: number | null
+    ringNumber: string | null
+    size: string | null
+    warningThresholdHorizontal: number | null
+    warningThresholdVertical: number | null
+    alarmThresholdHorizontal: number | null
+    alarmThresholdVertical: number | null
+    createdAt: string
+    updatedAt: string
+  }
+
+  interface DevicePhoto {
+    id: string
+    deviceId: string
+    objectName: string
+    displayTime: string | null
+    createdAt: string
+  }
+
+  interface Device {
+    id: string
+    name: string
+    code: string
+    project: string | null
+    longitude: number | null
+    latitude: number | null
+    elevation: number | null
+    coordX: number | null
+    coordY: number | null
+    coordZ: number | null
+    measurementPoints: MeasurementPoint[]
+    devicePhotos: DevicePhoto[]
+    createdAt: string
+    updatedAt: string
+  }
+
+  interface TunnelMonitoringData {
+    timestamp: string
+    sn: string
+    ringNumber: string
+    p1x: number | null
+    p1y: number | null
+    p7x: number | null
+    p7y: number | null
+    p3x: number | null
+    p3y: number | null
+    p5x: number | null
+    p5y: number | null
+    p9x: number | null
+    p9y: number | null
+    coc: number | null
+    hc: number | null
+    sd: number | null
+  }
+
+  // ==================== State ====================
+  const deviceId = computed(() => route.query.deviceId as string | undefined)
+  const device = ref<Device | null>(null)
+  const isLoadingDevice = ref(false)
+  const monitoringData = ref<TunnelMonitoringData[]>([])
+  const isLoadingData = ref(false)
+
+  // ==================== API ====================
+  async function fetchDevice() {
+    if (!deviceId.value) return
+    isLoadingDevice.value = true
+    try {
+      const data = await $fetch<Device>(
+        `${apiBase}/api/v1/device/${deviceId.value}`
+      )
+      device.value = data
+    } catch (e) {
+      toast.add({
+        title: '加载设备信息失败',
+        description: String(e),
+        color: 'error',
+      })
+    } finally {
+      isLoadingDevice.value = false
+    }
+  }
+
+  async function fetchMonitoringData() {
+    if (!device.value?.code) return
+    isLoadingData.value = true
+    try {
+      const res = await $fetch<{ data: TunnelMonitoringData[] }>(
+        `${apiBase}/api/v1/mqtt/tunnel-monitoring`,
+        {
+          query: {
+            sn: device.value.code,
+            limit: 100,
+          },
+        }
+      )
+      monitoringData.value = res.data || []
+    } catch (e) {
+      toast.add({
+        title: '加载监测数据失败',
+        description: String(e),
+        color: 'error',
+      })
+    } finally {
+      isLoadingData.value = false
+    }
+  }
+
+  // 获取照片下载URL
+  async function getPhotoUrl(objectName: string): Promise<string> {
+    try {
+      const { presignedUrl } = await $fetch<{ presignedUrl: string }>(
+        `${apiBase}/api/v1/upload/presign-download`,
+        {
+          method: 'POST',
+          body: { objectName },
+        }
+      )
+      return presignedUrl
+    } catch {
+      return ''
+    }
+  }
 
   // ==================== 地图功能 ====================
 
@@ -104,9 +225,7 @@
           type: 'scatter',
           coordinateSystem: 'geo',
           symbolSize: 12,
-          data: [
-            { name: '二桥中学', value: [114.27, 30.57, 100] },
-          ],
+          data: [{ name: '二桥中学', value: [114.27, 30.57, 100] }],
           label: {
             show: true,
             formatter: '{b}',
@@ -194,6 +313,21 @@
 
   onMounted(() => {
     initChart()
+    if (deviceId.value) {
+      fetchDevice()
+    }
+  })
+
+  watch(deviceId, (newId) => {
+    if (newId) {
+      fetchDevice()
+    }
+  })
+
+  watch(device, (newDevice) => {
+    if (newDevice?.code) {
+      fetchMonitoringData()
+    }
   })
 
   onUnmounted(() => {
@@ -206,23 +340,30 @@
   const pagination = ref({
     page: 1,
     pageSize: 10,
-    total: 50,
+    total: computed(() => monitoringData.value.length),
   })
 
-  const dataList = ref([
-    { id: 1, target: '靶标 T1', pointName: '监测点 A1-1', time: '2024-03-15 08:00', horizontal: 2.5, vertical: 1.3 },
-    { id: 2, target: '靶标 T2', pointName: '监测点 A1-2', time: '2024-03-15 08:00', horizontal: -1.2, vertical: 3.1 },
-    { id: 3, target: '靶标 T3', pointName: '监测点 A1-3', time: '2024-03-15 08:00', horizontal: 0.8, vertical: -2.4 },
-    { id: 4, target: '靶标 T4', pointName: '监测点 A1-4', time: '2024-03-15 08:00', horizontal: 1.5, vertical: 0.9 },
-    { id: 5, target: '靶标 T5', pointName: '监测点 A1-5', time: '2024-03-15 08:00', horizontal: -0.3, vertical: 1.8 },
-  ])
+  // 根据监测数据计算水平位移和竖直位移
+  const dataList = computed(() => {
+    return monitoringData.value
+      .slice(0, pagination.value.pageSize)
+      .map((item, idx) => ({
+        id: idx,
+        target: item.ringNumber || `环号 ${idx + 1}`,
+        pointName:
+          device.value?.measurementPoints?.find(
+            (p) => p.ringNumber === item.ringNumber
+          )?.name || '-',
+        time: new Date(item.timestamp).toLocaleString('zh-CN'),
+        horizontal: item.p9x ?? 0,
+        vertical: item.p9y ?? 0,
+      }))
+  })
 
-  const photos = ref([
-    { id: 1, url: 'https://picsum.photos/400/300?random=1', time: '2024-03-15 08:00' },
-    { id: 2, url: 'https://picsum.photos/400/300?random=2', time: '2024-03-14 08:00' },
-    { id: 3, url: 'https://picsum.photos/400/300?random=3', time: '2024-03-13 08:00' },
-    { id: 4, url: 'https://picsum.photos/400/300?random=4', time: '2024-03-12 08:00' },
-  ])
+  // 获取设备照片
+  const photos = computed(() => {
+    return device.value?.devicePhotos || []
+  })
 
   function onPageChange(page: number) {
     pagination.value.page = page
@@ -231,115 +372,330 @@
 
 <template>
   <div class="p-4 space-y-4">
-    <!-- 第一行：设备基本信息 + 地图 -->
-    <div class="grid grid-cols-2 gap-4">
-      <!-- 设备基本信息 -->
-      <div class="bg-elevated border border-default rounded-xl p-4">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="font-semibold">设备基本信息</h3>
-          <div class="flex items-center gap-2">
-            <UButton color="primary" variant="soft" size="sm" icon="i-lucide-edit">编辑</UButton>
-            <UButton color="neutral" variant="soft" size="sm" icon="i-lucide-link">测点列表</UButton>
-          </div>
-        </div>
-        <div class="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
-          <div><span class="text-muted">设备名称：</span><span class="font-medium">{{ deviceInfo.name }}</span></div>
-          <div><span class="text-muted">设备编号：</span><span class="font-medium">{{ deviceInfo.code }}</span></div>
-          <div><span class="text-muted">工程信息：</span><span class="font-medium">{{ deviceInfo.project }}</span></div>
-          <div><span class="text-muted">经度：</span><span class="font-medium">{{ deviceInfo.longitude }}</span></div>
-          <div><span class="text-muted">纬度：</span><span class="font-medium">{{ deviceInfo.latitude }}</span></div>
-          <div><span class="text-muted">高程：</span><span class="font-medium">{{ deviceInfo.elevation }} m</span></div>
-          <div><span class="text-muted">X 值：</span><span class="font-medium">{{ deviceInfo.x }} mm</span></div>
-          <div><span class="text-muted">Y 值：</span><span class="font-medium">{{ deviceInfo.y }} mm</span></div>
-          <div><span class="text-muted">Z 值：</span><span class="font-medium">{{ deviceInfo.z }} mm</span></div>
-        </div>
-      </div>
-
-      <!-- 地图 -->
-      <div class="bg-elevated border border-default rounded-xl p-4">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="font-semibold">设备位置</h3>
-          <div class="flex items-center gap-2">
-            <UButton v-if="mapHistory.length > 0" size="xs" variant="ghost" icon="i-lucide-arrow-left" @click="goBack">返回</UButton>
-            <UIcon v-if="isMapLoading" name="i-lucide-loader-2" class="w-4 h-4 animate-spin text-muted" />
-          </div>
-        </div>
-
-        <p class="text-xs text-muted mb-2">
-          <span v-if="currentMapLevel === 'china'">点击省份进入查看</span>
-          <span v-else-if="currentMapLevel === 'province'">点击城市进入查看</span>
-          <span v-else-if="currentMapLevel === 'city'">点击区县进入查看</span>
-          <span v-else>当前为最详细级别</span>
-        </p>
-
-        <!-- 图表容器 -->
-        <div class="aspect-video rounded-lg overflow-hidden relative bg-muted/10">
-          <div v-if="isMapLoading" class="absolute inset-0 z-10 flex items-center justify-center bg-muted/80">
-            <div class="text-center">
-              <UIcon name="i-lucide-loader-2" class="w-8 h-8 animate-spin mb-2 mx-auto text-muted" />
-              <p class="text-sm text-muted">加载地图中...</p>
-            </div>
-          </div>
-          <div v-else-if="mapError" class="absolute inset-0 z-10 flex items-center justify-center bg-muted/80">
-            <div class="text-center text-error">
-              <UIcon name="i-lucide-alert-circle" class="w-8 h-8 mb-2 mx-auto" />
-              <p class="text-sm">{{ mapError }}</p>
-            </div>
-          </div>
-          <div ref="chartContainer" class="w-full h-full" />
-        </div>
+    <!-- 无设备选择时显示提示 -->
+    <div
+      v-if="!deviceId"
+      class="flex items-center justify-center h-96"
+    >
+      <div class="text-center text-muted">
+        <UIcon
+          name="i-lucide-hard-drive"
+          class="w-16 h-16 mx-auto mb-4 opacity-50"
+        />
+        <p class="text-lg mb-2">请从设备管理页面选择一个设备</p>
+        <UButton
+          to="/device"
+          color="primary"
+        >
+          前往设备管理
+        </UButton>
       </div>
     </div>
 
-    <!-- 第二行：照片 + 数据列表 -->
-    <div class="grid grid-cols-2 gap-4">
-      <!-- 照片 -->
-      <div class="bg-elevated border border-default rounded-xl p-4">
-        <h3 class="font-semibold mb-4">设备照片</h3>
-        <div class="grid grid-cols-2 gap-2">
-          <div v-for="photo in photos" :key="photo.id" class="aspect-video bg-muted/20 rounded-lg overflow-hidden">
-            <img :src="photo.url" :alt="`设备照片 ${photo.id}`" class="w-full h-full object-cover" />
+    <!-- 加载状态 -->
+    <div
+      v-else-if="isLoadingDevice"
+      class="flex items-center justify-center h-96"
+    >
+      <div class="text-center text-muted">
+        <UIcon
+          name="i-lucide-loader-2"
+          class="w-8 h-8 animate-spin mb-2 mx-auto"
+        />
+        <p>加载设备信息中...</p>
+      </div>
+    </div>
+
+    <!-- 设备详情 -->
+    <template v-else-if="device">
+      <!-- 第一行：设备基本信息 + 地图 -->
+      <div class="grid grid-cols-2 gap-4">
+        <!-- 设备基本信息 -->
+        <div class="bg-elevated border border-default rounded-xl p-4">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-semibold">设备基本信息</h3>
+            <div class="flex items-center gap-2">
+              <UButton
+                :to="`/device?highlight=${device.id}`"
+                color="neutral"
+                variant="soft"
+                size="sm"
+                icon="i-lucide-link"
+              >
+                设备管理
+              </UButton>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+            <div>
+              <span class="text-muted">设备名称：</span>
+              <span class="font-medium">{{ device.name }}</span>
+            </div>
+            <div>
+              <span class="text-muted">设备编号：</span>
+              <span class="font-medium">{{ device.code }}</span>
+            </div>
+            <div>
+              <span class="text-muted">工程信息：</span>
+              <span class="font-medium">{{ device.project || '-' }}</span>
+            </div>
+            <div>
+              <span class="text-muted">经度：</span>
+              <span class="font-medium">{{ device.longitude ?? '-' }}</span>
+            </div>
+            <div>
+              <span class="text-muted">纬度：</span>
+              <span class="font-medium">{{ device.latitude ?? '-' }}</span>
+            </div>
+            <div>
+              <span class="text-muted">高程：</span>
+              <span class="font-medium">{{ device.elevation ?? '-' }} m</span>
+            </div>
+            <div>
+              <span class="text-muted">X 坐标：</span>
+              <span class="font-medium">{{ device.coordX ?? '-' }}</span>
+            </div>
+            <div>
+              <span class="text-muted">Y 坐标：</span>
+              <span class="font-medium">{{ device.coordY ?? '-' }}</span>
+            </div>
+            <div>
+              <span class="text-muted">Z 坐标：</span>
+              <span class="font-medium">{{ device.coordZ ?? '-' }}</span>
+            </div>
+            <div>
+              <span class="text-muted">测点数量：</span>
+              <span class="font-medium">
+                {{ device.measurementPoints?.length || 0 }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 地图 -->
+        <div class="bg-elevated border border-default rounded-xl p-4">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-semibold">设备位置</h3>
+            <div class="flex items-center gap-2">
+              <UButton
+                v-if="mapHistory.length > 0"
+                size="xs"
+                variant="ghost"
+                icon="i-lucide-arrow-left"
+                @click="goBack"
+              >
+                返回
+              </UButton>
+              <UIcon
+                v-if="isMapLoading"
+                name="i-lucide-loader-2"
+                class="w-4 h-4 animate-spin text-muted"
+              />
+            </div>
+          </div>
+
+          <p class="text-xs text-muted mb-2">
+            <span v-if="currentMapLevel === 'china'">点击省份进入查看</span>
+            <span v-else-if="currentMapLevel === 'province'">
+              点击城市进入查看
+            </span>
+            <span v-else-if="currentMapLevel === 'city'">点击区县进入查看</span>
+            <span v-else>当前为最详细级别</span>
+          </p>
+
+          <!-- 图表容器 -->
+          <div
+            class="aspect-video rounded-lg overflow-hidden relative bg-muted/10"
+          >
+            <div
+              v-if="isMapLoading"
+              class="absolute inset-0 z-10 flex items-center justify-center bg-muted/80"
+            >
+              <div class="text-center">
+                <UIcon
+                  name="i-lucide-loader-2"
+                  class="w-8 h-8 animate-spin mb-2 mx-auto text-muted"
+                />
+                <p class="text-sm text-muted">加载地图中...</p>
+              </div>
+            </div>
+            <div
+              v-else-if="mapError"
+              class="absolute inset-0 z-10 flex items-center justify-center bg-muted/80"
+            >
+              <div class="text-center text-error">
+                <UIcon
+                  name="i-lucide-alert-circle"
+                  class="w-8 h-8 mb-2 mx-auto"
+                />
+                <p class="text-sm">{{ mapError }}</p>
+              </div>
+            </div>
+            <div
+              ref="chartContainer"
+              class="w-full h-full"
+            />
           </div>
         </div>
       </div>
 
-      <!-- 数据列表 -->
-      <div class="bg-elevated border border-default rounded-xl p-4">
-        <h3 class="font-semibold mb-4">监测数据</h3>
-        <div class="overflow-auto">
-          <table class="w-full text-sm">
-            <thead>
-              <tr class="border-b border-default">
-                <th class="text-left py-2 px-2 text-muted font-medium">靶标</th>
-                <th class="text-left py-2 px-2 text-muted font-medium">点名</th>
-                <th class="text-left py-2 px-2 text-muted font-medium">监测时间</th>
-                <th class="text-right py-2 px-2 text-muted font-medium">水平位移</th>
-                <th class="text-right py-2 px-2 text-muted font-medium">竖直位移</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="item in dataList" :key="item.id" class="border-b border-default/50 hover:bg-muted/5">
-                <td class="py-2 px-2">{{ item.target }}</td>
-                <td class="py-2 px-2">{{ item.pointName }}</td>
-                <td class="py-2 px-2">{{ item.time }}</td>
-                <td class="py-2 px-2 text-right">
-                  <span :class="item.horizontal > 0 ? 'text-red-500' : 'text-green-500'">
-                    {{ item.horizontal > 0 ? '+' : '' }}{{ item.horizontal }} mm
-                  </span>
-                </td>
-                <td class="py-2 px-2 text-right">
-                  <span :class="item.vertical > 0 ? 'text-red-500' : 'text-green-500'">
-                    {{ item.vertical > 0 ? '+' : '' }}{{ item.vertical }} mm
-                  </span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+      <!-- 第二行：照片 + 数据列表 -->
+      <div class="grid grid-cols-2 gap-4">
+        <!-- 照片 -->
+        <div class="bg-elevated border border-default rounded-xl p-4">
+          <h3 class="font-semibold mb-4">设备照片 ({{ photos.length }})</h3>
+          <div
+            v-if="photos.length === 0"
+            class="text-center py-8 text-muted"
+          >
+            <UIcon
+              name="i-lucide-image"
+              class="w-12 h-12 mx-auto mb-2 opacity-50"
+            />
+            <p>暂无照片</p>
+          </div>
+          <div
+            v-else
+            class="grid grid-cols-2 gap-2"
+          >
+            <div
+              v-for="photo in photos"
+              :key="photo.id"
+              class="relative aspect-video bg-muted/20 rounded-lg overflow-hidden group"
+            >
+              <img
+                :src="`${apiBase}/api/v1/upload/download?objectName=${encodeURIComponent(photo.objectName)}`"
+                :alt="`照片 ${photo.id}`"
+                class="w-full h-full object-cover"
+              />
+              <div
+                v-if="photo.displayTime"
+                class="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs p-1 text-center"
+              >
+                {{ photo.displayTime }}
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="mt-4 flex justify-center">
-          <UPagination v-model:page="pagination.page" :page-count="pagination.pageSize" :total="pagination.total" size="sm" @update:page="onPageChange" />
+
+        <!-- 数据列表 -->
+        <div class="bg-elevated border border-default rounded-xl p-4">
+          <h3 class="font-semibold mb-4">
+            监测数据
+            <span
+              v-if="isLoadingData"
+              class="ml-2"
+            >
+              <UIcon
+                name="i-lucide-loader-2"
+                class="w-4 h-4 animate-spin text-muted inline"
+              />
+            </span>
+            <span
+              v-else
+              class="text-muted text-sm font-normal ml-2"
+            >
+              ({{ monitoringData.length }})
+            </span>
+          </h3>
+
+          <!-- 加载状态 -->
+          <div
+            v-if="isLoadingData"
+            class="text-center py-8 text-muted"
+          >
+            <UIcon
+              name="i-lucide-loader-2"
+              class="w-8 h-8 animate-spin mb-2 mx-auto"
+            />
+            <p>加载监测数据中...</p>
+          </div>
+
+          <!-- 无数据 -->
+          <div
+            v-else-if="dataList.length === 0"
+            class="text-center py-8 text-muted"
+          >
+            <UIcon
+              name="i-lucide-database"
+              class="w-12 h-12 mx-auto mb-2 opacity-50"
+            />
+            <p>暂无监测数据</p>
+            <p class="text-xs mt-1">设备编号: {{ device.code }}</p>
+          </div>
+
+          <!-- 数据表格 -->
+          <div
+            v-else
+            class="overflow-auto"
+          >
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b border-default">
+                  <th class="text-left py-2 px-2 text-muted font-medium">
+                    环号
+                  </th>
+                  <th class="text-left py-2 px-2 text-muted font-medium">
+                    点名
+                  </th>
+                  <th class="text-left py-2 px-2 text-muted font-medium">
+                    监测时间
+                  </th>
+                  <th class="text-right py-2 px-2 text-muted font-medium">
+                    水平位移 (p9x)
+                  </th>
+                  <th class="text-right py-2 px-2 text-muted font-medium">
+                    竖直位移 (p9y)
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="item in dataList"
+                  :key="item.id"
+                  class="border-b border-default/50 hover:bg-muted/5"
+                >
+                  <td class="py-2 px-2">{{ item.target }}</td>
+                  <td class="py-2 px-2">{{ item.pointName }}</td>
+                  <td class="py-2 px-2">{{ item.time }}</td>
+                  <td class="py-2 px-2 text-right">
+                    <span
+                      :class="
+                        item.horizontal > 0 ? 'text-red-500' : 'text-green-500'
+                      "
+                    >
+                      {{ item.horizontal > 0 ? '+' : ''
+                      }}{{ item.horizontal.toFixed(4) }}
+                    </span>
+                  </td>
+                  <td class="py-2 px-2 text-right">
+                    <span
+                      :class="
+                        item.vertical > 0 ? 'text-red-500' : 'text-green-500'
+                      "
+                    >
+                      {{ item.vertical > 0 ? '+' : ''
+                      }}{{ item.vertical.toFixed(4) }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div
+            v-if="dataList.length > 0"
+            class="mt-4 flex justify-center"
+          >
+            <UPagination
+              v-model:page="pagination.page"
+              :page-count="pagination.pageSize"
+              :total="pagination.total"
+              size="sm"
+              @update:page="onPageChange"
+            />
+          </div>
         </div>
       </div>
-    </div>
+    </template>
   </div>
 </template>

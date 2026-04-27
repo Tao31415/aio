@@ -11,7 +11,7 @@ export default defineNuxtPlugin(async () => {
     const chinaGeoJSON = await response.json()
 
     // 动态导入 echarts core
-    const echarts = await import('echarts/core').then(m => m.default || m)
+    const echarts = await import('echarts/core').then((m) => m.default || m)
 
     // 注册地图
     echarts.registerMap('china', chinaGeoJSON)

@@ -1,22 +1,48 @@
 <script setup lang="ts">
   import type { DropdownMenuItem } from '@nuxt/ui'
 
-  // 模拟设备列表数据
-  const deviceList = ref([
-    { id: 1, name: '监测点 A1', status: 'online' },
-    { id: 2, name: '监测点 A2', status: 'online' },
-    { id: 3, name: '监测点 B1', status: 'warning' },
-    { id: 4, name: '监测点 B2', status: 'alarm' },
-    { id: 5, name: '监测点 C1', status: 'offline' },
-  ])
+  // ==================== Types ====================
+  interface Device {
+    id: string
+    name: string
+    code: string
+    project: string | null
+    status?: 'online' | 'warning' | 'alarm' | 'offline'
+  }
+
+  // ==================== State ====================
+  const config = useRuntimeConfig()
+  const apiBase = config.public.apiBase as string
+  const deviceList = ref<Device[]>([])
+  const isLoading = ref(false)
+
+  // ==================== API ====================
+  async function fetchDevices() {
+    isLoading.value = true
+    try {
+      const data = await $fetch<Device[]>(`${apiBase}/api/v1/device`)
+      deviceList.value = data || []
+    } catch (e) {
+      console.error('Failed to fetch devices:', e)
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  // ==================== Lifecycle ====================
+  fetchDevices()
 
   const route = useRoute()
   const auth = useAuthStore()
   const { signOut } = useAuth()
 
-  // 判断是否选中
-  function isActive(id: number): boolean {
-    return route.path.includes(`/home/device/${id}`)
+  // 判断是否选中（支持路径参数和查询参数两种方式）
+  function isActive(id: string): boolean {
+    const pathId = route.path.includes('/home/device/')
+      ? route.path.split('/home/device/')[1]
+      : null
+    const queryId = route.query.deviceId as string | undefined
+    return pathId === id || queryId === id
   }
 
   // 状态图标和颜色
@@ -71,7 +97,6 @@
   ])
 
   // 配置
-  const config = useRuntimeConfig()
   const brandName = computed(() => config.public.brandName)
 </script>
 
@@ -116,13 +141,41 @@
 
         <!-- 设备列表 -->
         <nav class="flex-1 overflow-y-auto py-2">
-          <ul class="space-y-0.5 px-2">
+          <!-- 加载状态 -->
+          <div
+            v-if="isLoading"
+            class="px-3 py-8 text-center text-muted"
+          >
+            <UIcon
+              name="i-lucide-loader-2"
+              class="w-6 h-6 mx-auto mb-2 animate-spin"
+            />
+            <p class="text-sm">加载中...</p>
+          </div>
+
+          <!-- 空状态 -->
+          <div
+            v-else-if="deviceList.length === 0"
+            class="px-3 py-8 text-center text-muted"
+          >
+            <UIcon
+              name="i-lucide-hard-drive"
+              class="w-8 h-8 mx-auto mb-2 opacity-50"
+            />
+            <p class="text-sm">暂无设备</p>
+          </div>
+
+          <!-- 设备列表 -->
+          <ul
+            v-else
+            class="space-y-0.5 px-2"
+          >
             <li
               v-for="device in deviceList"
               :key="device.id"
             >
               <NuxtLink
-                :to="`/home/device/${device.id}`"
+                :to="`/home/device?deviceId=${device.id}`"
                 :class="[
                   'flex items-center gap-3 px-3 py-2 rounded-md transition-colors',
                   isActive(device.id)

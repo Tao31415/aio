@@ -13,7 +13,10 @@ import { AuthModule } from '@auth/auth.module'
 import { LogModule } from '@log/log.module'
 import { RedisModule } from '@redis/redis.module'
 import { MqttModule } from '@mqtt/mqtt.module'
+import { StorageModule } from '@storage/storage.module'
 import { SeedModule } from '@src/module/middleware/seed/seed.module'
+import { UploadModule } from '@src/module/upload/upload.module'
+import { DeviceModule } from '@src/module/device/device.module'
 
 @Module({
   imports: [
@@ -26,9 +29,11 @@ import { SeedModule } from '@src/module/middleware/seed/seed.module'
     DatabaseModule,
     RedisModule,
     AuthModule,
-    // StorageModule,
+    StorageModule,
     MqttModule.forRootAsyncFromConfig(),
     SeedModule,
+    UploadModule,
+    DeviceModule,
   ],
   controllers: [],
   providers: [],

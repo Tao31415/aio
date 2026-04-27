@@ -79,6 +79,10 @@ export class StorageService implements OnModuleInit {
     return this.client.presignedGetObject(this.bucket, objectName, expiry)
   }
 
+  getPresignedPutObjectUrl(objectName: string, expiry = 3600): Promise<string> {
+    return this.client.presignedPutObject(this.bucket, objectName, expiry)
+  }
+
   getClient(): Minio.Client {
     return this.client
   }

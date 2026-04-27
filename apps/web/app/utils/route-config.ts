@@ -56,6 +56,14 @@ export const APP_ROUTE_TREE: AppRouteConfig[] = [
     showInSidebar: true,
   },
   {
+    key: 'device',
+    path: '/device',
+    title: '设备管理',
+    description: '管理监测设备和测点',
+    icon: 'i-lucide-hard-drive',
+    showInSidebar: true,
+  },
+  {
     key: 'settings',
     path: '/settings',
     title: '系统设置',

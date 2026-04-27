@@ -36,7 +36,9 @@
       "@system/*": ["./src/module/system/*"],
       "@rbac/*": ["./src/module/rbac/*"],
       "@guard/*": ["./src/common/guards/*"],
-      "@common/*": ["./src/common/*"]
+      "@common/*": ["./src/common/*"],
+      "@upload/*": ["./src/module/upload/*"],
+      "@device/*": ["./src/module/device/*"]
     }
   }
 }

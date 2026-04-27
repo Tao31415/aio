@@ -68,9 +68,21 @@
         radius: ['50%', '75%'],
         center: ['50%', '50%'],
         data: [
-          { name: '桌面', value: deviceData.value.desktop, itemStyle: { color: 'var(--chart-1)' } },
-          { name: '移动', value: deviceData.value.mobile, itemStyle: { color: 'var(--chart-2)' } },
-          { name: '平板', value: deviceData.value.tablet, itemStyle: { color: 'var(--chart-3)' } },
+          {
+            name: '桌面',
+            value: deviceData.value.desktop,
+            itemStyle: { color: 'var(--chart-1)' },
+          },
+          {
+            name: '移动',
+            value: deviceData.value.mobile,
+            itemStyle: { color: 'var(--chart-2)' },
+          },
+          {
+            name: '平板',
+            value: deviceData.value.tablet,
+            itemStyle: { color: 'var(--chart-3)' },
+          },
         ],
         label: {
           show: false,
