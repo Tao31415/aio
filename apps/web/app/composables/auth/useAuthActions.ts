@@ -47,7 +47,7 @@ export const useAuthActions = () => {
       }
 
       logger.info('Profile updated successfully')
-      return { user: data as User }
+      return { user: data }
     } catch (err) {
       logger.error({ err }, 'Failed to update profile')
       return { user: null, error: err }
