@@ -4,6 +4,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
+**项目名称**: AIO - 工业设备监控与数据采集平台
+
 A Bun-based monorepo with three workspaces:
 
 - **`apps/api`** — NestJS backend (port 30000 by default)

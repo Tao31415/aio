@@ -2,6 +2,16 @@
 
 This file provides guidance to Claude Code when working in `apps/api/`.
 
+## Project Overview
+
+**模块化设计的后端 API**，提供设备监控、数据采集、用户认证等功能。
+
+核心模块：
+- **RBAC** — 用户认证与基于角色的权限控制
+- **Device** — 设备管理、设备状态监控、设备统计
+- **Upload** — 文件上传服务
+- **Middleware** — 数据库、Redis、MQTT、Storage 等中间件集成
+
 ## Project Structure
 
 ```
@@ -29,11 +39,21 @@ apps/api/
 │   │   │   │   ├── auth.module.ts   # NestJS auth module wrapper
 │   │   │   │   └── entities/        # User, Account, Verification entities
 │   │   │   └── user/                # User controller (me, public, optional)
-│   │   └── log/                     # Pino logger configuration
+│   │   ├── device/
+│   │   │   ├── device.controller.ts       # 设备 CRUD API
+│   │   │   ├── device-statistics.controller.ts  # 设备统计 API
+│   │   │   ├── device.service.ts          # 设备业务逻辑
+│   │   │   ├── device-status.service.ts   # 设备状态服务
+│   │   │   ├── device-status.scheduler.ts # 设备状态定时任务
+│   │   │   ├── device.module.ts           # Device module
+│   │   │   └── entities/                   # Device, DeviceStatus, AlarmRecord 等
+│   │   ├── upload/
+│   │   │   └── upload.module.ts           # 文件上传模块
+│   │   └── log/                           # Pino logger configuration
 │   └── common/
 │       └── decorators/
-│           └── roles.decorator.ts   # @Roles() decorator for RBAC
-└── better-auth_migrations/          # Database migrations
+│           └── roles.decorator.ts         # @Roles() decorator for RBAC
+└── better-auth_migrations/                 # Database migrations
 ```
 
 ## Architecture
@@ -45,6 +65,22 @@ apps/api/
 - **Swagger Docs**: `/api/docs` (cookie auth enabled)
 - **Port**: 30000 (local), 3000 (production)
 - **CORS**: Allows `http://localhost:40000` and `http://127.0.0.1:40000`
+
+### Device Module
+
+设备模块是核心业务模块，包含以下功能：
+
+| 功能 | 说明 |
+|------|------|
+| 设备管理 | 设备的增删改查 |
+| 设备状态监控 | 定时更新设备在线/离线状态 |
+| 设备统计 | 设备数量、在线率等统计数据 |
+| 报警记录 | 设备报警信息记录与查询 |
+
+主要 Entity：
+- `Device` — 设备基本信息
+- `DeviceStatus` — 设备状态记录
+- `AlarmRecord` — 报警记录
 
 ### Better Auth (Authentication)
 
@@ -150,7 +186,7 @@ Available for imports throughout the codebase:
 | `@database/*` | `./src/module/middleware/database/*` |
 | `@log/*`      | `./src/module/log/*`                 |
 | `@mqtt/*`     | `./src/module/middleware/mqtt/*`     |
-| `@redis/*`    | `./src/module/middleware/redis/*`    |
+| `@redis/*`    | `./src/module/middleware/redis/*`   |
 | `@storage/*`  | `./src/module/middleware/storage/*`  |
 | `@user/*`     | `./src/module/rbac/user/*`           |
 

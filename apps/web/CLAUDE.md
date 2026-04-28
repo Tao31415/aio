@@ -2,46 +2,65 @@
 
 This file provides guidance to Claude Code when working in `apps/web/`.
 
+## Project Overview
+
+**Nuxt 4 前端应用**，为工业设备监控与数据采集平台提供 Web 界面。
+
+主要功能：
+- **设备管理** — 设备列表、详情查看、设备状态监控
+- **数据查看** — 位移数据、图片、视频等传感器数据可视化
+- **报警记录** — 设备报警信息查看与管理
+- **用户认证** — 邮箱注册登录、社交登录
+
 ## Project Structure
 
 ```
 apps/web/
 ├── app/
-│   ├── pages/                    # 页面文件
-│   │   ├── index.vue            # 首页
-│   │   ├── login.vue            # 登录页
-│   │   ├── register.vue         # 注册页
-│   │   ├── dashboard/           # 仪表盘页面
-│   │   ├── users/               # 用户管理
-│   │   ├── settings/            # 设置页面
-│   │   ├── profile/            # 个人资料
-│   │   ├── messages/           # 消息中心
-│   │   └── analytics/          # 数据分析
-│   ├── components/              # 组件目录
-│   │   ├── common/              # 通用组件
-│   │   │   ├── AppHeader.vue    # 头部
-│   │   │   ├── AppSidebar.vue   # 侧边栏
-│   │   │   ├── AppFooter.vue    # 底部
+│   ├── pages/
+│   │   ├── index.vue              # 首页（重定向到 /home）
+│   │   ├── home.vue              # 首页布局（包含设备列表侧边栏）
+│   │   ├── home/
+│   │   │   ├── index.vue         # 首页（设备卡片概览）
+│   │   │   └── [deviceId]/
+│   │   │       ├── index.vue     # 设备详情首页
+│   │   │       ├── basic.vue      # 设备基本信息
+│   │   │       ├── alarm.vue      # 设备报警记录
+│   │   │       └── data.vue      # 设备数据查看
+│   │   ├── device/
+│   │   │   └── index.vue         # 设备管理页面
+│   │   ├── login/
+│   │   │   └── index.vue         # 登录页
+│   │   ├── dashboard/
+│   │   ├── users/
+│   │   ├── messages/
+│   │   ├── settings/
+│   │   └── analytics/
+│   ├── components/
+│   │   ├── common/
+│   │   │   ├── AppHeader.vue
+│   │   │   ├── AppSidebar.vue
+│   │   │   ├── AppFooter.vue
 │   │   │   ├── AppTabs.vue
 │   │   │   └── CommandMenu.vue
-│   │   ├── dashboard/          # 仪表盘组件
-│   │   │   ├── QuickActions.vue
-│   │   │   ├── ChartPie.vue
-│   │   │   └── CalendarWidget.vue
+│   │   ├── dashboard/
+│   │   ├── home/
 │   │   └── AuthShell.vue
-│   ├── layouts/                 # 布局文件
-│   │   ├── default.vue          # 默认布局
-│   │   ├── login.vue            # 登录布局
-│   │   └── auth.vue             # 认证布局
-│   ├── assets/                  # 静态资源
+│   ├── layouts/
+│   │   ├── default.vue            # 默认布局
+│   │   ├── login.vue              # 登录布局（空布局）
+│   │   ├── auth.vue               # 认证布局
+│   │   ├── home.vue               # 首页布局（左侧设备列表）
+│   │   └── dashboard.vue          # 仪表盘布局
+│   ├── assets/
 │   │   └── css/
 │   │       └── main.css
-│   ├── composables/             # 组合式函数
-│   ├── stores/                  # Pinia 状态管理
-│   ├── utils/                   # 工具函数
-│   └── app.vue                  # 根组件
-├── nuxt.config.ts               # Nuxt 配置
-└── env.validation.ts            # 环境变量校验
+│   ├── composables/               # 组合式函数
+│   ├── stores/                    # Pinia 状态管理
+│   ├── utils/                     # 工具函数
+│   └── app.vue                    # 根组件
+├── nuxt.config.ts                 # Nuxt 配置
+└── env.validation.ts              # 环境变量校验
 ```
 
 ## Architecture
@@ -50,7 +69,7 @@ apps/web/
 
 - **Framework**: Nuxt 4 (Vue 3 + Nitro)
 - **UI**: @nuxt/ui v4 (Tailwind CSS)
-- **State**: Pinia
+- **State**: Pinia + pinia-plugin-persistedstate
 - **Auth**: better-auth/client
 - **Utils**: @aio/utils (shared package)
 
