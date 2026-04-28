@@ -1,14 +1,11 @@
 <script setup lang="ts">
-  // 子页面
-
   import { sub } from 'date-fns'
 
-  // ==================== Config & Selected Device Store ====================
   const config = useRuntimeConfig()
   const apiBase = config.public.apiBase as string
   const selectedDeviceStore = useSelectedDeviceStore()
+  const route = useRoute()
 
-  // ==================== Types ====================
   interface TunnelMonitoringData {
     timestamp: string
     sn: string
@@ -28,7 +25,6 @@
     sd: number | null
   }
 
-  // ==================== State ====================
   const dateRange = ref({
     start: sub(new Date(), { days: 7 }),
     end: new Date(),
@@ -61,7 +57,6 @@
   const monitoringData = ref<TunnelMonitoringData[]>([])
   const isLoading = ref(false)
 
-  // ==================== API ====================
   async function fetchMonitoringData() {
     if (!selectedDeviceStore.selectedDevice?.code) {
       dataList.value = []
@@ -82,7 +77,6 @@
       )
       monitoringData.value = res.data || []
 
-      // 生成点位选项
       const ringNumbers = [
         ...new Set(
           monitoringData.value.map((d) => d.ringNumber).filter(Boolean)
@@ -96,7 +90,6 @@
         })),
       ]
 
-      // 更新数据列表
       updateDataList()
     } catch (e) {
       console.error('Failed to fetch monitoring data:', e)
@@ -107,11 +100,9 @@
 
   function updateDataList() {
     const filtered = monitoringData.value.filter((d) => {
-      // 按点位筛选
       if (selectedPoint.value && d.ringNumber !== selectedPoint.value) {
         return false
       }
-      // 按搜索查询筛选
       if (searchQuery.value) {
         const query = searchQuery.value.toLowerCase()
         const matchesRing = d.ringNumber?.toLowerCase().includes(query)
@@ -122,7 +113,6 @@
 
     pagination.value.total = filtered.length
 
-    // 分页处理
     const start = (pagination.value.page - 1) * pagination.value.pageSize
     const end = start + pagination.value.pageSize
     const pageData = filtered.slice(start, end)
@@ -137,7 +127,6 @@
     }))
   }
 
-  // ==================== Watchers ====================
   watch(
     () => selectedDeviceStore.selectedDevice,
     () => {
@@ -154,7 +143,6 @@
     pagination.value.page = page
   }
 
-  // ==================== Chart Option ====================
   const chartOption = computed(() => ({
     tooltip: {
       trigger: 'axis',
@@ -176,14 +164,12 @@
     xAxis: {
       type: 'category',
       boundaryGap: false,
-      data: monitoringData.value
-        .slice(0, 20)
-        .map((d) =>
-          new Date(d.timestamp).toLocaleTimeString('zh-CN', {
-            hour: '2-digit',
-            minute: '2-digit',
-          })
-        ),
+      data: monitoringData.value.slice(0, 20).map((d) =>
+        new Date(d.timestamp).toLocaleTimeString('zh-CN', {
+          hour: '2-digit',
+          minute: '2-digit',
+        })
+      ),
     },
     yAxis: {
       type: 'value',
@@ -229,11 +215,9 @@
 
 <template>
   <div class="h-full flex flex-col p-4 gap-4">
-    <!-- 筛选器 -->
     <div
       class="flex items-center gap-4 bg-elevated border border-default rounded-xl p-4"
     >
-      <!-- 时间范围选择 -->
       <div class="flex items-center gap-2">
         <span class="text-sm text-muted">时间范围：</span>
         <UInput
@@ -251,7 +235,6 @@
         />
       </div>
 
-      <!-- 点位选择 -->
       <div class="flex items-center gap-2">
         <span class="text-sm text-muted">点位：</span>
         <USelect
@@ -262,7 +245,6 @@
         />
       </div>
 
-      <!-- 搜索框 -->
       <div class="flex-1">
         <UInput
           v-model="searchQuery"
@@ -274,9 +256,7 @@
       </div>
     </div>
 
-    <!-- 左侧数据列表 + 右侧折线图 -->
     <div class="flex-1 grid grid-cols-2 gap-4 min-h-0">
-      <!-- 左侧数据列表 -->
       <div
         class="bg-elevated border border-default rounded-xl p-4 flex flex-col"
       >
@@ -329,7 +309,6 @@
             </tbody>
           </table>
         </div>
-        <!-- 分页 -->
         <div class="mt-4 flex justify-center">
           <UPagination
             v-model:page="pagination.page"
@@ -341,7 +320,6 @@
         </div>
       </div>
 
-      <!-- 右侧折线图 -->
       <div
         class="bg-elevated border border-default rounded-xl p-4 flex flex-col"
       >

@@ -1,41 +1,40 @@
 <script setup lang="ts">
   definePageMeta({
-    layout: 'home',
-    middleware: (to) => {
-      if (to.path === '/home/data' || to.path === '/home/data/') {
-        return navigateTo('/home/data/displacement')
-      }
-    },
+    middleware: [
+      (to: ReturnType<typeof useRoute>) => {
+        if (to.path.endsWith('/data') || to.path.endsWith('/data/')) {
+          return navigateTo(
+            to.path.replace(/\/data\/?$/, '/data/displacement'),
+            { replace: true }
+          )
+        }
+      },
+    ],
   })
 
-  // 子页面（数据查看容器），有自己嵌套的 NuxtPage
-
-  // 标签页配置
   const tabs = [
     {
       label: '位移数据查看',
-      path: '/home/data/displacement',
+      path: 'displacement',
       icon: 'i-lucide-chart-line',
     },
-    { label: '照片查看', path: '/home/data/photo', icon: 'i-lucide-image' },
-    { label: '视频查看', path: '/home/data/video', icon: 'i-lucide-video' },
+    { label: '照片查看', path: 'photo', icon: 'i-lucide-image' },
+    { label: '视频查看', path: 'video', icon: 'i-lucide-video' },
   ]
 
   const route = useRoute()
 
-  // 判断当前激活的标签
   const activeTab = computed(() => {
     const path = route.path
-    if (path.includes('/displacement')) return '/home/data/displacement'
-    if (path.includes('/photo')) return '/home/data/photo'
-    if (path.includes('/video')) return '/home/data/video'
-    return '/home/data/displacement'
+    if (path.includes('/displacement')) return 'displacement'
+    if (path.includes('/photo')) return 'photo'
+    if (path.includes('/video')) return 'video'
+    return 'displacement'
   })
 </script>
 
 <template>
   <div class="h-full flex flex-col">
-    <!-- 标签栏 -->
     <div
       class="h-10 border-b border-default bg-default flex items-center px-4 shrink-0"
     >
@@ -43,7 +42,7 @@
         <NuxtLink
           v-for="tab in tabs"
           :key="tab.path"
-          :to="tab.path"
+          :to="`/home/${route.params.deviceId}/data/${tab.path}`"
           :class="[
             'flex items-center gap-2 px-4 h-8 text-sm rounded-md transition-colors',
             activeTab === tab.path
@@ -60,7 +59,6 @@
       </div>
     </div>
 
-    <!-- 子页面内容区域 -->
     <div class="flex-1 overflow-auto">
       <NuxtPage />
     </div>

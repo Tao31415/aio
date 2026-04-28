@@ -316,7 +316,7 @@
                 </p>
               </div>
               <UButton
-                :to="`/home/device?deviceId=${deviceStore.selectedDevice.id}`"
+                :to="`/home/${deviceStore.selectedDevice.id}/basic`"
                 color="primary"
                 variant="soft"
                 size="sm"

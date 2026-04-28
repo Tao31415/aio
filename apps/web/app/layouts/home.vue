@@ -1,7 +1,6 @@
 <script setup lang="ts">
   import type { DropdownMenuItem } from '@nuxt/ui'
 
-  // ==================== Types ====================
   interface Device {
     id: string
     name: string
@@ -10,16 +9,13 @@
     status?: 'online' | 'warning' | 'alarm' | 'offline'
   }
 
-  // ==================== State ====================
   const config = useRuntimeConfig()
   const apiBase = config.public.apiBase as string
   const deviceList = ref<Device[]>([])
   const isLoading = ref(false)
 
-  // ==================== Selected Device Store ====================
   const selectedDeviceStore = useSelectedDeviceStore()
 
-  // ==================== API ====================
   async function fetchDevices() {
     isLoading.value = true
     selectedDeviceStore.setLoading(true)
@@ -27,16 +23,6 @@
       const data = await $fetch<Device[]>(`${apiBase}/api/v1/device`)
       deviceList.value = data || []
       selectedDeviceStore.setDeviceList(data || [])
-
-      // 自动选中第一个设备
-      if (deviceList.value.length > 0 && !selectedDeviceStore.selectedDevice) {
-        const firstDevice = deviceList.value[0]
-        selectedDeviceStore.setSelectedDevice(firstDevice)
-        // 导航到第一个设备
-        await navigateTo(`/home/device?deviceId=${firstDevice.id}`, {
-          replace: true,
-        })
-      }
     } catch (e) {
       console.error('Failed to fetch devices:', e)
     } finally {
@@ -45,25 +31,18 @@
     }
   }
 
-  // ==================== Lifecycle ====================
   fetchDevices()
 
   const route = useRoute()
   const auth = useAuthStore()
   const { signOut } = useAuth()
 
-  // 判断是否选中（支持路径参数和查询参数两种方式）
   function isActive(id: string): boolean {
-    const pathId = route.path.includes('/home/device/')
-      ? route.path.split('/home/device/')[1]
-      : null
-    const queryId = route.query.deviceId as string | undefined
-    return pathId === id || queryId === id
+    return route.params.deviceId === id
   }
 
-  // 监听路由中的 deviceId 变化，更新 selectedDeviceStore
   watch(
-    () => route.query.deviceId as string | undefined,
+    () => route.params.deviceId as string | undefined,
     (newDeviceId) => {
       if (newDeviceId) {
         selectedDeviceStore.setSelectedDeviceById(newDeviceId)
@@ -202,7 +181,7 @@
               :key="device.id"
             >
               <NuxtLink
-                :to="`/home/device?deviceId=${device.id}`"
+                :to="`/home/${device.id}/basic`"
                 :class="[
                   'flex items-center gap-3 px-3 py-2 rounded-md transition-colors',
                   isActive(device.id)
@@ -212,10 +191,12 @@
                 @click="selectedDeviceStore.setSelectedDevice(device)"
               >
                 <UIcon
-                  :name="getStatusIcon(device.status)"
+                  :name="getStatusIcon(device.status || '')"
                   :class="[
                     'w-4 h-4 shrink-0',
-                    isActive(device.id) ? '' : getStatusColor(device.status),
+                    isActive(device.id)
+                      ? ''
+                      : getStatusColor(device.status || ''),
                   ]"
                 />
                 <span class="truncate">{{ device.name }}</span>

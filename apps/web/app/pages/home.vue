@@ -7,27 +7,11 @@
 
   const deviceStatsStore = useDeviceStatsStore()
   const selectedDeviceStore = useSelectedDeviceStore()
-
-  // 如果有选中设备且当前不在 /home/device 页面，自动导航
   const route = useRoute()
+
   onMounted(() => {
     deviceStatsStore.fetchDashboardStats()
     deviceStatsStore.startAutoRefresh(30000)
-
-    // 延迟导航，等待 layouts/home.vue 加载设备列表
-    setTimeout(() => {
-      if (
-        selectedDeviceStore.firstDevice &&
-        !route.path.includes('/home/device')
-      ) {
-        navigateTo(
-          `/home/device?deviceId=${selectedDeviceStore.firstDevice.id}`,
-          {
-            replace: true,
-          }
-        )
-      }
-    }, 500)
   })
 
   const stats = computed(() => [
@@ -56,46 +40,6 @@
       bgColor: 'bg-red-500',
     },
   ])
-
-  const currentDeviceId = computed(() => {
-    return (
-      selectedDeviceStore.selectedDevice?.id ||
-      (route.query.deviceId as string | undefined) ||
-      ''
-    )
-  })
-
-  const tabs = computed(() => [
-    {
-      label: '设备信息',
-      path: currentDeviceId.value
-        ? `/home/device?deviceId=${currentDeviceId.value}`
-        : '/home/device',
-      icon: 'i-lucide-info',
-    },
-    {
-      label: '数据查看',
-      path: currentDeviceId.value
-        ? `/home/data?deviceId=${currentDeviceId.value}`
-        : '/home/data',
-      icon: 'i-lucide-chart-line',
-    },
-    {
-      label: '数据预警',
-      path: currentDeviceId.value
-        ? `/home/alarm?deviceId=${currentDeviceId.value}`
-        : '/home/alarm',
-      icon: 'i-lucide-bell',
-    },
-  ])
-
-  const activeTab = computed(() => {
-    const path = route.path
-    if (path.startsWith('/home/device')) return '/home/device'
-    if (path.startsWith('/home/data')) return '/home/data'
-    if (path.startsWith('/home/alarm')) return '/home/alarm'
-    return '/home/device'
-  })
 
   onUnmounted(() => {
     deviceStatsStore.stopAutoRefresh()
@@ -178,30 +122,6 @@
           class="w-3 h-3 animate-spin inline-block mr-1"
         />
         正在加载数据...
-      </div>
-    </div>
-
-    <div
-      class="h-10 border-b border-default bg-default flex items-center px-4 shrink-0"
-    >
-      <div class="flex items-center gap-1">
-        <NuxtLink
-          v-for="tab in tabs"
-          :key="tab.path"
-          :to="tab.path"
-          :class="[
-            'flex items-center gap-2 px-4 h-8 text-sm rounded-md transition-colors',
-            activeTab === tab.path
-              ? 'bg-primary text-white font-medium'
-              : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100',
-          ]"
-        >
-          <UIcon
-            :name="tab.icon"
-            class="w-4 h-4"
-          />
-          <span>{{ tab.label }}</span>
-        </NuxtLink>
       </div>
     </div>
 

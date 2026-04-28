@@ -1,18 +1,13 @@
 <script setup lang="ts">
-  // 子页面
-
   import { sub } from 'date-fns'
 
-  // 时间范围选择
   const dateRange = ref({
     start: sub(new Date(), { days: 30 }),
     end: new Date(),
   })
 
-  // 搜索
   const searchQuery = ref('')
 
-  // 照片列表
   const photos = ref([
     {
       id: 1,
@@ -52,7 +47,6 @@
     },
   ])
 
-  // 当前选中的照片
   const selectedPhoto = ref<(typeof photos.value)[0] | null>(null)
 
   function selectPhoto(photo: (typeof photos.value)[0]) {
@@ -62,11 +56,9 @@
 
 <template>
   <div class="h-full flex flex-col p-4 gap-4">
-    <!-- 照片筛选器 -->
     <div
       class="flex items-center gap-4 bg-elevated border border-default rounded-xl p-4"
     >
-      <!-- 时间范围选择 -->
       <div class="flex items-center gap-2">
         <span class="text-sm text-muted">时间范围：</span>
         <UInput
@@ -84,7 +76,6 @@
         />
       </div>
 
-      <!-- 搜索框 -->
       <div class="flex-1">
         <UInput
           v-model="searchQuery"
@@ -96,7 +87,6 @@
       </div>
     </div>
 
-    <!-- 照片列表 -->
     <div
       class="flex-1 bg-elevated border border-default rounded-xl p-4 overflow-auto"
     >
@@ -115,7 +105,6 @@
         </div>
       </div>
 
-      <!-- 空状态 -->
       <div
         v-if="photos.length === 0"
         class="flex-1 flex items-center justify-center h-full"

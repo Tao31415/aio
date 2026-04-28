@@ -1,7 +1,4 @@
 <script setup lang="ts">
-  // 子页面
-
-  // 视频列表
   const videos = ref([
     // { id: 1, name: '监测点 A1 视频 1', url: '...', time: '2024-03-15 08:00' },
     // { id: 2, name: '监测点 A1 视频 2', url: '...', time: '2024-03-14 14:30' },
@@ -10,7 +7,6 @@
 
 <template>
   <div class="h-full flex flex-col p-4">
-    <!-- 空状态 -->
     <div
       v-if="videos.length === 0"
       class="flex-1 flex items-center justify-center bg-elevated border border-default rounded-xl"

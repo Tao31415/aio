@@ -1,14 +1,10 @@
 <script setup lang="ts">
-  // 子页面，不需要 layout
-
   import { sub } from 'date-fns'
 
-  // ==================== Config & Selected Device Store ====================
   const config = useRuntimeConfig()
   const apiBase = config.public.apiBase as string
   const selectedDeviceStore = useSelectedDeviceStore()
 
-  // ==================== Types ====================
   interface TunnelMonitoringData {
     timestamp: string
     sn: string
@@ -28,7 +24,6 @@
     sd: number | null
   }
 
-  // ==================== State ====================
   const warningData = ref<
     Array<{
       id: number
@@ -78,7 +73,6 @@
   const monitoringData = ref<TunnelMonitoringData[]>([])
   const isLoading = ref(false)
 
-  // ==================== API ====================
   async function fetchAlarmData() {
     if (!selectedDeviceStore.selectedDevice?.code) {
       warningData.value = []
@@ -89,7 +83,6 @@
 
     isLoading.value = true
     try {
-      // 获取监测数据
       const res = await $fetch<{ data: TunnelMonitoringData[] }>(
         `${apiBase}/api/v1/mqtt/tunnel-monitoring`,
         {
@@ -101,10 +94,7 @@
       )
       monitoringData.value = res.data || []
 
-      // 处理预警数据
       updateWarningData()
-
-      // 更新饼图数据
       updatePieData()
     } catch (e) {
       console.error('Failed to fetch alarm data:', e)
@@ -114,8 +104,7 @@
   }
 
   function updateWarningData() {
-    // 筛选超过阈值的数据作为预警数据
-    const threshold = 3.0 // 示例阈值，单位mm
+    const threshold = 3.0
     const filtered = monitoringData.value
       .filter((d) => {
         const horizontal = Math.abs(d.p9x ?? 0)
@@ -135,7 +124,6 @@
 
     pagination.value.total = warningData.value.length
 
-    // 更新历史数据
     historyData.value = filtered.map((item, idx) => ({
       id: idx,
       index: idx + 1,
@@ -167,7 +155,6 @@
     ]
   }
 
-  // ==================== Watchers ====================
   watch(
     () => selectedDeviceStore.selectedDevice,
     () => {
@@ -184,7 +171,6 @@
     historyPagination.value.page = page
   }
 
-  // ==================== Computed ====================
   const total = computed(() =>
     pieData.value.reduce((sum, item) => sum + item.value, 0)
   )
@@ -213,9 +199,7 @@
 
 <template>
   <div class="p-4 space-y-4">
-    <!-- 第一行：预警数据列表 + 饼状图 -->
     <div class="grid grid-cols-3 gap-4">
-      <!-- 预警数据列表 -->
       <div class="col-span-2 bg-elevated border border-default rounded-xl p-4">
         <h3 class="font-semibold mb-4">预警数据列表</h3>
         <div class="overflow-auto">
@@ -254,7 +238,6 @@
             </tbody>
           </table>
         </div>
-        <!-- 分页 -->
         <div class="mt-4 flex justify-center">
           <UPagination
             v-model:page="pagination.page"
@@ -266,11 +249,9 @@
         </div>
       </div>
 
-      <!-- 饼状图 -->
       <div class="bg-elevated border border-default rounded-xl p-4">
         <h3 class="font-semibold mb-4">预警点位统计</h3>
         <div class="flex flex-col items-center">
-          <!-- 饼图 -->
           <div class="relative w-48 h-48">
             <svg
               viewBox="0 0 200 200"
@@ -308,7 +289,6 @@
             </svg>
           </div>
 
-          <!-- 图例 -->
           <div class="mt-4 space-y-2 w-full">
             <div
               v-for="slice in pieSlices"
@@ -332,11 +312,9 @@
       </div>
     </div>
 
-    <!-- 第二行：历史预警列表 -->
     <div class="bg-elevated border border-default rounded-xl p-4">
       <div class="flex items-center justify-between mb-4">
         <h3 class="font-semibold">历史预警列表</h3>
-        <!-- 时间筛选 -->
         <div class="flex items-center gap-2">
           <span class="text-sm text-muted">筛选时间：</span>
           <UInput
@@ -396,7 +374,6 @@
           </tbody>
         </table>
       </div>
-      <!-- 分页 -->
       <div class="mt-4 flex justify-center">
         <UPagination
           v-model:page="historyPagination.page"

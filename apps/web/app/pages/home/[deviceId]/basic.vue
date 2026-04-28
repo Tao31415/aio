@@ -1,13 +1,8 @@
 <script setup lang="ts">
   const route = useRoute()
   const config = useRuntimeConfig()
-  const toast = useToast()
   const apiBase = config.public.apiBase as string
 
-  // ==================== Selected Device Store ====================
-  const selectedDeviceStore = useSelectedDeviceStore()
-
-  // ==================== Types ====================
   interface MeasurementPoint {
     id: string
     deviceId: string
@@ -70,19 +65,12 @@
     sd: number | null
   }
 
-  // ==================== State ====================
-  const deviceId = computed(
-    () =>
-      selectedDeviceStore.selectedDevice?.id ||
-      (route.query.deviceId as string | undefined)
-  )
+  const deviceId = computed(() => route.params.deviceId as string)
   const device = ref<Device | null>(null)
   const isLoadingDevice = ref(false)
   const monitoringData = ref<TunnelMonitoringData[]>([])
   const isLoadingData = ref(false)
 
-  // ==================== API ====================
-  // 测试数据（当 API 返回数据不完整时使用）
   const mockDevice: Device = {
     id: '',
     name: '测试设备',
@@ -130,7 +118,6 @@
         `${apiBase}/api/v1/device/${deviceId.value}`
       )
 
-      // 合并真实数据和测试数据
       device.value = {
         ...mockDevice,
         ...data,
@@ -140,13 +127,11 @@
         devicePhotos: data.devicePhotos || mockDevice.devicePhotos,
       }
 
-      // 如果设备名称为空，使用默认名称
       if (!device.value.name) {
         device.value.name = `设备 ${deviceId.value.slice(0, 8)}`
       }
     } catch (e) {
       console.warn('API 调用失败，使用测试数据:', e)
-      // 使用测试数据
       device.value = {
         ...mockDevice,
         id: deviceId.value,
@@ -172,7 +157,6 @@
       monitoringData.value = res.data || []
     } catch (e) {
       console.warn('API 调用失败，使用测试数据:', e)
-      // 使用测试数据
       monitoringData.value = mockMonitoringData.map((d) => ({
         ...d,
         sn: device.value?.code || 'TEST001',
@@ -182,24 +166,6 @@
     }
   }
 
-  // 获取照片下载URL
-  async function getPhotoUrl(objectName: string): Promise<string> {
-    try {
-      const { presignedUrl } = await $fetch<{ presignedUrl: string }>(
-        `${apiBase}/api/v1/upload/presign-download`,
-        {
-          method: 'POST',
-          body: { objectName },
-        }
-      )
-      return presignedUrl
-    } catch {
-      return ''
-    }
-  }
-
-  // ==================== 地图功能 ====================
-
   type MapLevel = 'china' | 'province' | 'city' | 'district'
 
   const currentMapLevel = ref<MapLevel>('china')
@@ -208,7 +174,6 @@
   const isMapLoading = ref(false)
   const mapError = ref<string | null>(null)
 
-  // 地图实例
   let chartInstance: any = null
 
   const GEOJSON_CDN = 'https://geo.datav.aliyun.com/areas_v3/bound'
@@ -226,31 +191,22 @@
     district: 11,
   }
 
-  // 图表容器 ref
   const chartContainer = ref<HTMLDivElement>()
 
-  // 创建图表
   async function initChart() {
     if (!chartContainer.value) return
 
-    // 动态导入 echarts 完整包
     const echarts = await import('echarts')
 
-    // 加载中国地图
     const chinaRes = await fetch(`${GEOJSON_CDN}/100000_full.json`)
     const chinaGeoJSON = await chinaRes.json()
-    // 使用 code 作为 map 名称
     echarts.registerMap('100000', chinaGeoJSON)
 
     chartInstance = echarts.init(chartContainer.value)
-
-    // 绑定点击事件
     chartInstance.on('click', handleClick)
-
     updateChart()
   }
 
-  // 更新图表
   function updateChart() {
     if (!chartInstance) return
 
@@ -312,7 +268,6 @@
     chartInstance.setOption(option, { notMerge: true })
   }
 
-  // 切换地图
   async function switchToMap(level: MapLevel, code: string) {
     if (level === currentMapLevel.value && code === currentMapCode.value) return
 
@@ -320,27 +275,22 @@
     mapError.value = null
 
     try {
-      // 保存历史
       mapHistory.value.push({
         level: currentMapLevel.value,
         code: currentMapCode.value,
       })
 
-      // 加载新地图
       const echarts = await import('echarts')
 
       const res = await fetch(`${GEOJSON_CDN}/${code}_full.json`)
       if (!res.ok) throw new Error('加载地图失败')
       const geoJSON = await res.json()
 
-      // 使用 code 作为 map 名称，保持一致
       echarts.registerMap(code, geoJSON)
 
-      // 更新状态
       currentMapLevel.value = level
       currentMapCode.value = code
 
-      // 更新图表
       updateChart()
     } catch (error) {
       console.error('切换地图失败:', error)
@@ -351,14 +301,12 @@
     }
   }
 
-  // 返回
   async function goBack() {
     if (mapHistory.value.length === 0) return
     const prev = mapHistory.value.pop()!
     await switchToMap(prev.level, prev.code)
   }
 
-  // 点击地图区域
   function handleClick(params: any) {
     if (!params.properties?.adcode) return
 
@@ -399,14 +347,12 @@
     }
   })
 
-  // 分页数据列表
   const pagination = ref({
     page: 1,
     pageSize: 10,
     total: computed(() => monitoringData.value.length),
   })
 
-  // 根据监测数据计算水平位移和竖直位移
   const dataList = computed(() => {
     return monitoringData.value
       .slice(0, pagination.value.pageSize)
@@ -423,7 +369,6 @@
       }))
   })
 
-  // 获取设备照片
   const photos = computed(() => {
     return device.value?.devicePhotos || []
   })
@@ -435,7 +380,6 @@
 
 <template>
   <div class="p-4 space-y-4">
-    <!-- 无设备选择时显示提示 -->
     <div
       v-if="!deviceId"
       class="flex items-center justify-center h-96"
@@ -455,7 +399,6 @@
       </div>
     </div>
 
-    <!-- 加载状态 -->
     <div
       v-else-if="isLoadingDevice"
       class="flex items-center justify-center h-96"
@@ -469,11 +412,8 @@
       </div>
     </div>
 
-    <!-- 设备详情 -->
     <template v-else-if="device">
-      <!-- 第一行：设备基本信息 + 地图 -->
       <div class="grid grid-cols-2 gap-4">
-        <!-- 设备基本信息 -->
         <div class="bg-elevated border border-default rounded-xl p-4">
           <div class="flex items-center justify-between mb-4">
             <h3 class="font-semibold">设备基本信息</h3>
@@ -535,7 +475,6 @@
           </div>
         </div>
 
-        <!-- 地图 -->
         <div class="bg-elevated border border-default rounded-xl p-4">
           <div class="flex items-center justify-between mb-4">
             <h3 class="font-semibold">设备位置</h3>
@@ -566,7 +505,6 @@
             <span v-else>当前为最详细级别</span>
           </p>
 
-          <!-- 图表容器 -->
           <div
             class="aspect-video rounded-lg overflow-hidden relative bg-muted/10"
           >
@@ -602,9 +540,7 @@
         </div>
       </div>
 
-      <!-- 第二行：照片 + 数据列表 -->
       <div class="grid grid-cols-2 gap-4">
-        <!-- 照片 -->
         <div class="bg-elevated border border-default rounded-xl p-4">
           <h3 class="font-semibold mb-4">设备照片 ({{ photos.length }})</h3>
           <div
@@ -641,7 +577,6 @@
           </div>
         </div>
 
-        <!-- 数据列表 -->
         <div class="bg-elevated border border-default rounded-xl p-4">
           <h3 class="font-semibold mb-4">
             监测数据
@@ -662,7 +597,6 @@
             </span>
           </h3>
 
-          <!-- 加载状态 -->
           <div
             v-if="isLoadingData"
             class="text-center py-8 text-muted"
@@ -674,7 +608,6 @@
             <p>加载监测数据中...</p>
           </div>
 
-          <!-- 无数据 -->
           <div
             v-else-if="dataList.length === 0"
             class="text-center py-8 text-muted"
@@ -687,7 +620,6 @@
             <p class="text-xs mt-1">设备编号: {{ device.code }}</p>
           </div>
 
-          <!-- 数据表格 -->
           <div
             v-else
             class="overflow-auto"
