@@ -90,6 +90,7 @@
         })),
       ]
 
+      pagination.value.page = 1
       updateDataList()
     } catch (e) {
       console.error('Failed to fetch monitoring data:', e)
@@ -135,7 +136,7 @@
     { immediate: true }
   )
 
-  watch([selectedPoint, searchQuery, pagination.page], () => {
+  watch([selectedPoint, searchQuery, () => pagination.value.page], () => {
     updateDataList()
   })
 

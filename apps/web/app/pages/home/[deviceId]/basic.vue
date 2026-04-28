@@ -68,74 +68,24 @@
   const deviceId = computed(() => route.params.deviceId as string)
   const device = ref<Device | null>(null)
   const isLoadingDevice = ref(false)
+  const deviceError = ref<string | null>(null)
   const monitoringData = ref<TunnelMonitoringData[]>([])
   const isLoadingData = ref(false)
-
-  const mockDevice: Device = {
-    id: '',
-    name: '测试设备',
-    code: 'TEST001',
-    project: '测试项目',
-    longitude: 114.27,
-    latitude: 30.57,
-    elevation: 20.5,
-    coordX: 114.27,
-    coordY: 30.57,
-    coordZ: 20.5,
-    measurementPoints: [],
-    devicePhotos: [],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  }
-
-  const mockMonitoringData: TunnelMonitoringData[] = Array.from(
-    { length: 10 },
-    (_, i) => ({
-      timestamp: new Date(Date.now() - i * 60000).toISOString(),
-      sn: 'TEST001',
-      ringNumber: `环${i + 1}`,
-      p1x: (Math.random() - 0.5) * 10,
-      p1y: (Math.random() - 0.5) * 10,
-      p7x: (Math.random() - 0.5) * 8,
-      p7y: (Math.random() - 0.5) * 8,
-      p3x: (Math.random() - 0.5) * 6,
-      p3y: (Math.random() - 0.5) * 6,
-      p5x: (Math.random() - 0.5) * 4,
-      p5y: (Math.random() - 0.5) * 4,
-      p9x: (Math.random() - 0.5) * 5,
-      p9y: (Math.random() - 0.5) * 5,
-      coc: (Math.random() - 0.5) * 3,
-      hc: 5.0 + Math.random() * 0.5,
-      sd: (Math.random() - 0.5) * 2,
-    })
-  )
+  const dataError = ref<string | null>(null)
 
   async function fetchDevice() {
     if (!deviceId.value) return
     isLoadingDevice.value = true
+    deviceError.value = null
     try {
       const data = await $fetch<Device>(
         `${apiBase}/api/v1/device/${deviceId.value}`
       )
-
-      device.value = {
-        ...mockDevice,
-        ...data,
-        id: deviceId.value,
-        measurementPoints:
-          data.measurementPoints || mockDevice.measurementPoints,
-        devicePhotos: data.devicePhotos || mockDevice.devicePhotos,
-      }
-
-      if (!device.value.name) {
-        device.value.name = `设备 ${deviceId.value.slice(0, 8)}`
-      }
+      device.value = data
     } catch (e) {
-      console.warn('API 调用失败，使用测试数据:', e)
-      device.value = {
-        ...mockDevice,
-        id: deviceId.value,
-      }
+      console.error('获取设备信息失败:', e)
+      deviceError.value = '无法获取设备信息，请检查设备是否存在'
+      device.value = null
     } finally {
       isLoadingDevice.value = false
     }
@@ -144,6 +94,7 @@
   async function fetchMonitoringData() {
     if (!device.value?.code) return
     isLoadingData.value = true
+    dataError.value = null
     try {
       const res = await $fetch<{ data: TunnelMonitoringData[] }>(
         `${apiBase}/api/v1/mqtt/tunnel-monitoring`,
@@ -155,12 +106,11 @@
         }
       )
       monitoringData.value = res.data || []
+      pagination.value.page = 1
     } catch (e) {
-      console.warn('API 调用失败，使用测试数据:', e)
-      monitoringData.value = mockMonitoringData.map((d) => ({
-        ...d,
-        sn: device.value?.code || 'TEST001',
-      }))
+      console.error('获取监测数据失败:', e)
+      dataError.value = '无法获取监测数据'
+      monitoringData.value = []
     } finally {
       isLoadingData.value = false
     }
@@ -350,32 +300,80 @@
   const pagination = ref({
     page: 1,
     pageSize: 10,
-    total: computed(() => monitoringData.value.length),
   })
 
+  const total = computed(() => monitoringData.value.length)
+
   const dataList = computed(() => {
-    return monitoringData.value
-      .slice(0, pagination.value.pageSize)
-      .map((item, idx) => ({
-        id: idx,
-        target: item.ringNumber || `环号 ${idx + 1}`,
-        pointName:
-          device.value?.measurementPoints?.find(
-            (p) => p.ringNumber === item.ringNumber
-          )?.name || '-',
-        time: new Date(item.timestamp).toLocaleString('zh-CN'),
-        horizontal: item.p9x ?? 0,
-        vertical: item.p9y ?? 0,
-      }))
+    const start = (pagination.value.page - 1) * pagination.value.pageSize
+    const end = start + pagination.value.pageSize
+    return monitoringData.value.slice(start, end).map((item, idx) => ({
+      id: start + idx,
+      target: item.ringNumber || `环号 ${start + idx + 1}`,
+      pointName:
+        device.value?.measurementPoints?.find(
+          (p) => p.ringNumber === item.ringNumber
+        )?.name || '-',
+      time: new Date(item.timestamp).toLocaleString('zh-CN'),
+      horizontal: Number(item.p9x) || 0,
+      vertical: Number(item.p9y) || 0,
+    }))
   })
 
   const photos = computed(() => {
     return device.value?.devicePhotos || []
   })
 
+  const selectedPhoto = ref<(typeof photos.value)[0] | null>(null)
+  const isFullscreen = ref(false)
+  const currentPhotoIndex = ref(0)
+
+  function openPhotoViewer(photo: (typeof photos.value)[0]) {
+    const index = photos.value.findIndex((p) => p.id === photo.id)
+    if (index !== -1) {
+      currentPhotoIndex.value = index
+      selectedPhoto.value = photo
+      isFullscreen.value = true
+    }
+  }
+
+  function closePhotoViewer() {
+    isFullscreen.value = false
+    selectedPhoto.value = null
+  }
+
+  function prevPhoto() {
+    if (currentPhotoIndex.value > 0) {
+      currentPhotoIndex.value--
+      selectedPhoto.value = photos.value[currentPhotoIndex.value]
+    }
+  }
+
+  function nextPhoto() {
+    if (currentPhotoIndex.value < photos.value.length - 1) {
+      currentPhotoIndex.value++
+      selectedPhoto.value = photos.value[currentPhotoIndex.value]
+    }
+  }
+
+  function handlePhotoKeydown(e: KeyboardEvent) {
+    if (!isFullscreen.value) return
+    if (e.key === 'Escape') closePhotoViewer()
+    if (e.key === 'ArrowLeft') prevPhoto()
+    if (e.key === 'ArrowRight') nextPhoto()
+  }
+
   function onPageChange(page: number) {
     pagination.value.page = page
   }
+
+  onMounted(() => {
+    window.addEventListener('keydown', handlePhotoKeydown)
+  })
+
+  onUnmounted(() => {
+    window.removeEventListener('keydown', handlePhotoKeydown)
+  })
 </script>
 
 <template>
@@ -389,7 +387,7 @@
           name="i-lucide-hard-drive"
           class="w-16 h-16 mx-auto mb-4 opacity-50"
         />
-        <p class="text-lg mb-2">请从设备管理页面选择一个设备</p>
+        <p class="text-xl mb-2">请从设备管理页面选择一个设备</p>
         <UButton
           to="/device"
           color="primary"
@@ -412,6 +410,27 @@
       </div>
     </div>
 
+    <div
+      v-else-if="deviceError"
+      class="flex items-center justify-center h-96"
+    >
+      <div class="text-center text-error">
+        <UIcon
+          name="i-lucide-alert-circle"
+          class="w-12 h-12 mx-auto mb-4 opacity-50"
+        />
+        <p class="text-xl mb-2">加载失败</p>
+        <p class="text-base text-muted mb-4">{{ deviceError }}</p>
+        <UButton
+          color="error"
+          variant="soft"
+          @click="fetchDevice"
+        >
+          重试
+        </UButton>
+      </div>
+    </div>
+
     <template v-else-if="device">
       <div class="grid grid-cols-2 gap-4">
         <div class="bg-elevated border border-default rounded-xl p-4">
@@ -429,7 +448,7 @@
               </UButton>
             </div>
           </div>
-          <div class="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+          <div class="grid grid-cols-2 gap-x-6 gap-y-3 text-base">
             <div>
               <span class="text-muted">设备名称：</span>
               <span class="font-medium">{{ device.name }}</span>
@@ -496,7 +515,7 @@
             </div>
           </div>
 
-          <p class="text-xs text-muted mb-2">
+          <p class="text-sm text-muted mb-2">
             <span v-if="currentMapLevel === 'china'">点击省份进入查看</span>
             <span v-else-if="currentMapLevel === 'province'">
               点击城市进入查看
@@ -517,7 +536,7 @@
                   name="i-lucide-loader-2"
                   class="w-8 h-8 animate-spin mb-2 mx-auto text-muted"
                 />
-                <p class="text-sm text-muted">加载地图中...</p>
+                <p class="text-base text-muted">加载地图中...</p>
               </div>
             </div>
             <div
@@ -529,7 +548,7 @@
                   name="i-lucide-alert-circle"
                   class="w-8 h-8 mb-2 mx-auto"
                 />
-                <p class="text-sm">{{ mapError }}</p>
+                <p class="text-base">{{ mapError }}</p>
               </div>
             </div>
             <div
@@ -560,7 +579,8 @@
             <div
               v-for="photo in photos"
               :key="photo.id"
-              class="relative aspect-video bg-muted/20 rounded-lg overflow-hidden group"
+              class="relative aspect-video bg-muted/20 rounded-lg overflow-hidden group cursor-pointer"
+              @click="openPhotoViewer(photo)"
             >
               <img
                 :src="`${apiBase}/api/v1/upload/download?objectName=${encodeURIComponent(photo.objectName)}`"
@@ -569,7 +589,7 @@
               />
               <div
                 v-if="photo.displayTime"
-                class="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs p-1 text-center"
+                class="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-sm p-1 text-center"
               >
                 {{ photo.displayTime }}
               </div>
@@ -591,7 +611,7 @@
             </span>
             <span
               v-else
-              class="text-muted text-sm font-normal ml-2"
+              class="text-muted text-base font-normal ml-2"
             >
               ({{ monitoringData.length }})
             </span>
@@ -609,6 +629,26 @@
           </div>
 
           <div
+            v-else-if="dataError"
+            class="text-center py-8 text-error"
+          >
+            <UIcon
+              name="i-lucide-alert-circle"
+              class="w-12 h-12 mx-auto mb-2 opacity-50"
+            />
+            <p>{{ dataError }}</p>
+            <UButton
+              color="error"
+              variant="soft"
+              size="sm"
+              class="mt-2"
+              @click="fetchMonitoringData"
+            >
+              重试
+            </UButton>
+          </div>
+
+          <div
             v-else-if="dataList.length === 0"
             class="text-center py-8 text-muted"
           >
@@ -617,14 +657,14 @@
               class="w-12 h-12 mx-auto mb-2 opacity-50"
             />
             <p>暂无监测数据</p>
-            <p class="text-xs mt-1">设备编号: {{ device.code }}</p>
+            <p class="text-base mt-1">设备编号: {{ device.code }}</p>
           </div>
 
           <div
             v-else
             class="overflow-auto"
           >
-            <table class="w-full text-sm">
+            <table class="w-full text-base">
               <thead>
                 <tr class="border-b border-default">
                   <th class="text-left py-2 px-2 text-muted font-medium">
@@ -684,13 +724,87 @@
             <UPagination
               v-model:page="pagination.page"
               :page-count="pagination.pageSize"
-              :total="pagination.total"
+              :total="total"
               size="sm"
               @update:page="onPageChange"
             />
           </div>
         </div>
       </div>
+
+      <Teleport to="body">
+        <Transition
+          enter-active-class="transition-opacity duration-200"
+          enter-from-class="opacity-0"
+          enter-to-class="opacity-100"
+          leave-active-class="transition-opacity duration-200"
+          leave-from-class="opacity-100"
+          leave-to-class="opacity-0"
+        >
+          <div
+            v-if="isFullscreen && selectedPhoto"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/90"
+            @click.self="closePhotoViewer"
+          >
+            <button
+              class="absolute top-4 right-4 p-2 text-white/70 hover:text-white transition-colors"
+              @click="closePhotoViewer"
+            >
+              <UIcon
+                name="i-lucide-x"
+                class="w-8 h-8"
+              />
+            </button>
+
+            <button
+              v-if="currentPhotoIndex > 0"
+              class="absolute left-4 p-2 text-white/70 hover:text-white transition-colors"
+              @click="prevPhoto"
+            >
+              <UIcon
+                name="i-lucide-chevron-left"
+                class="w-10 h-10"
+              />
+            </button>
+
+            <button
+              v-if="currentPhotoIndex < photos.length - 1"
+              class="absolute right-4 p-2 text-white/70 hover:text-white transition-colors"
+              @click="nextPhoto"
+            >
+              <UIcon
+                name="i-lucide-chevron-right"
+                class="w-10 h-10"
+              />
+            </button>
+
+            <div class="max-w-6xl max-h-[90vh] mx-4">
+              <img
+                :src="`${apiBase}/api/v1/upload/download?objectName=${encodeURIComponent(selectedPhoto.objectName)}`"
+                :alt="`照片 ${selectedPhoto.id}`"
+                class="max-w-full max-h-[80vh] object-contain rounded-lg"
+              />
+              <div class="mt-4 text-center text-white">
+                <p class="text-xl font-medium">
+                  {{
+                    selectedPhoto.objectName.split('/').pop() ||
+                    selectedPhoto.objectName
+                  }}
+                </p>
+                <p
+                  v-if="selectedPhoto.displayTime"
+                  class="text-base text-white/60 mt-1"
+                >
+                  {{ selectedPhoto.displayTime }}
+                </p>
+                <p class="text-sm text-white/40 mt-2">
+                  {{ currentPhotoIndex + 1 }} / {{ photos.length }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </Transition>
+      </Teleport>
     </template>
   </div>
 </template>

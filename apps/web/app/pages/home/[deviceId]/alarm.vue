@@ -35,6 +35,8 @@
     }>
   >([])
 
+  const warningDataAll = ref<typeof warningData.value>([])
+
   const pieData = ref([
     { name: '正常', value: 0, color: '#22c55e' },
     { name: '预警', value: 0, color: '#f59e0b' },
@@ -52,6 +54,8 @@
       type: string
     }>
   >([])
+
+  const historyDataAll = ref<typeof historyData.value>([])
 
   const pagination = ref({
     page: 1,
@@ -105,15 +109,13 @@
 
   function updateWarningData() {
     const threshold = 3.0
-    const filtered = monitoringData.value
-      .filter((d) => {
-        const horizontal = Math.abs(d.p9x ?? 0)
-        const vertical = Math.abs(d.p9y ?? 0)
-        return horizontal > threshold || vertical > threshold
-      })
-      .slice(0, 20)
+    const filtered = monitoringData.value.filter((d) => {
+      const horizontal = Math.abs(d.p9x ?? 0)
+      const vertical = Math.abs(d.p9y ?? 0)
+      return horizontal > threshold || vertical > threshold
+    })
 
-    warningData.value = filtered.map((item, idx) => ({
+    warningDataAll.value = filtered.map((item, idx) => ({
       id: idx,
       index: idx + 1,
       pointName: item.ringNumber || '-',
@@ -122,9 +124,9 @@
       vertical: item.p9y ?? 0,
     }))
 
-    pagination.value.total = warningData.value.length
+    pagination.value.total = warningDataAll.value.length
 
-    historyData.value = filtered.map((item, idx) => ({
+    historyDataAll.value = filtered.map((item, idx) => ({
       id: idx,
       index: idx + 1,
       pointName: item.ringNumber || '-',
@@ -137,8 +139,27 @@
           : '预警',
     }))
 
-    historyPagination.value.total = historyData.value.length
+    historyPagination.value.total = historyDataAll.value.length
   }
+
+  const paginatedWarningData = computed(() => {
+    const start = (pagination.value.page - 1) * pagination.value.pageSize
+    const end = start + pagination.value.pageSize
+    return warningDataAll.value.slice(start, end).map((item, idx) => ({
+      ...item,
+      index: start + idx + 1,
+    }))
+  })
+
+  const paginatedHistoryData = computed(() => {
+    const start =
+      (historyPagination.value.page - 1) * historyPagination.value.pageSize
+    const end = start + historyPagination.value.pageSize
+    return historyDataAll.value.slice(start, end).map((item, idx) => ({
+      ...item,
+      index: start + idx + 1,
+    }))
+  })
 
   function updatePieData() {
     const total = monitoringData.value.length || 0
@@ -158,9 +179,18 @@
   watch(
     () => selectedDeviceStore.selectedDevice,
     () => {
+      pagination.value.page = 1
+      historyPagination.value.page = 1
       fetchAlarmData()
     },
     { immediate: true }
+  )
+
+  watch(
+    [() => pagination.value.page, () => historyPagination.value.page],
+    () => {
+      updatePieData()
+    }
   )
 
   function onPageChange(page: number) {
@@ -221,7 +251,7 @@
             </thead>
             <tbody>
               <tr
-                v-for="item in warningData"
+                v-for="item in paginatedWarningData"
                 :key="item.id"
                 class="border-b border-default/50 hover:bg-muted/5"
               >
@@ -353,7 +383,7 @@
           </thead>
           <tbody>
             <tr
-              v-for="item in historyData"
+              v-for="item in paginatedHistoryData"
               :key="item.id"
               class="border-b border-default/50 hover:bg-muted/5"
             >
