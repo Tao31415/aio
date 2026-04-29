@@ -7,6 +7,7 @@ This file provides guidance to Claude Code when working in `apps/api/`.
 **模块化设计的后端 API**，提供设备监控、数据采集、用户认证等功能。
 
 核心模块：
+
 - **RBAC** — 用户认证与基于角色的权限控制
 - **Device** — 设备管理、设备状态监控、设备统计
 - **Upload** — 文件上传服务
@@ -70,14 +71,15 @@ apps/api/
 
 设备模块是核心业务模块，包含以下功能：
 
-| 功能 | 说明 |
-|------|------|
-| 设备管理 | 设备的增删改查 |
-| 设备状态监控 | 定时更新设备在线/离线状态 |
-| 设备统计 | 设备数量、在线率等统计数据 |
-| 报警记录 | 设备报警信息记录与查询 |
+| 功能         | 说明                       |
+| ------------ | -------------------------- |
+| 设备管理     | 设备的增删改查             |
+| 设备状态监控 | 定时更新设备在线/离线状态  |
+| 设备统计     | 设备数量、在线率等统计数据 |
+| 报警记录     | 设备报警信息记录与查询     |
 
 主要 Entity：
+
 - `Device` — 设备基本信息
 - `DeviceStatus` — 设备状态记录
 - `AlarmRecord` — 报警记录
@@ -186,7 +188,7 @@ Available for imports throughout the codebase:
 | `@database/*` | `./src/module/middleware/database/*` |
 | `@log/*`      | `./src/module/log/*`                 |
 | `@mqtt/*`     | `./src/module/middleware/mqtt/*`     |
-| `@redis/*`    | `./src/module/middleware/redis/*`   |
+| `@redis/*`    | `./src/module/middleware/redis/*`    |
 | `@storage/*`  | `./src/module/middleware/storage/*`  |
 | `@user/*`     | `./src/module/rbac/user/*`           |
 

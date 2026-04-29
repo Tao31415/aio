@@ -1,6 +1,7 @@
 <script setup lang="ts">
   definePageMeta({
     layout: 'home',
+    keepAlive: true,
   })
 
   const route = useRoute()

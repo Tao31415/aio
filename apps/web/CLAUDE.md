@@ -7,6 +7,7 @@ This file provides guidance to Claude Code when working in `apps/web/`.
 **Nuxt 4 前端应用**，为工业设备监控与数据采集平台提供 Web 界面。
 
 主要功能：
+
 - **设备管理** — 设备列表、详情查看、设备状态监控
 - **数据查看** — 位移数据、图片、视频等传感器数据可视化
 - **报警记录** — 设备报警信息查看与管理

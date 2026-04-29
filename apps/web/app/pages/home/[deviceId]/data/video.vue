@@ -1,4 +1,8 @@
 <script setup lang="ts">
+  definePageMeta({
+    keepAlive: true,
+  })
+
   const videos = ref([
     // { id: 1, name: '监测点 A1 视频 1', url: '...', time: '2024-03-15 08:00' },
     // { id: 2, name: '监测点 A1 视频 2', url: '...', time: '2024-03-14 14:30' },

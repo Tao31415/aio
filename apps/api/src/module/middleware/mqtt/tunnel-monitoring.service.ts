@@ -5,6 +5,7 @@ import {
   DataSource,
   LessThanOrEqual,
   MoreThanOrEqual,
+  Between,
   SelectQueryBuilder,
 } from 'typeorm'
 import { PinoLogger } from 'nestjs-pino'
@@ -165,10 +166,42 @@ export class TunnelMonitoringService implements OnModuleInit {
       entities.push(entity)
     }
 
-    const saved = await this.tunnelMonitoringRepository.save(entities)
-    this.logger.info({ count: saved.length }, 'Saved tunnel monitoring records')
+    const saved: TunnelMonitoringData[] = []
+    const skipped: string[] = []
 
-    this.processData(saved)
+    for (const entity of entities) {
+      try {
+        const result = await this.tunnelMonitoringRepository.save(entity)
+        saved.push(result)
+      } catch (error: unknown) {
+        if (
+          error &&
+          typeof error === 'object' &&
+          'code' in error &&
+          error.code === '23505'
+        ) {
+          skipped.push(entity.ringNumber)
+        } else {
+          throw error
+        }
+      }
+    }
+
+    if (saved.length > 0) {
+      this.logger.info(
+        { count: saved.length },
+        'Saved tunnel monitoring records'
+      )
+      this.processData(saved)
+    }
+
+    if (skipped.length > 0) {
+      this.logger.warn(
+        { skipped: skipped.length, rings: skipped.join(',') },
+        'Skipped duplicate records'
+      )
+    }
+
     return saved
   }
 
@@ -241,8 +274,9 @@ export class TunnelMonitoringService implements OnModuleInit {
     if (params.sn) {
       where.sn = params.sn
     }
+
     if (params.startTime && params.endTime) {
-      where.timestamp = MoreThanOrEqual(params.startTime)
+      where.timestamp = Between(params.startTime, params.endTime)
     } else if (params.startTime) {
       where.timestamp = MoreThanOrEqual(params.startTime)
     } else if (params.endTime) {

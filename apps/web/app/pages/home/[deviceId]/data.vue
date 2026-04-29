@@ -1,5 +1,6 @@
 <script setup lang="ts">
   definePageMeta({
+    keepAlive: true,
     middleware: [
       (to: ReturnType<typeof useRoute>) => {
         if (to.path.endsWith('/data') || to.path.endsWith('/data/')) {

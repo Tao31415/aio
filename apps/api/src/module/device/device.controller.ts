@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Put, Delete, Body, Param } from '@nestjs/common'
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  Query,
+} from '@nestjs/common'
 import { DeviceService } from './device.service'
 import {
   Device,
@@ -222,9 +231,15 @@ export class DeviceController {
   @ApiOperation({ summary: 'Get photos by device ID' })
   @ApiResponse({ status: 200, description: 'List of device photos' })
   async findDevicePhotosByDeviceId(
-    @Param('deviceId') deviceId: string
+    @Param('deviceId') deviceId: string,
+    @Query('startTime') startTime?: string,
+    @Query('endTime') endTime?: string
   ): Promise<DevicePhoto[]> {
-    return this.deviceService.findDevicePhotosByDeviceId(deviceId)
+    return this.deviceService.findDevicePhotosByDeviceId(
+      deviceId,
+      startTime,
+      endTime
+    )
   }
 
   @Get('photo/:id')

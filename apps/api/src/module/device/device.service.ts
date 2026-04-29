@@ -199,11 +199,27 @@ export class DeviceService {
     return saved
   }
 
-  async findDevicePhotosByDeviceId(deviceId: string): Promise<DevicePhoto[]> {
-    return this.devicePhotoRepository.find({
-      where: { deviceId },
-      order: { createdAt: 'DESC' },
-    })
+  async findDevicePhotosByDeviceId(
+    deviceId: string,
+    startTime?: string,
+    endTime?: string
+  ): Promise<DevicePhoto[]> {
+    const qb = this.devicePhotoRepository
+      .createQueryBuilder('photo')
+      .where('photo.deviceId = :deviceId', { deviceId })
+
+    if (startTime) {
+      qb.andWhere('photo.createdAt >= :startTime', {
+        startTime: new Date(startTime),
+      })
+    }
+    if (endTime) {
+      qb.andWhere('photo.createdAt <= :endTime', {
+        endTime: new Date(endTime),
+      })
+    }
+
+    return qb.orderBy('photo.createdAt', 'DESC').getMany()
   }
 
   async findDevicePhotoById(id: string): Promise<DevicePhoto | null> {

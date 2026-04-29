@@ -1,4 +1,8 @@
 <script setup lang="ts">
+  definePageMeta({
+    keepAlive: true,
+  })
+
   const route = useRoute()
   const config = useRuntimeConfig()
   const apiBase = config.public.apiBase as string

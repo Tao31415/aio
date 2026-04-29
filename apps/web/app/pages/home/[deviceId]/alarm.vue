@@ -1,9 +1,15 @@
 <script setup lang="ts">
   import { sub } from 'date-fns'
 
+  definePageMeta({
+    keepAlive: true,
+  })
+
   const config = useRuntimeConfig()
   const apiBase = config.public.apiBase as string
-  const selectedDeviceStore = useSelectedDeviceStore()
+  const route = useRoute()
+
+  const deviceId = computed(() => route.params.deviceId as string)
 
   interface TunnelMonitoringData {
     timestamp: string
@@ -22,6 +28,20 @@
     coc: number | null
     hc: number | null
     sd: number | null
+  }
+
+  interface MeasurementPoint {
+    id: string
+    name: string
+    ringNumber?: string | null
+  }
+
+  interface DeviceWithPoints {
+    id: string
+    name: string
+    code: string
+    project: string | null
+    measurementPoints: MeasurementPoint[]
   }
 
   const warningData = ref<
@@ -76,9 +96,32 @@
 
   const monitoringData = ref<TunnelMonitoringData[]>([])
   const isLoading = ref(false)
+  const ringNumberToNameMap = ref<Record<string, string>>({})
+  const currentDevice = ref<DeviceWithPoints | null>(null)
+
+  async function fetchMeasurementPoints() {
+    if (!deviceId.value) return
+    try {
+      const device = await $fetch<DeviceWithPoints>(
+        `${apiBase}/api/v1/device/${deviceId.value}`
+      )
+      currentDevice.value = device
+      const points = device.measurementPoints || []
+
+      const newMap: Record<string, string> = {}
+      points.forEach((p) => {
+        if (p.ringNumber) {
+          newMap[p.ringNumber] = p.name
+        }
+      })
+      ringNumberToNameMap.value = newMap
+    } catch (e) {
+      console.error('Failed to fetch measurement points:', e)
+    }
+  }
 
   async function fetchAlarmData() {
-    if (!selectedDeviceStore.selectedDevice?.code) {
+    if (!currentDevice.value?.code) {
       warningData.value = []
       historyData.value = []
       updatePieData()
@@ -91,7 +134,7 @@
         `${apiBase}/api/v1/mqtt/tunnel-monitoring`,
         {
           query: {
-            sn: selectedDeviceStore.selectedDevice.code,
+            sn: currentDevice.value.code,
             limit: 1000,
           },
         }
@@ -118,7 +161,8 @@
     warningDataAll.value = filtered.map((item, idx) => ({
       id: idx,
       index: idx + 1,
-      pointName: item.ringNumber || '-',
+      pointName:
+        ringNumberToNameMap.value[item.ringNumber] || item.ringNumber || '-',
       time: new Date(item.timestamp).toLocaleString('zh-CN'),
       horizontal: item.p9x ?? 0,
       vertical: item.p9y ?? 0,
@@ -129,7 +173,8 @@
     historyDataAll.value = filtered.map((item, idx) => ({
       id: idx,
       index: idx + 1,
-      pointName: item.ringNumber || '-',
+      pointName:
+        ringNumberToNameMap.value[item.ringNumber] || item.ringNumber || '-',
       time: new Date(item.timestamp).toLocaleString('zh-CN'),
       detail: '水平/垂直位移超阈值',
       reason: '根据实时监测数据判定',
@@ -177,10 +222,11 @@
   }
 
   watch(
-    () => selectedDeviceStore.selectedDevice,
-    () => {
+    deviceId,
+    async () => {
       pagination.value.page = 1
       historyPagination.value.page = 1
+      await fetchMeasurementPoints()
       fetchAlarmData()
     },
     { immediate: true }
