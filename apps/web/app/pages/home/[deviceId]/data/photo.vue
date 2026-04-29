@@ -3,11 +3,13 @@
   import { usePhoto, type PhotoWithDetails } from '~/composables/usePhoto'
 
   definePageMeta({
-    keepAlive: true,
+    key: route => `data-photo-${route.params.deviceId}`,
+    keepalive: true,
   })
 
   const route = useRoute()
   const deviceId = computed(() => route.params.deviceId as string)
+  const dataCache = useDataCacheStore()
 
   const dateRange = ref({
     start: sub(new Date(), { hours: 24 }),
@@ -43,6 +45,32 @@
   const isFullscreen = ref(false)
   const currentIndex = ref(0)
 
+  /** 保存当前状态到 store */
+  function saveToCache() {
+    dataCache.setPhoto(deviceId.value, {
+      startDate: dateRange.value.start,
+      endDate: dateRange.value.end,
+      photos: photos.value.map((p) => ({
+        id: p.id,
+        name: p.name,
+        url: p.url,
+        time: p.time,
+        raw: p,
+      })),
+      hasSearched: photos.value.length > 0 || !!errorMsg.value,
+    })
+  }
+
+  /** 从 store 恢复状态 */
+  function restoreFromCache(): boolean {
+    const cached = dataCache.getPhoto(deviceId.value)
+    if (!cached) return false
+
+    dateRange.value = { start: cached.startDate, end: cached.endDate }
+    photos.value = cached.photos.map((p) => p.raw as PhotoWithDetails)
+    return true
+  }
+
   async function loadPhotos() {
     if (!deviceId.value) return
     try {
@@ -51,6 +79,7 @@
         endTime: dateRange.value.end,
       })
       photos.value = transformPhotos(rawPhotos, true)
+      saveToCache()
     } catch (e) {
       console.error('获取设备照片失败:', e)
       errorMsg.value = '无法获取设备照片'
@@ -106,12 +135,19 @@
   }
 
   onMounted(() => {
-    loadPhotos()
+    if (!restoreFromCache()) {
+      loadPhotos()
+    }
     window.addEventListener('keydown', handleKeydown)
   })
 
   onUnmounted(() => {
     window.removeEventListener('keydown', handleKeydown)
+  })
+
+  // 从其他页面（如 /basic）返回时，从 store 恢复数据
+  onActivated(() => {
+    restoreFromCache()
   })
 
   watch(deviceId, () => {

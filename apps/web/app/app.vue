@@ -2,23 +2,13 @@
   <UApp :toaster="{ position: 'bottom-right', duration: 4000 }">
     <NuxtLoadingIndicator />
     <NuxtLayout>
-      <NuxtPage v-slot="{ Component }">
-        <KeepAlive :include="keepAlive.includeKeys.value">
-          <component
-            :is="Component"
-            :key="keepAlive.currentKey.value"
-          />
-        </KeepAlive>
-      </NuxtPage>
+      <NuxtPage />
     </NuxtLayout>
   </UApp>
 </template>
 
 <script setup lang="ts">
   const { isAuthenticated } = useAuth()
-
-  // 初始化 KeepAlive
-  const keepAlive = useKeepAlive()
 
   // 公开路由列表
   const publicRoutes = ['/login']

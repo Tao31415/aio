@@ -163,7 +163,7 @@ export default defineNuxtConfig({
   // Nuxt ECharts 配置
   echarts: {
     renderer: 'svg',
-    charts: ['LineChart', 'BarChart', 'PieChart', 'ScatterChart'],
+    charts: ['LineChart', 'BarChart', 'PieChart', 'ScatterChart', 'MapChart'],
     components: [
       'GridComponent',
       'TooltipComponent',

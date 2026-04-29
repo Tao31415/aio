@@ -1,6 +1,7 @@
 <script setup lang="ts">
   definePageMeta({
-    keepAlive: true,
+    key: route => `data-video-${route.params.deviceId}`,
+    keepalive: true,
   })
 
   const videos = ref([

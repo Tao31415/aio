@@ -1,5 +1,6 @@
 <script setup lang="ts">
   definePageMeta({
+    key: route => `home-${route.params.deviceId}`,
     layout: 'home',
     keepAlive: true,
   })

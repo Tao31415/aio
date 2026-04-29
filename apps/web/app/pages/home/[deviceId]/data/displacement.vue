@@ -2,32 +2,16 @@
   import { sub } from 'date-fns'
   import { useDevice, useDeviceDetail } from '~/composables/useDevice'
   import type { MeasurementPoint } from '~/stores/device'
+  import type { TunnelMonitoringData } from '~/stores/dataCache'
 
   definePageMeta({
-    keepAlive: true,
+    key: route => `data-displacement-${route.params.deviceId}`,
+    keepalive: true,
   })
 
   const route = useRoute()
   const deviceId = computed(() => route.params.deviceId as string)
-
-  interface TunnelMonitoringData {
-    timestamp: string
-    sn: string
-    ringNumber: string
-    p1x: number | null
-    p1y: number | null
-    p7x: number | null
-    p7y: number | null
-    p3x: number | null
-    p3y: number | null
-    p5x: number | null
-    p5y: number | null
-    p9x: number | null
-    p9y: number | null
-    coc: number | null
-    hc: number | null
-    sd: number | null
-  }
+  const dataCache = useDataCacheStore()
 
   const startDatetime = ref('')
   const endDatetime = ref('')
@@ -103,6 +87,33 @@
     { immediate: true }
   )
 
+  /** 保存当前状态到 store */
+  function saveToCache() {
+    dataCache.setDisplacement(deviceId.value, {
+      startDatetime: startDatetime.value,
+      endDatetime: endDatetime.value,
+      selectedPoint: selectedPoint.value,
+      monitoringData: monitoringData.value,
+      pagination: { ...pagination.value },
+      hasSearched: hasSearched.value,
+    })
+  }
+
+  /** 从 store 恢复状态 */
+  function restoreFromCache(): boolean {
+    const cached = dataCache.getDisplacement(deviceId.value)
+    if (!cached) return false
+
+    startDatetime.value = cached.startDatetime
+    endDatetime.value = cached.endDatetime
+    selectedPoint.value = cached.selectedPoint
+    monitoringData.value = cached.monitoringData
+    pagination.value = { ...cached.pagination }
+    hasSearched.value = cached.hasSearched
+    updateDataList()
+    return true
+  }
+
   async function fetchMonitoringData() {
     if (!currentDevice.value?.code) {
       return
@@ -142,6 +153,7 @@
       pagination.value.total = monitoringData.value.length
       pagination.value.page = 1
       updateDataList()
+      saveToCache()
     } catch (e) {
       console.error('Failed to fetch monitoring data:', e)
       monitoringData.value = []
@@ -171,13 +183,23 @@
     () => pagination.value.page,
     () => {
       updateDataList()
+      saveToCache()
     }
   )
 
   onMounted(async () => {
+    if (restoreFromCache()) {
+      await loadDevice()
+      return
+    }
     initDateRange()
     await loadDevice()
     await fetchMonitoringData()
+  })
+
+  // 从其他页面（如 /basic）返回时，从 store 恢复数据
+  onActivated(() => {
+    restoreFromCache()
   })
 
   function onPageChange(page: number) {

@@ -133,6 +133,7 @@
   const GEOJSON_CDN = 'https://geo.datav.aliyun.com/areas_v3/bound'
 
   const centerMap: Record<string, [number, number]> = {
+    '100000': [114.31, 30.52],
     '420000': [114.32, 30.58],
     '420100': [114.31, 30.52],
     '420105': [114.27, 30.57],
@@ -152,9 +153,23 @@
 
     const echarts = await import('echarts')
 
+    // 加载中国地图（用于返回上一级）
     const chinaRes = await fetch(`${GEOJSON_CDN}/100000_full.json`)
     const chinaGeoJSON = await chinaRes.json()
     echarts.registerMap('100000', chinaGeoJSON)
+
+    // 直接加载武汉市地图
+    try {
+      const wuhanRes = await fetch(`${GEOJSON_CDN}/420100_full.json`)
+      if (wuhanRes.ok) {
+        const wuhanGeoJSON = await wuhanRes.json()
+        echarts.registerMap('420100', wuhanGeoJSON)
+        currentMapLevel.value = 'city'
+        currentMapCode.value = '420100'
+      }
+    } catch (e) {
+      console.warn('加载武汉市地图失败，使用中国地图:', e)
+    }
 
     chartInstance = echarts.init(chartContainer.value)
     chartInstance.on('click', handleClick)
@@ -256,7 +271,13 @@
   }
 
   async function goBack() {
-    if (mapHistory.value.length === 0) return
+    if (mapHistory.value.length === 0) {
+      // 从武汉市直接返回中国地图
+      if (currentMapLevel.value !== 'china') {
+        await switchToMap('china', '100000')
+      }
+      return
+    }
     const prev = mapHistory.value.pop()!
     await switchToMap(prev.level, prev.code)
   }
@@ -277,7 +298,6 @@
   }
 
   onMounted(() => {
-    initChart()
     if (deviceId.value) {
       fetchDevice()
     }
@@ -292,6 +312,14 @@
   watch(device, (newDevice) => {
     if (newDevice?.code) {
       fetchMonitoringData()
+    }
+    // 设备数据加载后，chartContainer 才渲染出来，此时初始化地图
+    if (newDevice) {
+      nextTick(() => {
+        if (!chartInstance) {
+          initChart()
+        }
+      })
     }
   })
 
@@ -503,7 +531,7 @@
             <h3 class="font-semibold">设备位置</h3>
             <div class="flex items-center gap-2">
               <UButton
-                v-if="mapHistory.length > 0"
+                v-if="mapHistory.length > 0 || currentMapLevel !== 'china'"
                 size="xs"
                 variant="ghost"
                 icon="i-lucide-arrow-left"
