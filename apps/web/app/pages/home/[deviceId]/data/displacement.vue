@@ -1,14 +1,13 @@
 <script setup lang="ts">
   import { sub } from 'date-fns'
+  import { useDevice, useDeviceDetail } from '~/composables/useDevice'
+  import type { MeasurementPoint } from '~/stores/device'
 
   definePageMeta({
     keepAlive: true,
   })
 
-  const config = useRuntimeConfig()
-  const apiBase = config.public.apiBase as string
   const route = useRoute()
-
   const deviceId = computed(() => route.params.deviceId as string)
 
   interface TunnelMonitoringData {
@@ -30,26 +29,12 @@
     sd: number | null
   }
 
-  interface MeasurementPoint {
-    id: string
-    name: string
-    ringNumber?: string | null
-  }
-
-  interface DeviceWithPoints {
-    id: string
-    name: string
-    code: string
-    project: string | null
-    measurementPoints: MeasurementPoint[]
-  }
-
   const startDatetime = ref('')
   const endDatetime = ref('')
   const selectedPoint = ref('all')
   const pointOptions = ref<Array<{ label: string; value: string }>>([])
   const ringNumberToNameMap = ref<Record<string, string>>({})
-  const currentDevice = ref<DeviceWithPoints | null>(null)
+  const nameToRingNumberMap = ref<Record<string, string>>({})
 
   const pagination = ref({
     page: 1,
@@ -72,6 +57,10 @@
   const isLoading = ref(false)
   const hasSearched = ref(false)
 
+  const { fetchDevice, fetchMonitoringData: fetchMonitoringDataApi } =
+    useDevice()
+  const { device: currentDevice, load: loadDevice } = useDeviceDetail(deviceId)
+
   function formatDateForInput(date: Date): string {
     const year = date.getFullYear()
     const month = String(date.getMonth() + 1).padStart(2, '0')
@@ -86,32 +75,33 @@
     endDatetime.value = formatDateForInput(new Date())
   }
 
-  async function fetchMeasurementPoints() {
-    if (!deviceId.value) return
-    try {
-      const device = await $fetch<DeviceWithPoints>(
-        `${apiBase}/api/v1/device/${deviceId.value}`
-      )
-      currentDevice.value = device
-      const points = device.measurementPoints || []
+  function buildRingNumberMap(points: MeasurementPoint[]) {
+    const newMap: Record<string, string> = {}
+    const reverseMap: Record<string, string> = {}
+    points.forEach((p) => {
+      if (p.ringNumber) {
+        newMap[p.ringNumber] = p.name
+        reverseMap[p.name] = p.ringNumber
+      }
+    })
+    ringNumberToNameMap.value = newMap
+    nameToRingNumberMap.value = reverseMap
 
-      const newMap: Record<string, string> = {}
-      points.forEach((p) => {
-        if (p.ringNumber) {
-          newMap[p.ringNumber] = p.name
-        }
-      })
-      ringNumberToNameMap.value = newMap
-
-      pointOptions.value = [
-        { label: '全部', value: 'all' },
-        ...points.map((p) => ({ label: p.name, value: p.name })),
-      ]
-    } catch (e) {
-      console.error('Failed to fetch measurement points:', e)
-      pointOptions.value = [{ label: '全部', value: 'all' }]
-    }
+    pointOptions.value = [
+      { label: '全部', value: 'all' },
+      ...points.map((p) => ({ label: p.name, value: p.name })),
+    ]
   }
+
+  watch(
+    currentDevice,
+    (device) => {
+      if (device?.measurementPoints) {
+        buildRingNumberMap(device.measurementPoints)
+      }
+    },
+    { immediate: true }
+  )
 
   async function fetchMonitoringData() {
     if (!currentDevice.value?.code) {
@@ -121,29 +111,34 @@
     isLoading.value = true
     hasSearched.value = true
     try {
-      const queryParams: Record<string, string> = {
+      let ringNumbers: string[] | undefined
+      let ringNumber: string | undefined
+
+      if (selectedPoint.value === 'all') {
+        const allPoints = pointOptions.value
+          .filter((p) => p.value !== 'all')
+          .map((p) => p.value)
+        ringNumbers = allPoints
+          .map((name) => nameToRingNumberMap.value[name])
+          .filter((rn): rn is string => !!rn)
+      } else if (nameToRingNumberMap.value[selectedPoint.value]) {
+        ringNumber = nameToRingNumberMap.value[selectedPoint.value]
+      }
+
+      const res = await fetchMonitoringDataApi({
         sn: currentDevice.value.code,
-        limit: '5000',
-      }
+        limit: 5000,
+        ringNumber,
+        ringNumbers,
+        startTime: startDatetime.value
+          ? new Date(startDatetime.value).toISOString()
+          : undefined,
+        endTime: endDatetime.value
+          ? new Date(endDatetime.value).toISOString()
+          : undefined,
+      })
 
-      if (selectedPoint.value && selectedPoint.value !== 'all') {
-        queryParams.ringNumber = selectedPoint.value
-      }
-
-      if (startDatetime.value) {
-        queryParams.startTime = new Date(startDatetime.value).toISOString()
-      }
-
-      if (endDatetime.value) {
-        queryParams.endTime = new Date(endDatetime.value).toISOString()
-      }
-
-      const res = await $fetch<{ data: TunnelMonitoringData[] }>(
-        `${apiBase}/api/v1/mqtt/tunnel-monitoring`,
-        { query: queryParams }
-      )
-
-      monitoringData.value = res.data || []
+      monitoringData.value = (res?.data || []) as TunnelMonitoringData[]
       pagination.value.total = monitoringData.value.length
       pagination.value.page = 1
       updateDataList()
@@ -172,15 +167,21 @@
     }))
   }
 
+  watch(
+    () => pagination.value.page,
+    () => {
+      updateDataList()
+    }
+  )
+
   onMounted(async () => {
     initDateRange()
-    await fetchMeasurementPoints()
+    await loadDevice()
     await fetchMonitoringData()
   })
 
   function onPageChange(page: number) {
     pagination.value.page = page
-    updateDataList()
   }
 
   const chartOption = computed(() => {

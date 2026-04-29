@@ -97,6 +97,7 @@
   const monitoringData = ref<TunnelMonitoringData[]>([])
   const isLoading = ref(false)
   const ringNumberToNameMap = ref<Record<string, string>>({})
+  const nameToRingNumberMap = ref<Record<string, string>>({})
   const currentDevice = ref<DeviceWithPoints | null>(null)
 
   async function fetchMeasurementPoints() {
@@ -109,12 +110,15 @@
       const points = device.measurementPoints || []
 
       const newMap: Record<string, string> = {}
+      const reverseMap: Record<string, string> = {}
       points.forEach((p) => {
         if (p.ringNumber) {
           newMap[p.ringNumber] = p.name
+          reverseMap[p.name] = p.ringNumber
         }
       })
       ringNumberToNameMap.value = newMap
+      nameToRingNumberMap.value = reverseMap
     } catch (e) {
       console.error('Failed to fetch measurement points:', e)
     }

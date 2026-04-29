@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { useDevice } from '~/composables/useDevice'
 
 export interface MeasurementPoint {
   id: string
@@ -62,6 +63,8 @@ export const useDeviceStore = defineStore('device', () => {
   const photoUrls = ref<Record<string, string>>({})
   const isLoadingPhotoUrls = ref(false)
 
+  const { fetchDevice, clearCache: clearDeviceCache } = useDevice()
+
   async function fetchDevices() {
     isLoading.value = true
     try {
@@ -81,16 +84,17 @@ export const useDeviceStore = defineStore('device', () => {
     }
   }
 
+  async function fetchDeviceById(deviceId: string): Promise<Device | null> {
+    const device = await fetchDevice(deviceId)
+    return device as Device | null
+  }
+
   async function refreshSelectedDevice() {
     if (!selectedDevice.value) return
-    const config = useRuntimeConfig()
-    const apiBase = config.public.apiBase
-    const data = await $fetch<Device>(
-      `${apiBase}/api/v1/device/${selectedDevice.value.id}`
-    )
-    if (data) {
+    const device = await fetchDevice(selectedDevice.value.id)
+    if (device) {
       const oldPhotos = selectedDevice.value.devicePhotos || []
-      const newPhotos = data.devicePhotos || []
+      const newPhotos = device.devicePhotos || []
 
       oldPhotos.forEach((oldPhoto) => {
         const stillExists = newPhotos.some((p) => p.id === oldPhoto.id)
@@ -99,10 +103,10 @@ export const useDeviceStore = defineStore('device', () => {
         }
       })
 
-      selectedDevice.value = data
-      const idx = devices.value.findIndex((d) => d.id === data.id)
+      selectedDevice.value = device
+      const idx = devices.value.findIndex((d) => d.id === device.id)
       if (idx !== -1) {
-        devices.value[idx] = data
+        devices.value[idx] = device
       }
     }
   }
@@ -112,7 +116,17 @@ export const useDeviceStore = defineStore('device', () => {
   }
 
   function setSelectedDeviceById(deviceId: string) {
-    selectedDevice.value = devices.value.find((d) => d.id === deviceId) || null
+    const cachedDevice = devices.value.find((d) => d.id === deviceId)
+    if (cachedDevice) {
+      selectedDevice.value = cachedDevice
+    } else {
+      selectedDevice.value = null
+      fetchDeviceById(deviceId).then((device) => {
+        if (device) {
+          selectedDevice.value = device
+        }
+      })
+    }
   }
 
   async function fetchPhotoUrl(photo: DevicePhoto): Promise<string> {
@@ -172,6 +186,16 @@ export const useDeviceStore = defineStore('device', () => {
     }
   }
 
+  function clearCache(deviceId?: string) {
+    clearDeviceCache(deviceId)
+    if (deviceId) {
+      const idx = devices.value.findIndex((d) => d.id === deviceId)
+      if (idx !== -1) {
+        devices.value.splice(idx, 1)
+      }
+    }
+  }
+
   return {
     devices,
     selectedDevice,
@@ -179,11 +203,13 @@ export const useDeviceStore = defineStore('device', () => {
     photoUrls,
     isLoadingPhotoUrls,
     fetchDevices,
+    fetchDeviceById,
     refreshSelectedDevice,
     selectDevice,
     setSelectedDeviceById,
     fetchPhotoUrl,
     loadAllPhotoUrls,
     clearPhotoUrls,
+    clearCache,
   }
 })

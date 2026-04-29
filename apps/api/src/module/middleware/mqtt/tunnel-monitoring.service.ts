@@ -6,6 +6,7 @@ import {
   LessThanOrEqual,
   MoreThanOrEqual,
   Between,
+  In,
   SelectQueryBuilder,
 } from 'typeorm'
 import { PinoLogger } from 'nestjs-pino'
@@ -18,8 +19,10 @@ import {
  * 隧道监测数据查询参数
  */
 export interface TunnelMonitoringQueryParams {
-  /** 按环号筛选 */
+  /** 按环号筛选（单个） */
   ringNumber?: string
+  /** 按多个环号筛选（逗号分隔字符串或数组） */
+  ringNumbers?: string | string[]
   /** 设备序列号 */
   sn?: string
   /** 开始时间 */
@@ -270,6 +273,11 @@ export class TunnelMonitoringService implements OnModuleInit {
 
     if (params.ringNumber) {
       where.ringNumber = params.ringNumber
+    } else if (params.ringNumbers) {
+      const ringList = Array.isArray(params.ringNumbers)
+        ? params.ringNumbers
+        : params.ringNumbers.split(',').map((r) => r.trim())
+      where.ringNumber = In(ringList)
     }
     if (params.sn) {
       where.sn = params.sn

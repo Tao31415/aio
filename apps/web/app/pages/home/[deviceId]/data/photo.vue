@@ -1,21 +1,13 @@
 <script setup lang="ts">
   import { sub } from 'date-fns'
+  import { usePhoto, type PhotoWithDetails } from '~/composables/usePhoto'
 
   definePageMeta({
     keepAlive: true,
   })
 
   const route = useRoute()
-  const config = useRuntimeConfig()
-  const apiBase = config.public.apiBase as string
-
-  interface DevicePhoto {
-    id: string
-    deviceId: string
-    objectName: string
-    displayTime: string | null
-    createdAt: string
-  }
+  const deviceId = computed(() => route.params.deviceId as string)
 
   const dateRange = ref({
     start: sub(new Date(), { hours: 24 }),
@@ -42,50 +34,32 @@
     },
   })
 
-  const photos = ref<
-    Array<{
-      id: string
-      url: string
-      name: string
-      time: string
-    }>
-  >([])
-  const isLoading = ref(false)
-  const error = ref<string | null>(null)
+  const { fetchPhotos, transformPhotos, isLoading, error } = usePhoto()
 
-  const selectedPhoto = ref<(typeof photos.value)[0] | null>(null)
+  const photos = ref<PhotoWithDetails[]>([])
+  const errorMsg = ref<string | null>(null)
+
+  const selectedPhoto = ref<PhotoWithDetails | null>(null)
   const isFullscreen = ref(false)
   const currentIndex = ref(0)
 
-  const deviceId = computed(() => route.params.deviceId as string)
-
-  async function fetchPhotos() {
+  async function loadPhotos() {
     if (!deviceId.value) return
-    isLoading.value = true
-    error.value = null
     try {
-      const startTime = dateRange.value.start.toISOString()
-      const endTime = dateRange.value.end.toISOString()
-      const photosData = await $fetch<DevicePhoto[]>(
-        `${apiBase}/api/v1/device/photos/device/${deviceId.value}?startTime=${encodeURIComponent(startTime)}&endTime=${encodeURIComponent(endTime)}`
-      )
-      photos.value = (photosData || []).map((photo) => ({
-        id: photo.id,
-        url: `${apiBase}/api/v1/upload/download?objectName=${encodeURIComponent(photo.objectName)}`,
-        name: photo.objectName.split('/').pop() || photo.objectName,
-        time: photo.displayTime || photo.createdAt,
-      }))
+      const rawPhotos = await fetchPhotos(deviceId.value, {
+        startTime: dateRange.value.start,
+        endTime: dateRange.value.end,
+      })
+      photos.value = transformPhotos(rawPhotos, true)
     } catch (e) {
       console.error('获取设备照片失败:', e)
-      error.value = '无法获取设备照片'
+      errorMsg.value = '无法获取设备照片'
       photos.value = []
-    } finally {
-      isLoading.value = false
     }
   }
 
   function handleSearch() {
-    fetchPhotos()
+    loadPhotos()
   }
 
   function handleClear() {
@@ -93,10 +67,10 @@
       start: sub(new Date(), { hours: 24 }),
       end: new Date(),
     }
-    fetchPhotos()
+    loadPhotos()
   }
 
-  function selectPhoto(photo: (typeof photos.value)[0]) {
+  function selectPhoto(photo: PhotoWithDetails) {
     const index = photos.value.findIndex((p) => p.id === photo.id)
     if (index !== -1) {
       currentIndex.value = index
@@ -132,7 +106,7 @@
   }
 
   onMounted(() => {
-    fetchPhotos()
+    loadPhotos()
     window.addEventListener('keydown', handleKeydown)
   })
 
@@ -141,24 +115,27 @@
   })
 
   watch(deviceId, () => {
-    fetchPhotos()
+    loadPhotos()
   })
 </script>
 
 <template>
   <div class="h-full flex flex-col p-4 gap-4">
     <div
-      class="flex items-center gap-4 bg-elevated border border-default rounded-xl p-4"
+      class="flex items-center flex-wrap gap-4 bg-elevated border border-default rounded-xl p-4"
     >
       <div class="flex items-center gap-2">
-        <span class="text-sm text-muted">时间范围：</span>
+        <span class="text-sm text-muted">开始日期：</span>
         <UInput
           v-model="dateStart"
           type="date"
           size="sm"
           class="w-36"
         />
-        <span class="text-muted">至</span>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span class="text-sm text-muted">结束日期：</span>
         <UInput
           v-model="dateEnd"
           type="date"
@@ -167,23 +144,22 @@
         />
       </div>
 
-      <div class="flex items-center gap-2">
-        <UButton
-          size="sm"
-          icon="i-lucide-search"
-          @click="handleSearch"
-        >
-          查找
-        </UButton>
-        <UButton
-          size="sm"
-          variant="soft"
-          icon="i-lucide-x"
-          @click="handleClear"
-        >
-          清除
-        </UButton>
-      </div>
+      <UButton
+        size="sm"
+        icon="i-lucide-search"
+        @click="handleSearch"
+      >
+        查找
+      </UButton>
+
+      <UButton
+        size="sm"
+        color="secondary"
+        icon="i-lucide-x"
+        @click="handleClear"
+      >
+        清除
+      </UButton>
     </div>
 
     <div
@@ -196,42 +172,46 @@
         <div class="text-center text-muted">
           <UIcon
             name="i-lucide-loader-2"
-            class="w-8 h-8 animate-spin mb-2 mx-auto"
+            class="w-12 h-12 animate-spin mx-auto mb-2"
           />
-          <p>加载照片中...</p>
+          <p>加载中...</p>
         </div>
       </div>
 
       <div
-        v-else-if="error"
+        v-else-if="errorMsg || error"
         class="flex items-center justify-center h-full"
       >
         <div class="text-center text-error">
           <UIcon
             name="i-lucide-alert-circle"
+            class="w-12 h-12 mx-auto mb-2"
+          />
+          <p>{{ errorMsg || error }}</p>
+        </div>
+      </div>
+
+      <div
+        v-else-if="photos.length === 0"
+        class="flex items-center justify-center h-full"
+      >
+        <div class="text-center text-muted">
+          <UIcon
+            name="i-lucide-image-off"
             class="w-12 h-12 mx-auto mb-2 opacity-50"
           />
-          <p>{{ error }}</p>
-          <UButton
-            color="error"
-            variant="soft"
-            size="sm"
-            class="mt-2"
-            @click="fetchPhotos"
-          >
-            重试
-          </UButton>
+          <p>暂无照片</p>
         </div>
       </div>
 
       <div
         v-else
-        class="grid grid-cols-4 gap-4"
+        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
       >
         <div
           v-for="photo in photos"
           :key="photo.id"
-          class="aspect-video bg-muted/20 rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary transition-all"
+          class="relative aspect-square rounded-lg overflow-hidden cursor-pointer group hover:ring-2 hover:ring-primary transition-all"
           @click="selectPhoto(photo)"
         >
           <img
@@ -239,85 +219,91 @@
             :alt="photo.name"
             class="w-full h-full object-cover"
           />
-        </div>
-      </div>
-
-      <div
-        v-if="!isLoading && !error && photos.length === 0"
-        class="flex-1 flex items-center justify-center h-full"
-      >
-        <div class="text-center text-muted">
-          <UIcon
-            name="i-lucide-image-off"
-            class="w-12 h-12 mx-auto mb-2"
-          />
-          <p>暂无照片数据</p>
+          <div
+            class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
+          >
+            <div class="absolute bottom-2 left-2 right-2 text-white text-xs">
+              <p class="truncate">{{ photo.name }}</p>
+              <p class="text-white/70">{{ photo.time }}</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
     <Teleport to="body">
       <Transition
-        enter-active-class="transition-opacity duration-200"
-        enter-from-class="opacity-0"
-        enter-to-class="opacity-100"
-        leave-active-class="transition-opacity duration-200"
-        leave-from-class="opacity-100"
-        leave-to-class="opacity-0"
+        name="fade"
+        mode="out-in"
       >
         <div
           v-if="isFullscreen && selectedPhoto"
-          class="fixed inset-0 z-50 flex items-center justify-center bg-black/90"
+          class="fixed inset-0 z-50 bg-black/90 flex items-center justify-center"
           @click.self="closeFullscreen"
         >
           <button
-            class="absolute top-4 right-4 p-2 text-white/70 hover:text-white transition-colors"
+            class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
             @click="closeFullscreen"
           >
             <UIcon
               name="i-lucide-x"
-              class="w-8 h-8"
+              class="w-6 h-6"
             />
           </button>
 
           <button
             v-if="currentIndex > 0"
-            class="absolute left-4 p-2 text-white/70 hover:text-white transition-colors"
+            class="absolute left-4 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
             @click="prevPhoto"
           >
             <UIcon
               name="i-lucide-chevron-left"
-              class="w-10 h-10"
+              class="w-8 h-8"
             />
           </button>
 
           <button
             v-if="currentIndex < photos.length - 1"
-            class="absolute right-4 p-2 text-white/70 hover:text-white transition-colors"
+            class="absolute right-4 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
             @click="nextPhoto"
           >
             <UIcon
               name="i-lucide-chevron-right"
-              class="w-10 h-10"
+              class="w-8 h-8"
             />
           </button>
 
-          <div class="max-w-6xl max-h-[90vh] mx-4">
+          <div class="max-w-5xl max-h-[90vh]">
             <img
               :src="selectedPhoto.url"
               :alt="selectedPhoto.name"
-              class="max-w-full max-h-[80vh] object-contain rounded-lg"
+              class="max-w-full max-h-[90vh] object-contain"
             />
-            <div class="mt-4 text-center text-white">
-              <p class="text-lg font-medium">{{ selectedPhoto.name }}</p>
-              <p class="text-sm text-white/60 mt-1">{{ selectedPhoto.time }}</p>
-              <p class="text-xs text-white/40 mt-2">
-                {{ currentIndex + 1 }} / {{ photos.length }}
-              </p>
+            <div class="text-white text-center mt-4">
+              <p class="text-lg">{{ selectedPhoto.name }}</p>
+              <p class="text-white/70">{{ selectedPhoto.time }}</p>
             </div>
+          </div>
+
+          <div
+            class="absolute bottom-4 left-1/2 -translate-x-1/2 text-white text-sm"
+          >
+            {{ currentIndex + 1 }} / {{ photos.length }}
           </div>
         </div>
       </Transition>
     </Teleport>
   </div>
 </template>
+
+<style scoped>
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity 0.2s ease;
+  }
+
+  .fade-enter-from,
+  .fade-leave-to {
+    opacity: 0;
+  }
+</style>

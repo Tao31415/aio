@@ -44,7 +44,16 @@ export class MqttHttpController {
   @Get('tunnel-monitoring')
   @ApiOperation({ summary: '查询隧道监测数据' })
   @ApiQuery({ name: 'sn', required: false, description: '设备序列号' })
-  @ApiQuery({ name: 'ringNumber', required: false, description: '环号' })
+  @ApiQuery({
+    name: 'ringNumber',
+    required: false,
+    description: '环号（单个）',
+  })
+  @ApiQuery({
+    name: 'ringNumbers',
+    required: false,
+    description: '多个环号（逗号分隔）',
+  })
   @ApiQuery({
     name: 'startTime',
     required: false,
@@ -60,6 +69,7 @@ export class MqttHttpController {
     const data = await this.tunnelMonitoringService.query({
       sn: query.sn,
       ringNumber: query.ringNumber,
+      ringNumbers: query.ringNumbers,
       startTime: query.startTime
         ? new Date(query.startTime as unknown as string)
         : undefined,
